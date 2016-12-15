@@ -158,11 +158,11 @@ if (!$validated) {
                                                         <form class="navbar-form" method="post" action="http://mycodebusters.com/lms/login/index.php?authldap_skipntlmsso=1">
 
                                                             <div class="row-fluid" style="">	
-                                                                <span class="span12" style="padding-bottom:15px;padding-left:35px;"><input id="inputName" class="span2" type="text" name="username" placeholder="Username" style="width:435px;height:35px; "></span>
+                                                                <span class="span12" style="padding-bottom:15px;padding-left:35px;"><input id="inputName" class="span2" type="text" name="username" placeholder="Username or Email" required style="width:435px;height:35px; "></span>
                                                             </div>   
 
                                                             <div class="row-fluid">
-                                                                <span class="span12" style="padding-bottom:15px;padding-left:35px"><input id="inputPassword" class="span2" type="password" name="password" id="password" placeholder="Password" style="width:435px;height:35px;"></span>
+                                                                <span class="span12" style="padding-bottom:15px;padding-left:35px"><input id="inputPassword" class="span2" type="password" name="password" id="password" placeholder="Password" required style="width:435px;height:35px;"></span>
                                                             </div>
 
                                                             <div class="row-fluid">
@@ -186,7 +186,7 @@ if (!$validated) {
             </div>
 
             <footer id="page-footer" class="container-fluid">
-                <div class="row-fluid" >
+                <div class="row-fluid">
                     <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Terms & Conditions</a></span>
                     <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Privacy Policy</a></span>
                 </div>
