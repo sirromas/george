@@ -57,15 +57,16 @@ if (strpos($checkuseragent, 'MSIE 8')) {$username = str_replace("'", "&prime;", 
             <?php if (!$haslogo) { ?>
             	<div class="span6">
                 	<div class="title-text">
-              		<h1 id="title"><?php echo $SITE->fullname; ?></h1>
+              		<h1 id="title"><img src="http://practiceindex.co.uk/skin/frontend/default/practiceindex/images/logo.png"></h1>
                     </div>
                 </div>
             <?php } else { ?>
             	<div class="span6">
                 <div class="logo-header">
                 	<a class="logo" href="<?php echo $CFG->wwwroot; ?>" title="<?php print_string('home'); ?>">
+                            
                     <?php 
-					echo html_writer::empty_tag('img', array('src'=>$PAGE->theme->setting_file_url('logo', 'logo'), 'class'=>'img-responsive', 'alt'=>'logo'));
+					//echo html_writer::empty_tag('img', array('src'=>$PAGE->theme->setting_file_url('logo', 'logo'), 'class'=>'img-responsive', 'alt'=>'logo'));
 					?>
                     </a>
                 </div>
