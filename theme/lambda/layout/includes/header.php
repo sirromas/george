@@ -130,10 +130,27 @@ if (strpos($checkuseragent, 'MSIE 8')) {$username = str_replace("'", "&prime;", 
  
 	<?php } else {
 
+                /*
+                 * 
  		echo '<div id="loggedin-user">';		
 		echo $OUTPUT->user_menu();
 		echo $OUTPUT->user_picture($USER, array('size' => 80, 'class' => 'welcome_userpicture'));		
 		echo '</div>';
+                 * 
+                 */
+            
+            
+            echo "<div class='row-fluid' style=''>
+                  <span class='span12' style='text-align:right;'><a style='cursor: pointer;color:grey;'>About us</a> | <a style='cursor: pointer;color:grey;'>FAQs</a> | <a style='cursor: pointer;color:grey;'>Contact us</a></span>
+                  </div>
+                  
+                  <div class='row-fluid' style=''>
+                  <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>0207 0995510</span>
+                  </div>
+
+                  <div class='row-fluid' style=''>
+                  <span class='span12' style='color: #EBA600;text-align: right;'><a href='mailto:support@practiceindex.co.uk' style='font-size:18px;'>support@practiceindex.co.uk</a></span>
+                  </div>";
 
 	}?>
 
@@ -149,6 +166,7 @@ if (strpos($checkuseragent, 'MSIE 8')) {$username = str_replace("'", "&prime;", 
     <nav role="navigation" class="navbar-inner">
         <div class="container-fluid">
             <?php
+                /*
                 if ($home_button == 'shortname') { 
                     $home_button_string = '<a class="brand" href="'.$CFG->wwwroot.'">'.$SITE->shortname.'</a>'; 
                 }
@@ -164,8 +182,10 @@ if (strpos($checkuseragent, 'MSIE 8')) {$username = str_replace("'", "&prime;", 
                     }
                 }
                 else { // Fallback, should not happen
-                    $home_button_string = '<a class="brand" href="'.$CFG->wwwroot.'">'.$SITE->shortname.'</a>'; 
+                    $home_button_string = '<a class="brand" href="'.$CFG->wwwroot.'">Home</a>'; 
                 }
+                */
+                $home_button_string = '<a class="brand" href="'.$CFG->wwwroot.'">Home</a>'; 
                 echo $home_button_string;
             ?>
             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -185,14 +205,26 @@ if (strpos($checkuseragent, 'MSIE 8')) {$username = str_replace("'", "&prime;", 
 					if (!empty($CFG->enableglobalsearch) && has_capability('moodle/search:query', context_system::instance())) {
 						$moodle_global_search = 1;
 					}
+                                        
+                                        
+                                        
 				}?>
-                
+                <!--
                 <form id="search" action="<?php if ($moodle_global_search) {echo $CFG->wwwroot.'/search/index.php';} else {echo $CFG->wwwroot.'/course/search.php';} ?>" >
                 <div class="nav-divider-left"></div>							
 					<input id="coursesearchbox" type="text" onFocus="if(this.value =='<?php if ($moodle_global_search) {echo get_string('search', 'search');} else {echo get_string('searchcourses');} ?>' ) this.value=''" onBlur="if(this.value=='') this.value='<?php if ($moodle_global_search) {echo get_string('search', 'search');} else {echo get_string('searchcourses');} ?>'" value="<?php if ($moodle_global_search) {echo get_string('search', 'search');} else {echo get_string('searchcourses');} ?>" <?php if ($moodle_global_search) {echo 'name="q"';} else {echo 'name="search"';} ?> >
 					<input type="submit" value="">							
-				</form>
+                </form>
+                -->
                 
+                <ul class='nav pull-right'>                   
+                            <li class='dropdown'><a title='Account' class='dropdown-toggle' href='#cm_submenu_2'>Account<b class='caret'></b></a>
+                                <ul class='dropdown-menu'>                                
+                                    <li><a href="/lms/login/logout.php?seskey='gqe32fe3'" title='Logout'>Logout</a></li>
+                                    <!--<li><a><i class="fa fa-road" aria-hidden="true"></i></a></li>-->
+                                </ul>
+                            </li>
+                 </ul>
             </div>
         </div>
     </nav>
