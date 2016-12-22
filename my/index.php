@@ -157,9 +157,15 @@ if (empty($CFG->forcedefaultmymoodle) && $PAGE->user_allowed_editing()) {
         $resetbutton = $OUTPUT->single_button($reseturl, $resetstring);
     }
 
+    /*
+     * 
     $url = new moodle_url("$CFG->wwwroot/my/index.php", $params);
     $button = $OUTPUT->single_button($url, $editstring);
-    //$PAGE->set_button($resetbutton . $button);
+    if ($USER->id == 2) {
+        $PAGE->set_button($resetbutton . $button);
+    }
+     * 
+     */
 } // end if empty($CFG->forcedefaultmymoodle) && $PAGE->user_allowed_editing()
 else {
     $USER->editing = $edit = 0;
