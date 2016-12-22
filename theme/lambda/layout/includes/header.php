@@ -124,22 +124,20 @@ if (strpos($checkuseragent, 'MSIE 8')) {
                             </div>
                         <?php } else { ?>
 
-                            <form class="navbar-form pull-right" method="post" action="<?php echo $wwwroot; ?>/login/index.php?authldap_skipntlmsso=1">
-                                <div id="block-login">
-                                    <label id="user"><i class="fa fa-user"></i></label>	
-                                    <input id="inputName" class="span2" type="text" name="username" placeholder="<?php echo $username; ?>">
-                                    <label id="pass"><i class="fa fa-key"></i></label>
-                                    <input id="inputPassword" class="span2" type="password" name="password" id="password" placeholder="<?php echo get_string('password'); ?>">
-                                    <input type="submit" id="submit" name="submit" value=""/>
+                            <div class="profileblock">
+
+                                <div class="row-fluid" style="">
+                                    <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;'>About us</a> | <a style='cursor: pointer;color:grey;'>FAQs</a> | <a style='cursor: pointer;color:grey;'>Contact us</a></span>
+                                </div>
+                                <div class="row-fluid" style="">
+                                    <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>0207 0995510</span>
                                 </div>
 
-                                <div class="forgotpass">
-                                    <?php if ($login_link_url != '' and $login_link_txt != '') { ?>
-                                        <a target="_self" href="<?php echo $login_link_url; ?>"><?php echo $login_link_txt; ?></a>
-                                    <?php } ?> 
+                                <div class="row-fluid" style="">
+                                    <span class='span12' style='color: #EBA600;text-align: right;'><a href='mailto:support@practiceindex.co.uk' style="font-size:18px;">support@practiceindex.co.uk</a></span>
                                 </div>
 
-                            </form>
+                            </div>
                         <?php } ?>
 
                         <?php
