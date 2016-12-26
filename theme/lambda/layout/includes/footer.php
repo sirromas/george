@@ -22,7 +22,6 @@
  * @copyright 2016 redPIthemes
  *
  */
- 
 $footerl = 'footer-left';
 $footerm = 'footer-middle';
 $footerr = 'footer-right';
@@ -31,30 +30,20 @@ $hasfootnote = (empty($PAGE->theme->settings->footnote)) ? false : $PAGE->theme-
 $hasfooterleft = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->region_has_content('footer-left', $OUTPUT));
 $hasfootermiddle = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->region_has_content('footer-middle', $OUTPUT));
 $hasfooterright = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->region_has_content('footer-right', $OUTPUT));
-
 ?>
-	<div class="row-fluid">
-		<?php
-            		echo $OUTPUT->footerblocks($footerl, 'span4');
+<div class="row-fluid">
+    <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Terms & Conditions</a></span>
+    <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Privacy Policy</a></span>
+</div>
 
-            		echo $OUTPUT->footerblocks($footerm, 'span4');
+<div class="footerlinks">
+    <div class="row-fluid">
+        <p style="text-align:center;color: #bdc3c7;">&copy; Copyright 2017 - Practice Index Ltd All rights reserved</p>
+    </div>
 
-            		echo $OUTPUT->footerblocks($footerr, 'span4');
-		?>
- 	</div>
+    <?php if ($PAGE->theme->settings->socials_position == 0) { ?>
+        <?php require_once(dirname(__FILE__) . '/socials.php'); ?>
+    <?php }
+    ?>
 
-	<div class="footerlinks">
-    	<div class="row-fluid">
-    		<!--<p class="helplink"><?php echo page_doc_link(get_string('moodledocslink')); ?></p>-->
-    		<?php if ($hasfootnote) {
-				$footnote_HTML = format_text($hasfootnote,FORMAT_HTML);
-        		echo '<div class="footnote">'.$footnote_HTML.'</div>';
-    		} ?>
-		</div>
-        
-        <?php if($PAGE->theme->settings->socials_position==0) { ?>
-    		<?php require_once(dirname(__FILE__).'/socials.php');?>
-    	<?php
-		} ?>
-        
-   	</div>
+</div>

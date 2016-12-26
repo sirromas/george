@@ -40,15 +40,8 @@ $username = get_string('username');
 if (strpos($checkuseragent, 'MSIE 8')) {
     $username = str_replace("'", "&prime;", $username);
 }
-?>
 
-<?php if ($PAGE->theme->settings->socials_position == 1) { ?>
-    <div class="container-fluid socials-header"> 
-        <?php require_once(dirname(__FILE__) . '/socials.php'); ?>
-    </div>
-<?php }
 ?>
-
 <header id="page-header" class="clearfix">
 
     <div class="container-fluid">    
@@ -67,7 +60,7 @@ if (strpos($checkuseragent, 'MSIE 8')) {
                         <a class="logo" href="<?php echo $CFG->wwwroot; ?>" title="<?php print_string('home'); ?>">
 
                             <?php
-                            //echo html_writer::empty_tag('img', array('src'=>$PAGE->theme->setting_file_url('logo', 'logo'), 'class'=>'img-responsive', 'alt'=>'logo'));
+                            echo html_writer::empty_tag('img', array('src'=>$PAGE->theme->setting_file_url('logo', 'logo'), 'class'=>'img-responsive', 'alt'=>'logo'));
                             ?>
                         </a>
                     </div>

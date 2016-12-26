@@ -60,7 +60,7 @@ if (!$validated) {
         <div id="wrapper">
 
 
-            <header id="page-header" class="clearfix">
+            <header id="page-header" class="clearfix" style="padding: 12px 0">
 
                 <div class="container-fluid">    
                     <div class="row-fluid">
@@ -95,7 +95,7 @@ if (!$validated) {
 
             </header>
 
-            <header role="banner" class="navbar">
+            <header role="banner" class="navbar" style="padding-top:10px;">
                 <nav role="navigation" class="navbar-inner">
                     <div class="container-fluid">
                         <a class="brand" href="http://<?php echo $host; ?>/lms">Home</a>            
