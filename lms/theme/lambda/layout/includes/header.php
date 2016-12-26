@@ -40,8 +40,10 @@ $username = get_string('username');
 if (strpos($checkuseragent, 'MSIE 8')) {
     $username = str_replace("'", "&prime;", $username);
 }
-
+$host = $_SERVER['SERVER_NAME'];
 ?>
+
+<script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/nav.js"></script>
 <header id="page-header" class="clearfix">
 
     <div class="container-fluid">    
@@ -60,7 +62,7 @@ if (strpos($checkuseragent, 'MSIE 8')) {
                         <a class="logo" href="<?php echo $CFG->wwwroot; ?>" title="<?php print_string('home'); ?>">
 
                             <?php
-                            echo html_writer::empty_tag('img', array('src'=>$PAGE->theme->setting_file_url('logo', 'logo'), 'class'=>'img-responsive', 'alt'=>'logo'));
+                            echo html_writer::empty_tag('img', array('src' => $PAGE->theme->setting_file_url('logo', 'logo'), 'class' => 'img-responsive', 'alt' => 'logo'));
                             ?>
                         </a>
                     </div>
@@ -120,7 +122,7 @@ if (strpos($checkuseragent, 'MSIE 8')) {
                             <div class="profileblock">
 
                                 <div class="row-fluid" style="">
-                                    <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;'>About us</a> | <a style='cursor: pointer;color:grey;'>FAQs</a> | <a style='cursor: pointer;color:grey;'>Contact us</a></span>
+                                    <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/about">About us</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/faq">FAQs</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/contact">Contact us</a></span>
                                 </div>
                                 <div class="row-fluid" style="">
                                     <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>0207 0995510</span>
@@ -137,10 +139,8 @@ if (strpos($checkuseragent, 'MSIE 8')) {
                     }
                     // your case is here ....
                     else {
-
-
                         echo "<div class='row-fluid' style=''>
-                  <span class='span12' style='text-align:right;'><a style='cursor: pointer;color:grey;'>About us</a> | <a style='cursor: pointer;color:grey;'>FAQs</a> | <a style='cursor: pointer;color:grey;'>Contact us</a></span>
+                  <span class='span12' style='text-align:right;'><a style='cursor: pointer;color:grey;' href='http://$host/index.php/index/about'>About us</a> | <a style='cursor: pointer;color:grey;' href='http://$host/index.php/index/faq'>FAQs</a> | <a style='cursor: pointer;color:grey;' href='http://$host/index.php/index/contact'>Contact us</a></span>
                   </div>
                   
                   <div class='row-fluid' style=''>
@@ -167,27 +167,27 @@ if (strpos($url, 'forgot_password.php')) {
     ?>
     <header role="banner" class="navbar">
         <nav role="navigation" class="navbar-inner">
-                    <div class="container-fluid">
-                        <a class="brand" href="http://<?php echo $host; ?>/lms">Home</a>            
-                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </a>
-                        <div class="nav-collapse collapse">
-                            <ul class="nav pull-left">
-                                <li><a style='cursor: pointer;'>eLearning Suites</a></li>
-                                <li><a style='cursor: pointer;'>News</a></li>
-                                <li><a style='cursor: pointer;'>FAQs</a></li>
-                                <li><a style='cursor: pointer;'>Testimonials</a></li>
-                                <li><a style='cursor: pointer;'>Our Policies</a></li>
-                                <li><a style='cursor: pointer;'>Subscribe</a></li>
-                                <li><a style='cursor: pointer;'>About Us</a></li>
-                                <li><a style='cursor: pointer;'>Contact Us</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
+            <div class="container-fluid">
+                <a class="brand" href="http://<?php echo $host; ?>/lms">Home</a>            
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <div class="nav-collapse collapse">
+                    <ul class="nav pull-left">
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/elearning_suites">eLearning Suites</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/news">News</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/faq">FAQs</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/testimonials">Testimonials</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/policies">Our Policies</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/subscribe">Subscribe</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/about">About Us</a></li>
+                        <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
 <?php } ?>
 <?php if ($shadow_effect) { ?>

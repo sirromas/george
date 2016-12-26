@@ -50,6 +50,7 @@ if (!$validated) {
         <script type="text/javascript" src="http://<?php echo $host; ?>/lms/theme/jquery.php/theme_lambda/camera.min.js"></script>
         <script type="text/javascript" src="http://<?php echo $host; ?>/lms/theme/jquery.php/theme_lambda/jquery.bxslider.js"></script>
         <script type="text/javascript" src="http://<?php echo $host; ?>/lms/lib/javascript.php/1481653553/lib/javascript-static.js"></script>
+        <script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/custom.js"></script>
         <script type="text/javascript">
             //<![CDATA[
             document.body.className += ' jsenabled';

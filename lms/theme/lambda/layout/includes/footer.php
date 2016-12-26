@@ -32,8 +32,8 @@ $hasfootermiddle = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->r
 $hasfooterright = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->region_has_content('footer-right', $OUTPUT));
 ?>
 <div class="row-fluid">
-    <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Terms & Conditions</a></span>
-    <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;">Privacy Policy</a></span>
+    <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://<?php echo $host; ?>/index.php/index/terms">Terms & Conditions</a></span>
+    <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://<?php echo $host; ?>/index.php/index/privacy">Privacy Policy</a></span>
 </div>
 
 <div class="footerlinks">
