@@ -59,7 +59,6 @@ if (!$validated) {
 
         <div id="wrapper">
 
-
             <header id="page-header" class="clearfix" style="padding: 12px 0">
 
                 <div class="container-fluid">    
@@ -77,7 +76,7 @@ if (!$validated) {
                             <div class="profileblock">
 
                                 <div class="row-fluid" style="">
-                                    <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;'>About us</a> | <a style='cursor: pointer;color:grey;'>FAQs</a> | <a style='cursor: pointer;color:grey;'>Contact us</a></span>
+                                    <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/about">About us</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/faq">FAQs</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/contact">Contact us</a></span>
                                 </div>
                                 <div class="row-fluid" style="">
                                     <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>0207 0995510</span>
@@ -98,7 +97,7 @@ if (!$validated) {
             <header role="banner" class="navbar" style="padding-top:10px;">
                 <nav role="navigation" class="navbar-inner">
                     <div class="container-fluid">
-                        <a class="brand" href="http://<?php echo $host; ?>/lms">Home</a>            
+                        <a class="brand" href="http://<?php echo $host; ?>/">Home</a>            
                         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
@@ -106,14 +105,14 @@ if (!$validated) {
                         </a>
                         <div class="nav-collapse collapse">
                             <ul class="nav pull-left">
-                                <li><a style='cursor: pointer;'>eLearning Suites</a></li>
-                                <li><a style='cursor: pointer;'>News</a></li>
-                                <li><a style='cursor: pointer;'>FAQs</a></li>
-                                <li><a style='cursor: pointer;'>Testimonials</a></li>
-                                <li><a style='cursor: pointer;'>Our Policies</a></li>
-                                <li><a style='cursor: pointer;'>Subscribe</a></li>
-                                <li><a style='cursor: pointer;'>About Us</a></li>
-                                <li><a style='cursor: pointer;'>Contact Us</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/elearning_suites">eLearning Suites</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/news">News</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/faq">FAQs</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/testimonials">Testimonials</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/policies" >Our Policies</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/subscribe">Subscribe</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/about">About Us</a></li>
+                                <li><a style='cursor: pointer;' href="http://<?php echo $host; ?>/index.php/index/contact">Contact Us</a></li>
                             </ul>
                         </div>
                     </div>

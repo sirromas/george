@@ -46,6 +46,17 @@ class Index_model extends CI_Model {
 
                                                     </div>
                                                 </div></div></div></div></div></div></div></li>";
+        $list.="</div>";
+
+        return $list;
+    }
+
+    function get_elearning_suites_page() {
+        $list = "";
+
+        $list.="<div class='row-fluid' style=''>";
+        $list.="<span class='span6'>aaaAAAA ...</a>";
+        $list.="</div>";
 
         return $list;
     }
