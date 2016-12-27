@@ -2,7 +2,13 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/Pages.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/News.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/certificates/classes/Certificate.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Courses.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Profile.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/eTraining.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/rTraining.php';
 
 /**
  * Description of Navigation
@@ -16,16 +22,6 @@ class Navigation extends Utils {
     function __construct() {
         parent::__construct();
         $this->classes_path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom';
-    }
-
-    function require_all_files($root) {
-        $d = new RecursiveDirectoryIterator($root);
-        foreach (new RecursiveIteratorIterator($d) as $file => $f) {
-            $ext = pathinfo($f, PATHINFO_EXTENSION);
-            if ($ext == 'php' || $ext == 'inc') {
-                require_once ($file);
-            }
-        }
     }
 
     function get_user_dashboard() {
@@ -56,6 +52,7 @@ class Navigation extends Utils {
         $list = "";
         $sesskey = $this->user->sesskey;
         $p = new Pages();
+        $n = new News();
         $pages = $p->get_user_site_pages();
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
