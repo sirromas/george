@@ -36,7 +36,7 @@
  */
 require_once(dirname(__FILE__) . '/../config.php');
 require_once($CFG->dirroot . '/my/lib.php');
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/Navigation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Navigation.php';
 
 redirect_if_major_upgrade_required();
 
@@ -159,11 +159,11 @@ if (empty($CFG->forcedefaultmymoodle) && $PAGE->user_allowed_editing()) {
 
     /*
      * 
-    $url = new moodle_url("$CFG->wwwroot/my/index.php", $params);
-    $button = $OUTPUT->single_button($url, $editstring);
-    if ($USER->id == 2) {
-        $PAGE->set_button($resetbutton . $button);
-    }
+      $url = new moodle_url("$CFG->wwwroot/my/index.php", $params);
+      $button = $OUTPUT->single_button($url, $editstring);
+      if ($USER->id == 2) {
+      $PAGE->set_button($resetbutton . $button);
+      }
      * 
      */
 } // end if empty($CFG->forcedefaultmymoodle) && $PAGE->user_allowed_editing()

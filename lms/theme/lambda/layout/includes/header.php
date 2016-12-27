@@ -43,7 +43,10 @@ if (strpos($checkuseragent, 'MSIE 8')) {
 $host = $_SERVER['SERVER_NAME'];
 ?>
 
+<script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.js"></script>
 <script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/nav.js"></script>
+
 <header id="page-header" class="clearfix">
 
     <div class="container-fluid">    

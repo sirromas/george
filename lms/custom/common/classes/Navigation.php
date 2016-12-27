@@ -1,6 +1,8 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/Pages.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
 
 /**
  * Description of Navigation
@@ -9,8 +11,21 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/Utils.php';
  */
 class Navigation extends Utils {
 
+    public $classes_path;
+
     function __construct() {
         parent::__construct();
+        $this->classes_path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom';
+    }
+
+    function require_all_files($root) {
+        $d = new RecursiveDirectoryIterator($root);
+        foreach (new RecursiveIteratorIterator($d) as $file => $f) {
+            $ext = pathinfo($f, PATHINFO_EXTENSION);
+            if ($ext == 'php' || $ext == 'inc') {
+                require_once ($file);
+            }
+        }
     }
 
     function get_user_dashboard() {
@@ -40,7 +55,8 @@ class Navigation extends Utils {
     function get_admin_dashboard() {
         $list = "";
         $sesskey = $this->user->sesskey;
-
+        $p = new Pages();
+        $pages = $p->get_user_site_pages();
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -56,7 +72,7 @@ class Navigation extends Utils {
           <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
         </ul>";
 
-        $list.="<div class = 'tab-content'>
+        $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
           <div id = 'dash' class = 'tab-pane fade in active'>
             <h3>Dashboard</h3>
             <p>Some content.</p>
@@ -94,8 +110,7 @@ class Navigation extends Utils {
             <p>Some content.</p>
           </div>
           <div id = 'pages' class = 'tab-pane fade'>
-            <h3>Site Pages</h3>
-            <p>Some content.</p>
+            $pages
           </div>
           <div id = 'help' class = 'tab-pane fade'>
             <h3>Help</h3>
