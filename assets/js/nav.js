@@ -45,7 +45,10 @@ $(document).ready(function () {
         }
 
         if (event.target.id == 'suite_back') {
-            document.location.reload();
+            var url = "/lms/custom/admin/get_site_pages.php";
+            $.post(url, {id: id}).done(function (data) {
+                $('#pages').html(data);
+            });
         }
 
         if (event.target.id == 'cancel') {
