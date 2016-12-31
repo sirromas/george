@@ -46,6 +46,12 @@ $host = $_SERVER['SERVER_NAME'];
 <script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.js"></script>
 <script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/nav.js"></script>
+<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.js'></script>
+<script type='text/javascript' src='http://<?php echo $host; ?>/assets/pagination/jquery.simplePagination.js'></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.6/adapters/standalone-framework.js"></script>
+<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.6/css/highcharts.css" />
+<link type='text/css' rel='stylesheet' href='http://<?php echo $host; ?>/assets/pagination/simplePagination.css'/>
+
 
 <header id="page-header" class="clearfix">
 
