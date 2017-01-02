@@ -10,10 +10,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 class Pages extends Utils {
 
     public $file_path;
+    public $total;
 
     function __construct() {
         parent::__construct();
         $this->file_path = $_SERVER['DOCUMENT_ROOT'] . '/assets/img';
+        $this->limit = 3;
     }
 
     function get_page_list() {
@@ -91,36 +93,97 @@ class Pages extends Utils {
 
     function get_elearning_suites_page($id) {
         $list = "";
-        $list.="<div class='container-fluid' style='text-align:left;'>";
-        $list.="<span class='span1'><button id='add_suite'>Add</button></span>";
-        $list.="<span class='span1'><button id='suite_back'>Back</button></span>";
-        $list.="</div><br>";
-
-        $query = "select * from uk_elearning_suites order by title";
+        $query = "select * from uk_elearning_suites order by title limit 0, $this->limit";
         $num = $this->db->numrows($query);
-        $list.="<div id='suites_container'>";
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $s = new stdClass();
+                foreach ($row as $key => $value) {
+                    $s->$key = $value;
+                }
+                $suites[] = $s;
+            } // end while
+        } // end if $num > 0
+        $list.=$this->create_suites_page($suites);
+        return $list;
+    }
+
+    function create_suites_page($suites, $toolbar = true) {
+        $list = "";
+
+        if ($toolbar) {
+            $list.="<div class='container-fluid' style='text-align:left;'>";
+            $list.="<span class='span1'><button id='add_suite'>Add</button></span>";
+            $list.="<span class='span1'><button id='suite_back'>Back</button></span>";
+            $list.="</div><br>";
+        }
+
+        if (count($suites) > 0) {
+            $list.="<div id='suites_container'>";
+            foreach ($suites as $s) {
                 $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
-                $list.="<span class='span1'><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/" . $row['img_path'] . "' width='25px' height='25px'></span>";
-                $list.="<span class='span3'>" . $row['title'] . "</span>";
-                $list.="<span class='span1'><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;' id='suite_edit_" . $row['id'] . "'></i></span>";
-                $list.="<span class='span1'><i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;' id='suite_del_" . $row['id'] . "'></i></span>";
+                $list.="<span class='span1'><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/" . $s->img_path . "' width='25px' height='25px'></span>";
+                $list.="<span class='span3'>" . $s->title . "</span>";
+                $list.="<span class='span1'><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;' id='suite_edit_" . $s->id . "'></i></span>";
+                $list.="<span class='span1'><i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;' id='suite_del_" . $s->id . "'></i></span>";
                 $list.="</div>";
                 $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
                 $list.="<span class='span8'><hr/></span>";
                 $list.="</div>";
-            }
-        } // end if
+            } // end foreach
+            $list.="</div>";
+        } // end if count($suites) > 0
         else {
             $list.="<div class='container-fluid' style='text-align:left;'>";
             $list.="<span class='span9'>There are no any suites added</span>";
             $list.="</div>";
-        } // end else
-        $list.="</div>";
-
+        }
+        if ($toolbar) {
+            $list.="<div class='container-fluid' style='text-align:left;'>";
+            $list.="<span class='span6' id='suites_pagination'></span>";
+            $list.="</div>";
+        }
         return $list;
+    }
+
+    function get_suite_item($page) {
+        $suites = array();
+        $rec_limit = $this->limit;
+        if ($page == 1) {
+            $offset = 0;
+        } // end if $page==1
+        else {
+            $page = $page - 1;
+            $offset = $rec_limit * $page;
+        }
+        $query = "select * from uk_elearning_suites "
+                . "order by title LIMIT $offset, $rec_limit";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $s = new stdClass();
+            foreach ($row as $key => $value) {
+                $s->$key = $value;
+            } // end foreach
+            $suites[] = $s;
+        } // end while
+        $list = $this->create_suites_page($suites, false);
+        return $list;
+    }
+
+    function get_total_suites() {
+        $query = "select count(id) as total from uk_elearning_suites ";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $total = $row['total'];
+            }
+        } // end if
+        else {
+            $total = 0;
+        }
+        return $total;
     }
 
     function get_add_suite_dialog() {

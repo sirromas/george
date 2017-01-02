@@ -24,8 +24,7 @@ $(document).ready(function () {
             var url = "/lms/custom/admin/get_site_page.php";
             $.post(url, {id: id}).done(function (data) {
                 $('#pages').html(data);
-            });
-
+            }); // end of post
         }
 
         if ($(event.target).attr('class') == 'cancel-edit-pages') {
