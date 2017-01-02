@@ -1,6 +1,6 @@
 <?php
 
-require_once './classes/Pages.php';
-$p = new Pages();
+require_once './classes/Suites.php';
+$l = new Suites();
 $id = $_POST['id'];
-$p->del_suite($id);
+$l->del_suite($id);

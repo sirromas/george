@@ -1,11 +1,17 @@
 <?php
 require_once './classes/Pages.php';
 require_once './classes/News.php';
+require_once './classes/Suites.php';
+require_once './classes/Requests.php';
+require_once './classes/Subscribers.php';
 $p = new Pages();
 $n = new News();
+$l = new Suites();
+$r = new Requests();
+$s = new Subscribers();
 $id = $_POST['id'];
 $list = $p->get_site_page($id);
-$total = $p->get_total_suites();
+$total = $l->get_total_suites();
 $total2 = $n->get_total_news();
 echo $list;
 ?>

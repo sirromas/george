@@ -1,7 +1,7 @@
 <?php
 
-require_once './classes/Pages.php';
-$p = new Pages();
+require_once './classes/Suites.php';
+$l = new Suites();
 $id = $_POST['id'];
-$list = $p->get_edit_suite_dialog($id);
+$list = $l->get_edit_suite_dialog($id);
 echo $list;

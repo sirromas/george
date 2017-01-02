@@ -1,8 +1,10 @@
 <?php
 require_once './classes/Pages.php';
+require_once './classes/Suites.php';
 $p = new Pages();
+$l = new Suites();
 $list = $p->get_page_list();
-$total = $p->get_total_suites();
+$total = $l->get_total_suites();
 echo $list;
 ?>
 

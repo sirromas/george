@@ -1,9 +1,9 @@
 <?php
-require_once './classes/Pages.php';
-$p = new Pages();
+require_once './classes/Suites.php';
+$l = new Suites();
 $id = 1;
-$list = $p->get_elearning_suites_page($id);
-$total = $p->get_total_suites();
+$list = $l->get_elearning_suites_page($id);
+$total = $l->get_total_suites();
 echo $list;
 ?>
 
@@ -14,7 +14,7 @@ echo $list;
         $(function () {
             $('#suites_pagination').pagination({
                 items: <?php echo $total; ?>,
-                itemsOnPage: <?php echo $p->limit; ?>,
+                itemsOnPage: <?php echo $l->limit; ?>,
                 cssStyle: 'light-theme'
             });
         });
