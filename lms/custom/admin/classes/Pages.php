@@ -85,7 +85,9 @@ class Pages extends Utils {
     }
 
     function get_subscribers_page($id) {
-        
+        $list.="<div class='container-fluid' style='text-align:left;'>";
+        $list.="<span class='span1'><button id='suite_back'>Back</button></span>";
+        $list.="</div><br>";
     }
 
     function get_contact_page($id) {
@@ -402,7 +404,7 @@ class Pages extends Utils {
                 $list.=$this->get_common_editor_page($id);
                 break;
             case 7:
-                $list.=$this->get_contact_page($id);
+                $list.=$this->get_common_editor_page($id);
                 break;
             case 8:
                 $list.=$n->get_news_page();
