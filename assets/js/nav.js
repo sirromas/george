@@ -38,8 +38,11 @@ $(document).ready(function () {
             var id = $('#id').val();
             var data = CKEDITOR.instances.editor1.getData();
             var url = "/lms/custom/admin/update_site_page.php";
+            var url2 = "/lms/custom/admin/get_site_pages.php";
             $.post(url, {id: id, data: data}).done(function () {
-                document.location.reload();
+                $.post(url2, {id: id}).done(function (data) {
+                    $('#pages').html(data);
+                });
             });
         }
 
@@ -77,6 +80,56 @@ $(document).ready(function () {
             else {
                 console.log('Script already loaded');
                 $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'add_news') {
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/admin/get_add_news_dialog.php";
+                            var request = {id: 1};
+                            $.post(url, request).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        function get_news_page() {
+            var url = "/lms/custom/admin/get_news_page.php";
+            $.post(url, {id: id}).done(function (data) {
+                $('#pages').html(data);
+            });
+        }
+
+        if (event.target.id == 'add_news_button') {
+            var title = $('#news_title').val();
+            var content = CKEDITOR.instances.desc.getData();
+            var url = '/lms/custom/admin/add_news.php';
+
+            if (title != '' && content != '') {
+                $('#news_err').html('');
+                var news = {title: title, content: content};
+                $.post(url, {news: JSON.stringify(news)}).done(function () {
+                    $("[data-dismiss=modal]").trigger({type: "click"});
+                    get_news_page();
+                });
+            } // end if
+            else {
+                $('#news_err').html('Please provide all required fields');
             }
         }
 
@@ -142,9 +195,7 @@ $(document).ready(function () {
                 console.log('Script already loaded');
                 $("#myModal").modal('show');
             }
-
         }
-
 
         if (event.target.id == 'update_suite') {
             var id = $('#id').val();
@@ -189,9 +240,63 @@ $(document).ready(function () {
                     get_elearning_suites_page();
                 });
             }
+        }
+
+
+        if (event.target.id.indexOf("news_edit_") >= 0) {
+            var id = event.target.id.replace("news_edit_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/admin/get_edit_news_dialog.php";
+                            $.post(url, {id: id}).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
 
         }
 
+        if (event.target.id.indexOf("news_del_") >= 0) {
+            var id = event.target.id.replace("news_del_", "");
+            var url = '/lms/custom/admin/del_news.php';
+            if (confirm('Delete currene news?')) {
+                $.post(url, {id: id}).done(function () {
+                    get_news_page();
+                });
+            }
+        }
+
+        if (event.target.id == 'update_news_button') {
+            var title = $('#news_title').val();
+            var content = CKEDITOR.instances.desc.getData();
+            var id = $('#id').val();
+            var url = '/lms/custom/admin/update_news.php';
+
+            if (title != '' && content != '') {
+                $('#news_err').html('');
+                var news = {title: title, content: content, id: id};
+                $.post(url, {news: JSON.stringify(news)}).done(function () {
+                    $("[data-dismiss=modal]").trigger({type: "click"});
+                    get_news_page();
+                });
+            } // end if
+            else {
+                $('#news_err').html('Please provide all required fields');
+            }
+        }
 
 
 

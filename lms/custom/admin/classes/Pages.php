@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/News.php';
 
 /**
  * Description of Pages
@@ -380,7 +381,7 @@ class Pages extends Utils {
 
     function get_site_page($id) {
         $list = "";
-
+        $n = new News();
         switch ($id) {
             case 1:
                 $list.=$this->get_elearning_suites_page($id);
@@ -404,7 +405,7 @@ class Pages extends Utils {
                 $list.=$this->get_contact_page($id);
                 break;
             case 8:
-                $list.=$this->get_news_page();
+                $list.=$n->get_news_page();
                 break;
         } // end of switch
 
