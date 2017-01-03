@@ -13,8 +13,8 @@ $id = $_POST['id'];
 $list = $p->get_site_page($id);
 $total = $l->get_total_suites();
 $total2 = $n->get_total_news();
-$total3=$s->get_subs_total();
-
+$total3 = $s->get_subs_total();
+$total4 = $r->get_request_total();
 echo $list;
 ?>
 
@@ -40,7 +40,7 @@ echo $list;
         });
 
         // *****************************************************************//
-        
+
         $(function () {
             $('#news_pagination').pagination({
                 items: <?php echo $total2; ?>,
@@ -57,9 +57,9 @@ echo $list;
                 $('#news_container').html(data);
             });
         });
-        
+
         // *****************************************************************//
-        
+
         $(function () {
             $('#subs_pagination').pagination({
                 items: <?php echo $total3; ?>,
@@ -76,9 +76,9 @@ echo $list;
                 $('#subs_container').html(data);
             });
         });
-        
+
         // *****************************************************************//
-        
+
         $(function () {
             $('#contact_pagination').pagination({
                 items: <?php echo $total4; ?>,
