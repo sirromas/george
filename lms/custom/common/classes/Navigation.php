@@ -5,6 +5,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/Pages.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/News.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/certificates/classes/Certificate.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Dashboard.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Courses.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Profile.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/eTraining.php';
@@ -52,8 +53,9 @@ class Navigation extends Utils {
         $list = "";
         $sesskey = $this->user->sesskey;
         $p = new Pages();
-        $n = new News();
+        $ds = new Dashboard();
         $pages = $p->get_user_site_pages();
+        $status = $ds->get_user_dashboard($this->user->id);
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -72,7 +74,7 @@ class Navigation extends Utils {
         $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
           <div id = 'dash' class = 'tab-pane fade in active'>
             <h3>Dashboard</h3>
-            <p>Some content.</p>
+            <p>$status</p>
           </div>
           <div id = 'profile' class = 'tab-pane fade'>
             <h3>My Profile</h3>
