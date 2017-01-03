@@ -13,6 +13,8 @@ $id = $_POST['id'];
 $list = $p->get_site_page($id);
 $total = $l->get_total_suites();
 $total2 = $n->get_total_news();
+$total3=$s->get_subs_total();
+
 echo $list;
 ?>
 
@@ -38,6 +40,7 @@ echo $list;
         });
 
         // *****************************************************************//
+        
         $(function () {
             $('#news_pagination').pagination({
                 items: <?php echo $total2; ?>,
@@ -54,7 +57,44 @@ echo $list;
                 $('#news_container').html(data);
             });
         });
+        
+        // *****************************************************************//
+        
+        $(function () {
+            $('#subs_pagination').pagination({
+                items: <?php echo $total3; ?>,
+                itemsOnPage: <?php echo $s->limit; ?>,
+                cssStyle: 'light-theme'
+            });
+        });
 
+        $("#subs_pagination").click(function () {
+            var page = $('#subs_pagination').pagination('getCurrentPage');
+            console.log('Page: ' + page);
+            var url = "/lms/custom/admin/get_subs_item.php";
+            $.post(url, {id: page}).done(function (data) {
+                $('#subs_container').html(data);
+            });
+        });
+        
+        // *****************************************************************//
+        
+        $(function () {
+            $('#contact_pagination').pagination({
+                items: <?php echo $total4; ?>,
+                itemsOnPage: <?php echo $r->limit; ?>,
+                cssStyle: 'light-theme'
+            });
+        });
+
+        $("#contact_pagination").click(function () {
+            var page = $('#contact_pagination').pagination('getCurrentPage');
+            console.log('Page: ' + page);
+            var url = "/lms/custom/admin/get_contact_item.php";
+            $.post(url, {id: page}).done(function (data) {
+                $('#contact_container').html(data);
+            });
+        });
 
     }); // end of document ready
 

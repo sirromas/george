@@ -15,6 +15,29 @@ $(document).ready(function () {
      * 
      *****************************************************************/
 
+    function get_news_page() {
+        var url = "/lms/custom/admin/get_news_page.php";
+        $.post(url, {id: id}).done(function (data) {
+            $('#pages').html(data);
+        });
+    }
+
+    function get_elearning_suites_page() {
+        var url = "http://" + domain + "/lms/custom/admin/get_suites_page.php";
+        var request = {id: 1};
+        $.post(url, request).done(function (data) {
+            $('#pages').html(data);
+        });
+    }
+
+    function get_subscribers_page() {
+        var id = 10;
+        var url = "/lms/custom/admin/get_subscribers_page.php";
+        $.post(url, {id: id}).done(function (data) {
+            $('#pages').html(data);
+        });
+    }
+
     $('body').click(function (event) {
         console.log('Element ID: ' + event.target.id);
         console.log('Element class: ' + $(event.target).attr('class'));
@@ -108,13 +131,6 @@ $(document).ready(function () {
             }
         }
 
-        function get_news_page() {
-            var url = "/lms/custom/admin/get_news_page.php";
-            $.post(url, {id: id}).done(function (data) {
-                $('#pages').html(data);
-            });
-        }
-
         if (event.target.id == 'add_news_button') {
             var title = $('#news_title').val();
             var content = CKEDITOR.instances.desc.getData();
@@ -131,14 +147,6 @@ $(document).ready(function () {
             else {
                 $('#news_err').html('Please provide all required fields');
             }
-        }
-
-        function get_elearning_suites_page() {
-            var url = "http://" + domain + "/lms/custom/admin/get_suites_page.php";
-            var request = {id: 1};
-            $.post(url, request).done(function (data) {
-                $('#pages').html(data);
-            });
         }
 
         if (event.target.id == 'add_new_suite') {
@@ -242,7 +250,6 @@ $(document).ready(function () {
             }
         }
 
-
         if (event.target.id.indexOf("news_edit_") >= 0) {
             var id = event.target.id.replace("news_edit_", "");
             if (dialog_loaded !== true) {
@@ -298,13 +305,21 @@ $(document).ready(function () {
             }
         }
 
+        if (event.target.id.indexOf("subs_status_") >= 0) {
+            var id = event.target.id.replace("subs_status_", "");
+            var el = '#' + event.target.id;
+            var status = $(el).data('status');
+            var url = '/lms/custom/admin/update_subs.php';
+            var subs = {id: id, status: status};
+            console.log('Subs object:'+JSON.stringify(subs));
+            if (confirm('Change current subscriber status?')) {
+                $.post(url, {subs: JSON.stringify(subs)}).done(function () {
+                    get_subscribers_page();
+                });
+            } // end if
+        }
 
 
-    });
-
-
-
-
-
+    }); // end of $('body').click(function (event) {
 
 }); // end of document ready

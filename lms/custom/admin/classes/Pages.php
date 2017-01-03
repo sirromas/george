@@ -107,7 +107,7 @@ class Pages extends Utils {
                 $list.=$this->get_common_editor_page($id);
                 break;
             case 5:
-                $list.=$this->get_subscribers_page($id);
+                $list.=$this->get_common_editor_page($id);
                 break;
             case 6:
                 $list.=$this->get_common_editor_page($id);
