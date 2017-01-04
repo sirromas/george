@@ -78,7 +78,7 @@ class Utils {
         else {
             $rolename = 'Administrator';
         } // end else
-        return $rolename;
+        return ucfirst($rolename);
     }
 
     function get_instance_id($contextid) {
@@ -93,25 +93,16 @@ class Utils {
 
     function get_user_courses($userid, $roleid) {
         $courses = array();
-        if ($userid == 2) {
-            // Admin user
-            $query = "select * from uk_course";
+        $query = "select * from uk_role_assignments "
+                . "where userid=$userid and roleid=5";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $row['id'];
-            }
-        } // end if $userid == 2
-        else {
-            $query = "select * from uk_role_assignments "
-                    . "where userid=$userid and roleid=5";
-            $num = $this->db->numrows($query);
-            if ($num > 0) {
-                $result = $this->db->query($query);
-                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $courses[] = $this->get_instance_id($row['contextid']);
-                } // end while
-            } // end if $num > 0
-        } // end else
+                $courses[] = $this->get_instance_id($row['contextid']);
+            } // end while
+        } // end if $num > 0
+
         return $courses;
     }
 

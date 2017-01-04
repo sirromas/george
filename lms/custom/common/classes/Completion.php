@@ -21,4 +21,19 @@ class Completion extends Utils {
         
     }
 
+    function get_completed_courses($userid, $date = null) {
+        // Temp workaround:
+        return rand(1, 10);
+    }
+
+    function get_not_completed_courses($userid, $date = null) {
+        // Temp workaround:
+        return rand(1, 10);
+    }
+
+    function get_overdue_courses($userid, $date = null) {
+        // Temp workaround:
+        return rand(1, 10);
+    }
+
 }

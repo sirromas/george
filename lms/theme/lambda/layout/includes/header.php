@@ -48,8 +48,8 @@ $host = $_SERVER['SERVER_NAME'];
 <script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/nav.js"></script>
 <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.js'></script>
 <script type='text/javascript' src='http://<?php echo $host; ?>/assets/pagination/jquery.simplePagination.js'></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.6/adapters/standalone-framework.js"></script>
-<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.6/css/highcharts.css" />
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <link type='text/css' rel='stylesheet' href='http://<?php echo $host; ?>/assets/pagination/simplePagination.css'/>
 
 

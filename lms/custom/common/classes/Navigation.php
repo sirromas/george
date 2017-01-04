@@ -52,10 +52,15 @@ class Navigation extends Utils {
     function get_admin_dashboard() {
         $list = "";
         $sesskey = $this->user->sesskey;
+        
         $p = new Pages();
-        $ds = new Dashboard();
         $pages = $p->get_user_site_pages();
+        
+        $ds = new Dashboard();
         $status = $ds->get_user_dashboard($this->user->id);
+        
+        $pr=new Profile();
+        $profile=$pr->get_user_profile($this->user->id);
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -73,12 +78,10 @@ class Navigation extends Utils {
 
         $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
           <div id = 'dash' class = 'tab-pane fade in active'>
-            <h3>Dashboard</h3>
             <p>$status</p>
           </div>
           <div id = 'profile' class = 'tab-pane fade'>
-            <h3>My Profile</h3>
-            <p>Some content.</p>
+            <p>$profile</p>
           </div>
           <div id = 'courses' class = 'tab-pane fade'>
             <h3>Courses</h3>
@@ -252,6 +255,12 @@ class Navigation extends Utils {
     function get_student_dashboard() {
         $list = "";
         $sesskey = $this->user->sesskey;
+        
+        $ds = new Dashboard();
+        $status = $ds->get_user_dashboard($this->user->id);
+        
+        $pr=new Profile();
+        $profile=$pr->get_user_profile($this->user->id);
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -264,12 +273,10 @@ class Navigation extends Utils {
 
         $list.="<div class = 'tab-content'>
           <div id = 'dash' class = 'tab-pane fade in active'>
-            <h3>Dashboard</h3>
-            <p>Some content.</p>
+            <p>$status</p>
           </div>
           <div id = 'profile' class = 'tab-pane fade'>
-            <h3>My Profile</h3>
-            <p>Some content.</p>
+            <p>$profile</p>
           </div>
           <div id = 'courses' class = 'tab-pane fade'>
             <h3>Courses</h3>

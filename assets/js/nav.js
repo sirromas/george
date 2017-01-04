@@ -311,7 +311,7 @@ $(document).ready(function () {
             var status = $(el).data('status');
             var url = '/lms/custom/admin/update_subs.php';
             var subs = {id: id, status: status};
-            console.log('Subs object:'+JSON.stringify(subs));
+            console.log('Subs object:' + JSON.stringify(subs));
             if (confirm('Change current subscriber status?')) {
                 $.post(url, {subs: JSON.stringify(subs)}).done(function () {
                     get_subscribers_page();
@@ -319,6 +319,43 @@ $(document).ready(function () {
             } // end if
         }
 
+        /*****************************************************************
+         * 
+         *                  Profile section
+         * 
+         *****************************************************************/
+
+        if (event.target.id == 'update_profile') {
+            console.log('Clicked ...');
+            var id = $('#id').val();
+            var firstname = $('#firstname').val();
+            var lastname = $('#lastname').val();
+            var email = $('#email').val();
+            var pwd = $('#pwd').val();
+            var profile = {id: id, firstname: firstname, lastname: lastname, email: email, pwd: pwd};
+            console.log('Profile: ' + JSON.stringify(profile));
+
+            if (firstname != '' && lastname != '' && email != '') {
+                $('#profile_err').html('');
+                if (pwd != '') {
+                    if (pwd.length < 8) {
+                        $('#profile_err').html('Password length should be at least 8 characters');
+                    } // end if pwd.length < 8
+                    else {
+                        $('#profile_err').html('');
+                    } // end else
+                } // end if pwd != ''
+                if ($('#profile_err').html() == '') {
+                    var url = '/lms/custom/common/update_profile.php';
+                    $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
+                        $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
+                    });
+                } // end if $('#profile_err').html()==''
+            } // end if firstname != '' && lastname != '' && email != ''
+            else {
+                $('#profile_err').html('Please provide all required fields');
+            }
+        }
 
     }); // end of $('body').click(function (event) {
 
