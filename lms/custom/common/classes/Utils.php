@@ -91,7 +91,7 @@ class Utils {
         return $courseid;
     }
 
-    function get_user_courses($userid, $roleid) {
+    function get_user_courses($userid, $roleid=NULL) {
         $courses = array();
         $query = "select * from uk_role_assignments "
                 . "where userid=$userid and roleid=5";
