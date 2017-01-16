@@ -45,11 +45,13 @@ $host = $_SERVER['SERVER_NAME'];
 
 <script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.js"></script>
+<script src='//code.jquery.com/ui/1.11.4/jquery-ui.js'></script>
+<link rel='stylesheet' href='//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css'>
 <script type="text/javascript" src="http://<?php echo $host; ?>/assets/js/nav.js"></script>
 <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.js'></script>
 <script type='text/javascript' src='http://<?php echo $host; ?>/assets/pagination/jquery.simplePagination.js'></script>
 <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.3/js/"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.4/js/jquery.tablesorter.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <link type='text/css' rel='stylesheet' href='http://<?php echo $host; ?>/assets/pagination/simplePagination.css'/>
 

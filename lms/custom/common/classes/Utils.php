@@ -67,6 +67,10 @@ class Utils {
         
     }
 
+    function get_user_grouping($userid) {
+        
+    }
+
     function get_role_name($userid, $roleid) {
         if ($userid != '2') {
             $query = "select * from uk_role where id=$roleid";
@@ -91,7 +95,7 @@ class Utils {
         return $courseid;
     }
 
-    function get_user_courses($userid, $roleid=NULL) {
+    function get_user_courses($userid, $roleid = NULL) {
         $courses = array();
         $query = "select * from uk_role_assignments "
                 . "where userid=$userid and roleid=5";

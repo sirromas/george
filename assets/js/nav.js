@@ -38,6 +38,14 @@ $(document).ready(function () {
         });
     }
 
+    function get_external_courses_page() {
+        var id = 10; // fake value;
+        var url = "/lms/custom/common/get_external_training_page.php";
+        $.post(url, {id: id}).done(function (data) {
+            $('#external').html(data);
+        });
+    }
+
     $('body').click(function (event) {
         console.log('Element ID: ' + event.target.id);
         console.log('Element class: ' + $(event.target).attr('class'));
@@ -354,6 +362,67 @@ $(document).ready(function () {
             } // end if firstname != '' && lastname != '' && email != ''
             else {
                 $('#profile_err').html('Please provide all required fields');
+            }
+        }
+
+        /*****************************************************************
+         * 
+         *                  External training section
+         * 
+         *****************************************************************/
+
+        if (event.target.id == 'add_ext_training') {
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_add_external_dialog.php";
+                            $.post(url, {id: id}).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                                $('#ext_course_date').datepicker();
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'add_external_course_button') {
+            var userid = $('#userid').val();
+            var name = $('#name').val();
+            var provider = $('#provider').val();
+            var date = $('#ext_course_date').val();
+            var retake_duration = $('#ext_course_retake_duration').val();
+            var notes = $('#ext_notes').val();
+            var status = $('#ext_course_status').val();
+            if (name != '' && provider != '' && date != '' && retake_duration > 0 && status > 0) {
+                $('#ext_err').html('');
+                var course = {userid: userid,
+                    name: name,
+                    provider: provider,
+                    date: date,
+                    status: status,
+                    retake_duration: retake_duration,
+                    notes: notes};
+                var url = '/lms/custom/common/add_external_training.php';
+                $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                    console.log(data);
+                    $("[data-dismiss=modal]").trigger({type: "click"});
+                    get_external_courses_page()
+                });
+
+            }  // end if
+            else {
+                $('#ext_err').html('Please provide all required fields');
             }
         }
 

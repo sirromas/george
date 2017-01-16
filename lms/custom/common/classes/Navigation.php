@@ -62,7 +62,8 @@ class Navigation extends Utils {
         $profile = $pr->get_user_profile($this->user->id);
 
         $c = new Courses();
-        $courses=$c->get_courses_page($this->user->id);
+        $courses = $c->get_courses_page($this->user->id);
+        $ext = $c->get_personal_external_training_courses($this->user->id);
 
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
@@ -90,8 +91,7 @@ class Navigation extends Utils {
             <p>$courses</p>
           </div>
           <div id = 'external' class = 'tab-pane fade'>
-            <h3>External Training</h3>
-            <p>Some content.</p>
+            <p>$ext</p>
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
             <h3>Repeat Training</h3>
@@ -129,7 +129,7 @@ class Navigation extends Utils {
     function get_ccg_dashboard() {
         $list = "";
         $sesskey = $this->user->sesskey;
-        
+
         $ds = new Dashboard();
         $status = $ds->get_user_dashboard($this->user->id);
 
@@ -137,8 +137,9 @@ class Navigation extends Utils {
         $profile = $pr->get_user_profile($this->user->id);
 
         $c = new Courses();
-        $courses=$c->get_courses_page($this->user->id);
-         
+        $courses = $c->get_courses_page($this->user->id);
+        $ext = $c->get_personal_external_training_courses($this->user->id);
+
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -164,8 +165,7 @@ class Navigation extends Utils {
             <p>$courses</p>
           </div>
           <div id = 'external' class = 'tab-pane fade'>
-            <h3>External Training</h3>
-            <p>Some content.</p>
+            <p>$ext</p>
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
             <h3>Repeat Training</h3>
@@ -200,7 +200,7 @@ class Navigation extends Utils {
     function get_gp_dashboard() {
         $list = "";
         $sesskey = $this->user->sesskey;
-        
+
         $ds = new Dashboard();
         $status = $ds->get_user_dashboard($this->user->id);
 
@@ -208,8 +208,9 @@ class Navigation extends Utils {
         $profile = $pr->get_user_profile($this->user->id);
 
         $c = new Courses();
-        $courses=$c->get_courses_page($this->user->id);
-        
+        $courses = $c->get_courses_page($this->user->id);
+        $ext = $c->get_personal_external_training_courses($this->user->id);
+
         $list.="<ul class = 'nav nav-tabs' >
          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -235,8 +236,7 @@ class Navigation extends Utils {
             <p>$courses</p>
           </div>
           <div id = 'external' class = 'tab-pane fade'>
-            <h3>External Training</h3>
-            <p>Some content.</p>
+            <p>$ext</p>
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
             <h3>Repeat Training</h3>
@@ -277,10 +277,12 @@ class Navigation extends Utils {
 
         $pr = new Profile();
         $profile = $pr->get_user_profile($this->user->id);
-        
+
         $c = new Courses();
-        $courses=$c->get_courses_page($this->user->id);
-        
+        $courses = $c->get_courses_page($this->user->id);
+        $ext = $c->get_personal_external_training_courses($this->user->id);
+
+
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
@@ -302,8 +304,7 @@ class Navigation extends Utils {
             <p>$courses</p>
           </div>
           <div id = 'external' class = 'tab-pane fade'>
-            <h3>External Training</h3>
-            <p>Some content.</p>
+            <p>$ext</p>
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
             <h3>Repeat Training</h3>
