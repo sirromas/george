@@ -1,5 +1,4 @@
 <?php
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/Pages.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/News.php';
@@ -66,18 +65,17 @@ class Navigation extends Utils {
         $ext = $c->get_personal_external_training_courses($this->user->id);
 
         $list.="<ul class = 'nav nav-tabs' >
-          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
-          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
-          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:6px;cursor:pointer;' class='fa fa-desktop fa-3x' aria-hidden='true'></i><br>Courses</a></li>
-          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-3x' aria-hidden='true'></i><br>External Training</a></li>
-          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-3x' aria-hidden='true'></i><br>Repeat Training</a></li>
-          <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-3x' aria-hidden='true'></i><br>Policies</a></li>
-          <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
-          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
-          <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
-          <li><a data-toggle = 'tab' href = '#pages'><i style='padding-left:12px;' style='padding-left:0px;cursor:pointer;' class='fa fa-pencil-square-o fa-3x' aria-hidden='true'></i><br>Site pages</a></li>
-          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
-          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
+          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</li></a>
+          <li><a data-toggle = 'tab'  href = '#profile'><i style='padding-left:13px;cursor:pointer;' class='fa fa-id-card-o fa-2x'aria-hidden='true' ></i><br>My profile</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#courses'><i style='padding-left:10px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
+          <li><a data-toggle = 'tab'  href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-2x' aria-hidden='true'></i><br>External Training</a></li>
+          <li><a data-toggle = 'tab'  href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
+          <li><a data-toggle = 'tab'  href = '#policy'><i style='padding-left:10px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
+          <li><a data-toggle = 'tab'  href = '#users'><i style='padding-left:10px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#groups'><i title='Groups' style='padding-left:13px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#reports'><i title='Reports' style='padding-left:15px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#pages'><i style='padding-left:7px;' style='padding-left:0px;cursor:pointer;' class='fa fa-pencil-square-o fa-2x' aria-hidden='true'></i><br>Pages</a></li>
+          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:1px;'>Logout</span></a></li>
         </ul>";
 
         $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
@@ -141,17 +139,17 @@ class Navigation extends Utils {
         $ext = $c->get_personal_external_training_courses($this->user->id);
 
         $list.="<ul class = 'nav nav-tabs' >
-          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
-          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
-          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:6px;cursor:pointer;' class='fa fa-desktop fa-3x' aria-hidden='true'></i><br>Courses</a></li>
-          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-3x' aria-hidden='true'></i><br>External Training</a></li>
-          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-3x' aria-hidden='true'></i><br>Repeat Training</a></li>
-          <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-3x' aria-hidden='true'></i><br>Policies</a></li>
-          <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
-          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
-          <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
-          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
-          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
+          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
+          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
+          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:6px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
+          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-2x' aria-hidden='true'></i><br>External Training</a></li>
+          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
+          <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
+          <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
+          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
+          <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
+          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
+          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
         </ul>";
 
         $list.="<div class = 'tab-content'>
@@ -212,17 +210,17 @@ class Navigation extends Utils {
         $ext = $c->get_personal_external_training_courses($this->user->id);
 
         $list.="<ul class = 'nav nav-tabs' >
-         <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
-          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
-          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:6px;cursor:pointer;' class='fa fa-desktop fa-3x' aria-hidden='true'></i><br>Courses</a></li>
-          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-3x' aria-hidden='true'></i><br>External Training</a></li>
-          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-3x' aria-hidden='true'></i><br>Repeat Training</a></li>
-          <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-3x' aria-hidden='true'></i><br>Policies</a></li>
-          <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
-          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
-          <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-3x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
-          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
-          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
+         <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
+          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
+          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:6px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
+          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-2x' aria-hidden='true'></i><br>External Training</a></li>
+          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
+          <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
+          <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
+          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
+          <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
+          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
+          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
         </ul>";
 
         $list.="<div class = 'tab-content'>
@@ -284,13 +282,13 @@ class Navigation extends Utils {
 
 
         $list.="<ul class = 'nav nav-tabs' >
-          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-3x' aria-hidden='true'></i><br>Dashboard</li>
-          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-3x' aria-hidden='true'></i><br>My profile</a></li>
-          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:5px;cursor:pointer;' class='fa fa-desktop fa-3x' aria-hidden='true'></i><br>Courses</a></li>
-          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-3x' aria-hidden='true'></i><br>External Training</a></li>
-          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-3x' aria-hidden='true'></i><br>Repeat Training</a></li>
-          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
-          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-3x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
+          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
+          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
+          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:5px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
+          <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-2x' aria-hidden='true'></i><br>External Training</a></li>
+          <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
+          <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
+          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
         </ul>";
 
         $list.="<div class = 'tab-content'>
@@ -321,3 +319,5 @@ class Navigation extends Utils {
     }
 
 }
+?>
+

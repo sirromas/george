@@ -14,6 +14,7 @@ class Utils {
     public $user;
     public $course;
     public $session;
+    public $signup_url;
 
     function __construct() {
         global $USER, $COURSE, $SESSION;
@@ -22,6 +23,7 @@ class Utils {
         $this->user = $USER;
         $this->course = $COURSE;
         $this->session = $SESSION;
+        $this->signup_url = 'http://' . $_SERVER['SERVER_NAME'] . '/lms/login/mysignup.php';
     }
 
     function get_current_user_id() {
@@ -59,16 +61,72 @@ class Utils {
         return $roleid;
     }
 
+    function random_string($length) {
+        $pool = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
+
+        for ($i = 0; $i < $length; $i++) {
+            $key .= $pool[mt_rand(0, count($pool) - 1)];
+        }
+        return $key;
+    }
+
+    function create_random_user() {
+        $user = new stdClass();
+        $user->firstname = $this->random_string(5);
+        $user->lastname = $this->random_string(5);
+        $user->email = $this->random_string(5) . "@gmail.com";
+        $user->pwd = $this->random_string(8);
+
+        echo "<pre>";
+        print_r($user);
+        echo "</pre>";
+        echo "<br>---------------------------------------------------<br>";
+
+
+        $encoded_user = base64_encode(json_encode($user));
+        $data = array('user' => $encoded_user);
+
+        // 1. Signup user into moodle    
+        $options = array(
+            'http' => array(
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data),
+            ),
+        );
+
+        $context = stream_context_create($options);
+        //$response = @file_get_contents($this->signup_url, false, $context);
+        $response = file_get_contents($this->signup_url, false, $context);
+        print_r($response);
+
+        if ($response !== false) {
+            return true;
+        }  // end if $response !== false        
+        else {
+            $list.="<div class='container-fluid'>";
+            $list.="<span class='span9'>Signup error happened </span>";
+            $list.="</div>";
+            echo $list;
+            die();
+        }
+    }
+
     function get_user_groups($userid) {
         
     }
 
     function get_user_cohort($userid) {
-        
+        $query = "select * from uk_cohort_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $id = $row['cohortid'];
+        }
+        return $id;
     }
 
     function get_user_grouping($userid) {
-        
+        $query = "select * from ";
     }
 
     function get_role_name($userid, $roleid) {
@@ -95,10 +153,18 @@ class Utils {
         return $courseid;
     }
 
-    function get_user_courses($userid, $roleid = NULL) {
+    function get_user_courses($userid, $year = NULL) {
         $courses = array();
+
+        if ($year == null) {
+            $year = date('Y', time());
+        }
+
         $query = "select * from uk_role_assignments "
-                . "where userid=$userid and roleid=5";
+                . "where userid=$userid and roleid=5 "
+                . "and FROM_UNIXTIME(timemodified, '%Y')='$year'";
+        //echo "Query: ".$query."<br>";
+        //die();
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);

@@ -10,6 +10,7 @@ class Courses extends Utils {
 
     function get_courses_page($userid) {
         $list = "";
+        $this->create_duration_items();
         if ($userid == 2) {
             $roleid = 0;
         } // end if
@@ -61,40 +62,359 @@ class Courses extends Utils {
         return $c;
     }
 
-    function get_admin_page($userid) {
+    function get_user_course_scorm_progress($courseid, $userid) {
+        
+    }
+
+    function get_user_course_quiz_progress($courseid, $userid) {
+        
+    }
+
+    function get_course_progress($courseid, $userid) {
         $list = "";
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php'><button style='width:147px;'>Manage courses</button></a></span>";
-        $list.="<span class='span2'><button style='width:147px;'>Add Group</button></span>";
-        $list.="<span class='span2'><button style='width:147px;'>Add GP Practice</button></span>";
-        $list.="</div><br>";
-        $courses = $this->get_user_courses($userid);
+
+        return $list;
+    }
+
+    function get_course_context($courseid) {
+        $query = "select * from uk_context "
+                . "where contextlevel=50 "
+                . "and instanceid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+        return $id;
+    }
+
+    function get_user_enrollment_date($courseid, $userid) {
+        $contextid = $this->get_course_context($courseid);
+        $query = "select * from uk_role_assignments "
+                . "where roleid=5 and "
+                . "contextid=$contextid and "
+                . "userid=$userid ";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $date = $row['timemodified'];
+        }
+        return $date;
+    }
+
+    function get_course_duration($courseid) {
+        $query = "select * from uk_course_duration where courseid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $duration = $row['duration'];
+        }
+        return $duration;
+    }
+
+    function get_course_policy($courseid) {
+        $list = "";
+        $query = "select * from uk_course_policies where courseid=$courseid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $list.="<a href='http://" . $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . " target='_blank'>Download</a>";
+            } // end while
+        } // end if $num > 0
+        else {
+            $list.="N/A";
+        } // end else
+
+        return $list;
+    }
+
+    function get_user_course_certificate($courseid, $userid) {
+        $list = "";
+        $query = "select * from uk_course_certificates "
+                . "where courseid=$courseid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $list.="<a href='http://" . $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$courseid/certificate.pdf' target='_blank'>Download</a>";
+            } // end while
+        } // end if $num > 0
+        else {
+            $list.="N/A";
+        } // end else
+
+        return $list;
+    }
+
+    function get_user_passed_course_date($courseid, $userid) {
+        $list = "";
+        $scorm_status = $this->get_user_course_scorm_progress($courseid, $userid);
+        $quiz_status = $this->get_user_course_quiz_progress($courseid, $userid);
+
+        if ($scorm_status == 100 && $quiz_status >= 80) {
+            $list.=""; // here should be quiz passed date
+        } // end if $scorm_status == 100 && $quiz_status >= 80
+        else {
+            $list.="N/A";
+        }
+        return $list;
+    }
+
+    function get_my_course_details($c) {
+
+        $enr_date = $this->get_user_enrollment_date($c->courseid, $c->userid);
+        $duration = $this->get_course_duration($c->courseid); // months
+        $due_date = $enr_date + (86400 * 30 * $duration);
+        $enr_h_date = date('m-d-Y', $enr_date);
+        $due_h_date = date('m-d-Y', $due_date);
+
+        $course = $this->get_course_detailes($c->courseid);
+        $status = $this->get_course_progress($c->courseid, $c->userid);
+        $policy = $this->get_course_policy($c->courseid);
+        $certificate = $this->get_user_course_certificate($c->courseid, $c->userid);
+        $passed_date = $this->get_user_passed_course_date($c->courseid, $c->userid);
+
+        $list.="<div id='myModal' class='modal fade' style='border:none;background-color:transparent;overflow: visible;margin-left:0px;left:25%;min-height:375px'>
+        <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
+            <div class='modal-content'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Course Details</h4>
+                </div>
+
+                <div class='modal-body' style=''>
+                
+                <input type='hidden' id='courseid' value='$c->courseid'>
+                <input type='hidden' id='userid' value='$c->userid'>
+                    
+                <table style='padding-left:15px;' border='0' align='center'>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px;'>Name</td><td style='padding-left:15px;padding-right:15px'>$course->fullname</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Length</td><td style='padding-left:15px;padding-right:15px'>60 minutes</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Provider</td><td style='padding-left:15px;padding-right:15px'>Practice Index</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Frequency</td><td style='padding-left:15px;padding-right:15px'>$duration (month)</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Status</td><td style='padding-left:15px;padding-right:15px'>$status</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Policies</td><td style='padding-left:15px;padding-right:15px'>$policy</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Certificate</td><td style='padding-left:15px;padding-right:15px'>$certificate</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Notes</td><td style='padding-left:15px;padding-right:15px'>$course->summary</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Enroll date</td><td style='padding-left:15px;padding-right:15px'>$enr_h_date</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Passed date</td><td style='padding-left:15px;padding-right:15px'>$passed_date</td>
+                </tr>
+                
+                <tr>
+                <td style='padding-left:15px;padding-right:15px'>Due date</td><td style='padding-left:15px;padding-right:15px'>$due_h_date</td>
+                </tr>
+                
+                <tr>
+                <td style='padding:15px;' colspan='2' align='center'><button type='button'  data-dismiss='modal' id='cancel'>OK</button></td>
+                </tr>
+
+                </table>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function is_duration_item_exists($courseid) {
+        $query = "select * from uk_course_duration where courseid=$courseid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
+    function create_duration_items() {
+        $query = "select * from uk_course";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $status = $this->is_duration_item_exists($row['id']);
+            if ($status == 0) {
+                $query = "insert into uk_course_duration "
+                        . "(courseid) values (" . $row['id'] . ")";
+                $this->db->query($query);
+            } // end if
+        } // end while 
+    }
+
+    function get_year_selection_box($year = null) {
+        if ($year == null) {
+            $year = date('Y', time());
+        }
+
+        $list = "";
+        $list.="<select id='my_courses_year_selection_box'>";
+        for ($i = 2014; $i <= 2035; $i++) {
+            if ($i == $year) {
+                $list.="<option value='$i' selected>$i</option>";
+            } // end if
+            else {
+                $list.="<option value='$i'>$i</option>";
+            } // end else
+        }
+        $list.="";
+        $list.="";
+        $list.="";
+        $list.="</select>";
+
+        return $list;
+    }
+
+    function get_course_by_year($userid, $year) {
+        $list = "";
+        //echo "User ID: ".$userid."<br>";
+        //echo "Year: ".$year."<br>";
+        $courses = $this->get_user_courses($userid, $year);
+        //print_r($courses);
+        $list.=$this->get_my_courses_block($courses, $userid, false);
+        return $list;
+    }
+
+    function get_my_courses_block($courses, $userid, $toolbar = true) {
+        $list = "";
+
+        $year_box = $this->get_year_selection_box();
+        $list.="<input type='hidden' id='userid' value='$userid'>";
+        if ($toolbar) {
+            $list.="<div class='panel panel-default' style='margin-left:15px;'>";
+            $list.="<div class='panel-heading'><span class='span2'>My Courses</span><span calss='span1'>$year_box</span></div>";
+            $list.="<div class='panel-body'>";
+        }
+        $list.="<div id='my_courses_container' style='background-color:none;'>";
+        $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course name</th>";
+        $list.="<th>Duration</th>";
+        $list.="<th>Enrollment date</th>";
+        $list.="<th>Due date</th>";
+        $list.="<th>My Progress</th>";
+        $list.="<th>Actions</th>";
+        $list.="</tr>";
+        $list.="</thead>";
         if (count($courses) > 0) {
-            $list.="<div class='container-fluid' style='font-weight:bold;'>";
-            $list.="<span class='span3'>Course name/provider</span>";
-            $list.="<span class='span1'>Length</span>";
-            $list.="<span class='span1'>Frequency</span>";
-            $list.="<span class='span2'>Status</span>";
-            $list.="<span class='span1'>Plicies</span>";
-            $list.="<span class='span1'>Certificates</span>";
-            $list.="<span class='span1'>Date passed</span>";
-            $list.="<span class='span1'>Due date</span>";
-            $list.="</div>";
+
+            $list.="<tbody>";
 
             foreach ($courses as $courseid) {
                 $course_data = $this->get_course_detailes($courseid);
-                $list = "<div class='container-fluid'>";
-                $list.="<span class='span3'></span>";
-                $list.="<span class='span3'></span>";
-                $list.="</div>";
+                $progress = $this->get_course_progress($courseid, $userid);
+                $enroll_date = date('m-d-Y', $this->get_user_enrollment_date($courseid, $userid));
+                $enr_date = $this->get_user_enrollment_date($courseid, $userid);
+                $duration = $this->get_course_duration($courseid); // months
+                $due_date = $enr_date + (86400 * 30 * $duration);
+                $due_h_date = date('m-d-Y', $due_date);
+
+
+                $list.="<tr>";
+                $list.="<td><a href='#' onClick='return false;' title='Click to get details' id='my_course_title_$courseid' data-userid='$userid'>$course_data->fullname</a></td>";
+                $list.="<td>60 minutes</td>";
+                $list.="<td>$enroll_date</td>";
+                $list.="<td>$due_h_date</td>";
+                $list.="<td>$progress</td>";
+                $list.="<td><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=$courseid' target='_blank'>Continue >></a></td>";
+                $list.="</tr>";
             } // end foreach
         } // end if count($courses)>0
         else {
-            $list.="<div class='container-fluid'>";
-            $list.="<span class='span6' style='padding-left:7px;'>You are not enrolled into any course</span>";
-            $list.="</div>";
+            $list.="<tr>";
+            $list.="<td colspan='5'>You are not enrolled into any course</td>";
+            $list.="</tr>";
         }
+        $list.="</div>";
 
+        $list.="</tbody>";
+        $list.="</table>";
+        if ($toolbar) {
+            $list.="</div></div>"; // end of panel
+        }
+        $list.="</div>";
+
+        return $list;
+    }
+
+    function get_all_system_courses_block() {
+        $list = "";
+
+        $list.="<div class='panel panel-default' style='margin-left:15px;'>";
+        $list.="<div class='panel-heading'>All system courses</div>";
+        $list.="<div class='panel-body'>";
+
+        $list.="<table id='all_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Actions</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        $query = "select * from uk_course";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $catname = $this->get_course_category_name($row['category']);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $row['fullname'] . "</td>";
+                $list.="<td><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=" . $row['id'] . "' target='_blank' target='_blank'>View</a></td>";
+                $list.="</tr>";
+            } // end while
+        } // end if $num > 0
+
+        $list.="</tbody>";
+
+        $list.="</table>";
+
+        $list.="</div></div>"; // end of panel
+
+        return $list;
+    }
+
+    function get_admin_page($userid) {
+        $list = "";
+
+        $list.="<div class='container-fluid'>";
+        $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
+        $list.="<span class='span2'><button style='width:147px;'>Add Category</button></span>";
+        $list.="<span class='span2'><button style='width:147px;'>Add Course</button></span>";
+        $list.="</div><br>";
+        $courses = $this->get_user_courses($userid);
+        $mycourses = $this->get_my_courses_block($courses, $userid);
+        $allcourses = $this->get_all_system_courses_block();
+        $list.=$mycourses;
+        $list.=$allcourses;
 
         return $list;
     }
@@ -149,15 +469,19 @@ class Courses extends Utils {
         $list.= "<div class='container-fluid' style='font-weight:bold;'>";
         $list.="<span class='span12'>My External Training</span>";
         $list.="</div>";
-        $list.="<div class='container-fluid' style='font-weight:bold;'>";
-        $list.="<span class='span2'>Course Name</span>";
-        $list.="<span class='span2'>Provider</span>";
-        $list.="<span class='span1'>Date</span>";
-        $list.="<span class='span1'>Duration</span>";
-        $list.="<span class='span2'>Status</span>";
-        $list.="<span class='span2'>User</span>";
-        $list.="<span class='span2'>Notes</span>";
-        $list.="</div>";
+
+        $list.="<table id='my_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Provider</th>";
+        $list.="<th>Date</th>";
+        $list.="<th>Duration</th>";
+        $list.="<th>Status</th>";
+        $list.="<th>User</th>";
+        $list.="<th>Notes</th>";
+        $list.="</tr>";
+        $list.="</thead>";
         $query = "select * from uk_external_training where userid=$userid";
         $num = $this->db->numrows($query);
         if ($num > 0) {
@@ -165,16 +489,19 @@ class Courses extends Utils {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $username = $this->get_username_by_id($row['userid']);
                 $status = $this->get_status_text($row['status']);
-                $list.="<div class='container-fluid' style=''>";
-                $list.="<span class='span2'>" . $row['name'] . "</span>";
-                $list.="<span class='span2'>" . $row['provider'] . "</span>";
-                $list.="<span class='span1'>" . date('m/d/Y', $row['cdate']) . "</span>";
-                $list.="<span class='span1' style='text-align:center;'>" . $row['duration'] . "</span>";
-                $list.="<span class='span2'>" . $status . "</span>";
-                $list.="<span class='span2'>" . $username . "</span>";
-                $list.="<span class='span2'>" . $row['notes'] . "</span>";
-                $list.="</div>";
+                $list.="<tbody>";
+                $list.="<tr>";
+                $list.="<td>" . $row['name'] . "</td>";
+                $list.="<td>" . $row['provider'] . "</td>";
+                $list.="<td>" . date('m/d/Y', $row['cdate']) . "</td>";
+                $list.="<td>" . $row['duration'] . "</td>";
+                $list.="<td>" . $status . "</tdd>";
+                $list.="<td>" . $username . "</td>";
+                $list.="<td>" . $row['notes'] . "</td>";
+                $list.="</tr>";
+                $list.="</tbody>";
             } // end while
+            $list.="</table>";
             $list.= "<div class='container-fluid'>";
             $list.="<span class='span9'>There are no external courses you enrolled</span>";
             $list.="<input type='hidden' id='external_userid' value='$userid'>";
@@ -276,13 +603,13 @@ class Courses extends Utils {
         $list = "";
         $duration_box = $this->get_course_duration_retake_box();
         $status_box = $this->get_external_coure_status_box();
-        $list.="<div id='myModal' class='modal fade' style='width:875px;margin-left:0px;left:15%;'>
+        $list.="<div id='myModal' class='modal fade' style='border:none;background-color:transparent;overflow: visible;width:875px;margin-left:0px;left:5%;'>
         <div class='modal-dialog' >
-            <div class='modal-content'>
+            <div class='modal-content' style='width:875px;height:420px;'>
                 <div class='modal-header'>
                     <h4 class='modal-title'>Add External Training</h4>
                 </div>
-                <div class='modal-body' style='min-height:120px;'>
+                <div class='modal-body' style=''>
                 <input type='hidden' id='userid' value='$userid'>
                 <div class='container-fluid'>
                 <span class='span1'>Name*</span>
@@ -376,18 +703,25 @@ class Courses extends Utils {
             $list.= "<div class='container-fluid'>";
             $list.="<span class='span12'><hr/></span>";
             $list.="</div>";
+
             $list.= "<div class='container-fluid' style='font-weight:bold;'>";
             $list.="<span class='span12'>All External Training</span>";
             $list.="</div>";
-            $list.="<div class='container-fluid' style='font-weight:bold;'>";
-            $list.="<span class='span2'>Course Name</span>";
-            $list.="<span class='span2'>Provider</span>";
-            $list.="<span class='span1'>Date</span>";
-            $list.="<span class='span1'>Duration</span>";
-            $list.="<span class='span2'>Status</span>";
-            $list.="<span class='span2'>User</span>";
-            $list.="<span class='span2'>Notes</span>";
-            $list.="</div>";
+
+            $list.="<table id='all_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Course Name</th>";
+            $list.="<th>Provider</th>";
+            $list.="<th>Date</th>";
+            $list.="<th>Duration</th>";
+            $list.="<th>Status</th>";
+            $list.="<th>User</th>";
+            $list.="<th>Notes</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+            $list.="<tbody>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $username = $this->get_username_by_id($row['userid']);
@@ -405,16 +739,18 @@ class Courses extends Utils {
                         break;
                 }
 
-                $list.="<div class='container-fluid'>";
-                $list.="<span class='span2'>" . $row['name'] . "</span>";
-                $list.="<span class='span2'>" . $row['provider'] . "</span>";
-                $list.="<span class='span1'>" . date('m/d/Y', $row['cdate']) . "</span>";
-                $list.="<span class='span1' style='text-align:center;'>" . $row['duration'] . "</span>";
-                $list.="<span class='span2'>" . $status . "</span>";
-                $list.="<span class='span2'>" . $username . "</span>";
-                $list.="<span class='span2'>" . $row['notes'] . "</span>";
-                $list.="</div>";
+                $list.="<tr>";
+                $list.="<td>" . $row['name'] . "</td>";
+                $list.="<td>" . $row['provider'] . "</td>";
+                $list.="<td>" . date('m/d/Y', $row['cdate']) . "</td>";
+                $list.="<td>" . $row['duration'] . "</td>";
+                $list.="<td>" . $status . "</td>";
+                $list.="<td>" . $username . "</td>";
+                $list.="<td>" . $row['notes'] . "</td>";
+                $list.="</tr>";
             } // end while
+            $list.="</tbody>";
+            $list.="</table>";
 
             $list.="<div class='container-fluid' style='font-weight:bold;'>";
             $list.="<span class='span2'>Total Not Started</span>";

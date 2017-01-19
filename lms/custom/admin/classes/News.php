@@ -13,7 +13,7 @@ class News extends Utils {
 
     function get_news_page() {
         $list = "";
-        $query = "select * from uk_news order by added desc limit 0, $this->limit";
+        $query = "select * from uk_news order by added desc ";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
@@ -38,44 +38,45 @@ class News extends Utils {
             $list.="<span class='span1'><button id='suite_back'>Back</button></span>";
             $list.="</div><br>";
         }
-
+        $list.="<table id='news_table' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Title</th>";
+        $list.="<th>Actions</th>";
+        $list.="</tr>";
+        $list.="</thead>";
         if (count($news) > 0) {
-            $list.="<div id='news_container'>";
+            $list.="<tbody>";
             foreach ($news as $n) {
-                $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
-                $list.="<span class='span6'>" . $n->title . "</span>";
-                $list.="<span class='span1'><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;' id='news_edit_" . $n->id . "'></i></span>";
-                $list.="<span class='span1'><i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;' id='news_del_" . $n->id . "'></i></span>";
-                $list.="</div>";
-                $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
-                $list.="<span class='span8'><hr/></span>";
-                $list.="</div>";
+                $list.="<tr>";
+                $list.="<td>" . $n->title . "</td>";
+                $list.="<td><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='news_edit_" . $n->id . "'></i></span>";
+                $list.="<i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='news_del_" . $n->id . "'></i></span>";
+                $list.="</td>";
+                $list.="</tr>";
             } // end foreach
-            $list.="</div>";
+            $list.="</tbody>";
         } // end if count($suites) > 0
         else {
             $list.="<div class='container-fluid' style='text-align:left;'>";
             $list.="<span class='span9'>There are no any news added</span>";
             $list.="</div>";
         }
-        if ($toolbar) {
-            $list.="<div class='container-fluid' style='text-align:left;'>";
-            $list.="<span class='span6' id='news_pagination'></span>";
-            $list.="</div>";
-        }
+        $list.="</table>";
+        
         return $list;
     }
 
     function get_add_news_dialog() {
         $list = "";
 
-        $list.="<div id='myModal' class='modal fade' style='width:875px;margin-left:0px;left:15%;min-height: 100%;'>
-        <div class='modal-dialog' >
+        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:936px;margin-left:0px;left:15%;'>
+        <div class='modal-dialog modal-lg' >
             <div class='modal-content'>
                 <div class='modal-header'>
                     <h4 class='modal-title'>Add News</h4>
                 </div>
-                <div class='modal-body' style='min-height:620px;'>
+                <div class='modal-body' style='min-height:1024px;'>
                 
                 <div class='container-fluid'>
                 <span class='span1'>Title*</span>
@@ -103,6 +104,7 @@ class News extends Utils {
         </div>
     </div>";
 
+
         return $list;
     }
 
@@ -116,13 +118,13 @@ class News extends Utils {
             $content = $row['content'];
         }
 
-        $list.="<div id='myModal' class='modal fade' style='width:875px;margin-left:0px;left:15%;min-height: 100%;'>
-        <div class='modal-dialog' >
-            <div class='modal-content'>
+        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:934px;margin-left:10%;'>
+        <div class='modal-dialog' modal-lg style='margin-left:8%;width:902px;'>
+            <div class='modal-content' style='min-height:100%;margin-left:0px;'>
                 <div class='modal-header'>
                     <h4 class='modal-title'>Edit News</h4>
                 </div>
-                <div class='modal-body' style='min-height:620px;'>
+                <div class='modal-body' style='min-height:875px;'>
                 <input type='hidden' id='id' value='$id'>
                 <div class='container-fluid'>
                 <span class='span1'>Title*</span>

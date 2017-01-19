@@ -7,6 +7,12 @@
 
 $(document).ready(function () {
     console.log("ready!");
+
+    $('#my_courses').DataTable();
+    $('#all_courses').DataTable();
+    $('#my_external_courses').DataTable();
+    $('#all_external_courses').DataTable();
+
     var dialog_loaded;
     var domain = 'mycodebusters.com';
     /*****************************************************************
@@ -55,6 +61,11 @@ $(document).ready(function () {
             var url = "/lms/custom/admin/get_site_page.php";
             $.post(url, {id: id}).done(function (data) {
                 $('#pages').html(data);
+                $('#news_table').DataTable();
+                $('#suites_table').DataTable();
+                $('#subscribers_table').DataTable();
+                $('#requests_table').DataTable();
+                
             }); // end of post
         }
 
@@ -115,6 +126,8 @@ $(document).ready(function () {
         }
 
         if (event.target.id == 'add_news') {
+
+
             if (dialog_loaded !== true) {
                 console.log('Script is not yet loaded starting loading ...');
                 dialog_loaded = true;
@@ -137,6 +150,16 @@ $(document).ready(function () {
                 console.log('Script already loaded');
                 $("#myModal").modal('show');
             }
+
+
+            /*
+             var url = "http://" + domain + "/lms/custom/admin/get_add_news_dialog.php";
+             var request = {id: 1};
+             $.post(url, request).done(function (data) {
+             $("body").append(data);
+             $("#myModal").modal('show');
+             });
+             */
         }
 
         if (event.target.id == 'add_news_button') {
@@ -426,6 +449,66 @@ $(document).ready(function () {
             }
         }
 
+        /*****************************************************************
+         * 
+         *                  Courses section
+         * 
+         *****************************************************************/
+
+        if (event.target.id.indexOf("my_course_title") >= 0) {
+            var courseid = event.target.id.replace("my_course_title_", "");
+            var userid = $('#' + event.target.id).data('userid');
+            console.log('Course id: ' + courseid);
+            console.log('User id: ' + userid);
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var course = {courseid: courseid, userid: userid};
+                            var url = "http://" + domain + "/lms/custom/common/get_my_course_details_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").css('background-color:', 'red');
+                                $("#myModal").modal('show');
+                                $('#ext_course_date').datepicker();
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+
+        }
+
     }); // end of $('body').click(function (event) {
+
+
+    $('body').change(function (event) {
+        console.log('Event ID: ' + event.target.id);
+
+        if (event.target.id == 'my_courses_year_selection_box') {
+            var year = $('#' + event.target.id).val();
+            var userid = $('#userid').val();
+            console.log('Year selected: ' + year);
+            var url = "http://" + domain + "/lms/custom/common/get_my_course_by_year.php";
+            $.post(url, {year: year, userid: userid}).done(function (data) {
+                $('#my_courses_container').html(data);
+                $('#my_courses_wrapper').html(data);
+                $('#my_courses').DataTable();
+            });
+
+        }
+
+
+
+    }); // end of  $('body').change(function (event) {
 
 }); // end of document ready

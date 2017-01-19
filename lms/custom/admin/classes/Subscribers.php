@@ -19,7 +19,7 @@ class Subscribers extends Utils {
     function get_subscribers_page($id) {
         $list = "";
         $subscribers = array();
-        $query = "select * from uk_subscribers order by name limit 0, $this->limit";
+        $query = "select * from uk_subscribers order by name ";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
@@ -44,32 +44,34 @@ class Subscribers extends Utils {
             $list.="</div><br>";
         }
 
+        $list.="<table id='subscribers_table' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>User Name</th>";
+        $list.="<th>User Email</th>";
+        $list.="<th>Status</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+
         if (count($subscribers) > 0) {
-            $list.="<div id='subs_container'>";
+            $list.="<tbody>";
             foreach ($subscribers as $s) {
                 $status = ($s->status == 1) ? "<a style='cursor:pointer;' title='Click here to unsubscribe' id='subs_status_$s->id' data-status='$s->status'>Subscribed</a>" : "<a style='cursor:pointer;' data-status='$s->status' title='Click here to subscribe' id='subs_status_$s->id'>Unsubscribed</a>";
-                $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
-                $list.="<span class='span3'>" . $s->name . "</span>";
-                $list.="<span class='span3'>" . $s->email . "</span>";
-                $list.="<span class='span3'>$status</span>";
-                $list.="</div>";
-                $list.="<div class='container-fluid' style='text-align:left;padding-left:45px;'>";
-                $list.="<span class='span8'><hr/></span>";
-                $list.="</div>";
+                $list.="<tr>";
+                $list.="<td>" . $s->name . "</td>";
+                $list.="<td>" . $s->email . "</td>";
+                $list.="<td>$status</td>";
+                $list.="</tr>";
             } // end foreach
-            $list.="</div>";
+            $list.="</tbody>";
         } // end if
         else {
             $list.="<div class='container-fluid' style='text-align:left;'>";
             $list.="<span class='span9'>There are no any subscribers</span>";
             $list.="</div>";
         } // end else
-
-        if ($toolbar) {
-            $list.="<div class='container-fluid' style='text-align:left;'>";
-            $list.="<span class='span6' id='subs_pagination'></span>";
-            $list.="</div>";
-        }
+        $list.="</table>";
 
         return $list;
     }
