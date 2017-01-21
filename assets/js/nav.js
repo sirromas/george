@@ -52,6 +52,14 @@ $(document).ready(function () {
         });
     }
 
+    function get_my_courses_page() {
+        var userid = $('#userid').val();
+        var url = "/lms/custom/common/get_my_courses_page.php";
+        $.post(url, {userid: userid}).done(function (data) {
+            $('#external').html(data);
+        });
+    }
+
     $('body').click(function (event) {
         console.log('Element ID: ' + event.target.id);
         console.log('Element class: ' + $(event.target).attr('class'));
@@ -65,7 +73,7 @@ $(document).ready(function () {
                 $('#suites_table').DataTable();
                 $('#subscribers_table').DataTable();
                 $('#requests_table').DataTable();
-                
+
             }); // end of post
         }
 
@@ -377,10 +385,12 @@ $(document).ready(function () {
                     } // end else
                 } // end if pwd != ''
                 if ($('#profile_err').html() == '') {
-                    var url = '/lms/custom/common/update_profile.php';
-                    $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
-                        $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
-                    });
+                    if (confirm('Update profile?')) {
+                        var url = '/lms/custom/common/update_profile.php';
+                        $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
+                            $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
+                        });
+                    }
                 } // end if $('#profile_err').html()==''
             } // end if firstname != '' && lastname != '' && email != ''
             else {
@@ -487,6 +497,53 @@ $(document).ready(function () {
             }
 
         }
+
+        if (event.target.id == 'add_course_category') {
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var course = {courseid: courseid, userid: userid};
+                            var url = "http://" + domain + "/lms/custom/common/get_add_course_catergory_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'add_course') {
+
+        }
+
+        if (event.target.id == 'add_course_category_button') {
+            var name = $('#catname').val();
+            if (name != '') {
+                $('#cat_err').html('');
+                var url = "http://" + domain + "/lms/custom/common/add_course_catergory.php";
+                $.post(url, {name: name}).done(function (data) {
+                    console.log(data);
+                    $("[data-dismiss=modal]").trigger({type: "click"});
+                    get_my_courses_page();
+                });
+            } // end if name!=''
+            else {
+                $('#cat_err').html('Please provide category name');
+            } // end else
+        }
+
 
     }); // end of $('body').click(function (event) {
 

@@ -1,4 +1,5 @@
 <?php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/Pages.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/admin/classes/News.php';
@@ -7,8 +8,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Dashboard.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Courses.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Profile.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/eTraining.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/rTraining.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Groups.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Users.php';
 
 /**
  * Description of Navigation
@@ -64,6 +65,12 @@ class Navigation extends Utils {
         $courses = $c->get_courses_page($this->user->id);
         $ext = $c->get_personal_external_training_courses($this->user->id);
 
+        $g = new Groups();
+        $groups=$g->get_groups_page($this->user->id);
+        
+        $u=new Users();
+        $users=$u->get_users_page($this->user->id);
+     
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</li></a>
           <li><a data-toggle = 'tab'  href = '#profile'><i style='padding-left:13px;cursor:pointer;' class='fa fa-id-card-o fa-2x'aria-hidden='true' ></i><br>My profile</span></a></li>
@@ -80,16 +87,16 @@ class Navigation extends Utils {
 
         $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
           <div id = 'dash' class = 'tab-pane fade in active'>
-            <p>$status</p>
+            $status
           </div>
           <div id = 'profile' class = 'tab-pane fade'>
-            <p>$profile</p>
+            $profile
           </div>
           <div id = 'courses' class = 'tab-pane fade'>
-            <p>$courses</p>
+            $courses
           </div>
           <div id = 'external' class = 'tab-pane fade'>
-            <p>$ext</p>
+            $ext
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
             <h3>Repeat Training</h3>
@@ -100,12 +107,10 @@ class Navigation extends Utils {
             <p>Some content.</p>
           </div>
           <div id = 'users' class = 'tab-pane fade'>
-            <h3>Users</h3>
-            <p>Some content.</p>
+            $users
           </div>
           <div id = 'groups' class = 'tab-pane fade'>
-            <h3>Groups</h3>
-            <p>Some content.</p>
+            $groups
           </div> 
           <div id = 'reports' class = 'tab-pane fade'>
             <h3>Reports</h3>
@@ -146,7 +151,6 @@ class Navigation extends Utils {
           <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
           <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
           <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
-          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
           <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
           <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
           <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
@@ -217,7 +221,6 @@ class Navigation extends Utils {
           <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
           <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:5px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
           <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:5px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Users</span></a></li>
-          <li><a data-toggle = 'tab' href = '#groups'><i title='Groups' style='padding-left:7px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
           <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:7px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Reports</span></a></li>
           <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
           <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>

@@ -21,34 +21,45 @@ class Profile extends Utils {
         }
 
         $list.="<input type='hidden' id='id' value='$userid'>";
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'>First Name*</span>";
-        $list.="<span class='span5'><input type='text' id='firstname' value='$user->firstname'></span>";
-        $list.="</div>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'>Last Name*</span>";
-        $list.="<span class='span5'><input type='text' id='lastname' value='$user->lastname'></span>";
-        $list.="</div>";
+        $list.="<div class='panel panel-default' style='margin-left:15px;'>";
+        $list.="<div class='panel-heading'>My Profile</div>";
+        $list.="<div class='panel-body'>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'>Email*</span>";
-        $list.="<span class='span5'><input type='text' id='email' value='$user->email'></span>";
-        $list.="</div>";
+        $list.="<table>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'>Password</span>";
-        $list.="<span class='span5'><input type='password' id='pwd' value=''></span>";
-        $list.="</div>";
+        $list.="<tr>";
+        $list.="<td style='padding:15px;'>First Name*</td>";
+        $list.="<td style='padding:15px;'><input type='text' id='firstname' value='$user->firstname'></td>";
+        $list.="</tr>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span7'style='color:red;' id='profile_err'></span>";
-        $list.="</div>";
+        $list.="<tr>";
+        $list.="<td style='padding:15px;'>Last Name*</td>";
+        $list.="<td style='padding:15px;'><input type='text' id='lastname' value='$user->lastname'></td>";
+        $list.="</tr>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'>&nbsp;</span>";
-        $list.="<span class='span1'><button id='update_profile'>Update</button></span>";
-        $list.="</div>";
+        $list.="<tr>";
+        $list.="<td style='padding:15px;'>Email*</td>";
+        $list.="<td style='padding:15px;'><input type='text' id='email' value='$user->email'></td>";
+        $list.="</tr>";
+
+        $list.="<tr>";
+        $list.="<td style='padding:15px;'>Password</td>";
+        $list.="<td style='padding:15px;'><input type='password' id='pwd' value=''></td>";
+        $list.="</tr>";
+
+        $list.="<tr>";
+        $list.="<td colspan='2' style='padding-left:15px;'><span class='span7'style='color:red;' id='profile_err'></td>";
+        $list.="</tr>";
+
+        $list.="<tr>";
+        $list.="<td style='padding:15px;'>&nbsp;</td>";
+        $list.="<td style='padding:15px;'><button id='update_profile'>Update</button></td>";
+        $list.="</tr>";
+
+        $list.="</table>";
+
+        $list.="</div></div>";
 
         return $list;
     }
