@@ -173,7 +173,7 @@ class Courses extends Utils {
         $certificate = $this->get_user_course_certificate($c->courseid, $c->userid);
         $passed_date = $this->get_user_passed_course_date($c->courseid, $c->userid);
 
-        $list.="<div id='myModal' class='modal fade' style='border:none;background-color:transparent;overflow: visible;margin-left:0px;left:25%;min-height:375px'>
+        $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:25%;min-height:375px'>
         <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
             <div class='modal-content'>
                 <div class='modal-header'>
@@ -269,7 +269,7 @@ class Courses extends Utils {
         }
 
         $list = "";
-        $list.="<select id='my_courses_year_selection_box'>";
+        $list.="<select id='my_courses_year_selection_box style='padding-top:8px;'>";
         for ($i = 2014; $i <= 2035; $i++) {
             if ($i == $year) {
                 $list.="<option value='$i' selected>$i</option>";
@@ -303,7 +303,7 @@ class Courses extends Utils {
         $list.="<input type='hidden' id='userid' value='$userid'>";
         if ($toolbar) {
             $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-            $list.="<div class='panel-heading'><span class='span2'>My Courses</span><span calss='span1'>$year_box</span></div>";
+            $list.="<div class='panel-heading'>My Courses <span style='padding-left:15px;padding-top:10px;'>$year_box</span></div>";
             $list.="<div class='panel-body'>";
         }
         $list.="<div id='my_courses_container' style='background-color:none;'>";
@@ -604,9 +604,9 @@ class Courses extends Utils {
         $list = "";
         $duration_box = $this->get_course_duration_retake_box();
         $status_box = $this->get_external_coure_status_box();
-        $list.="<div id='myModal' class='modal fade' style='border:none;background-color:transparent;overflow: visible;width:875px;margin-left:0px;left:5%;'>
+        $list.="<div id='myModal' class='modal fade' style='transparent;overflow: visible;width:875px;margin-left:0px;left:15%;'>
         <div class='modal-dialog' >
-            <div class='modal-content' style='width:875px;height:420px;'>
+            <div class='modal-content' style='width:875px;height:500px;'>
                 <div class='modal-header'>
                     <h4 class='modal-title'>Add External Training</h4>
                 </div>

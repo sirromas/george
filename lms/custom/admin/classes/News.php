@@ -50,7 +50,7 @@ class News extends Utils {
             foreach ($news as $n) {
                 $list.="<tr>";
                 $list.="<td>" . $n->title . "</td>";
-                $list.="<td><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='news_edit_" . $n->id . "'></i></span>";
+                $list.="<td><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;' id='news_edit_" . $n->id . "'></i></span>";
                 $list.="<i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='news_del_" . $n->id . "'></i></span>";
                 $list.="</td>";
                 $list.="</tr>";
@@ -70,7 +70,7 @@ class News extends Utils {
     function get_add_news_dialog() {
         $list = "";
 
-        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:936px;margin-left:0px;left:15%;'>
+        $list.="<div id='myModal' class='modal fade' style='overflow:visible;width:936px;margin-left:0px;left:15%;'>
         <div class='modal-dialog modal-lg' >
             <div class='modal-content'>
                 <div class='modal-header'>
@@ -118,9 +118,9 @@ class News extends Utils {
             $content = $row['content'];
         }
 
-        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:934px;margin-left:10%;'>
-        <div class='modal-dialog' modal-lg style='margin-left:8%;width:902px;'>
-            <div class='modal-content' style='min-height:100%;margin-left:0px;'>
+        $list.="<div id='myModal' class='modal fade' style='width:934px;margin-left:0px;left:15%;'>
+        <div class='modal-dialog' modal-lg style='width:902px;'>
+            <div class='modal-content' style='min-height:100%;'>
                 <div class='modal-header'>
                     <h4 class='modal-title'>Edit News</h4>
                 </div>

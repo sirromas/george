@@ -61,10 +61,14 @@ $host = $_SERVER['SERVER_NAME'];
 
 <!-- CSS files -->
 <link rel='stylesheet' href='//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css'>
+
 <link type='text/css' rel='stylesheet' href='http://<?php echo $host; ?>/assets/pagination/simplePagination.css'/>
+<link type="text/css" rel="stylesheet" href='http://<?php echo $host; ?>/assets/css/custom.css' />
 
-
+<!--
 <link type="text/css" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+-->
+
 <link type="text/css" rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css">
 
 <header id="page-header" class="clearfix">

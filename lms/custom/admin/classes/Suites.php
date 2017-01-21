@@ -59,7 +59,7 @@ class Suites extends Utils {
                 $list.="<tr>";
                 $list.="<td><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/" . $s->img_path . "' width='25px' height='25px'></td>";
                 $list.="<td>" . $s->title . "</td>";
-                $list.="<td><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='suite_edit_" . $s->id . "'></i>";
+                $list.="<td><i class='fa fa-pencil-square-o' aria-hidden='true' style='cursor:pointer;padding-left:0px;' id='suite_edit_" . $s->id . "'></i>";
                 $list.="<i class='fa fa-trash' aria-hidden='true' style='cursor:pointer;padding-left:30px;' id='suite_del_" . $s->id . "'></i>";
                 $list.="</td>";
                 $list.="</tr>";
@@ -118,7 +118,7 @@ class Suites extends Utils {
     function get_add_suite_dialog() {
         $list = "";
 
-        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:875px;margin-left:0px;left:5%;min-height: 100%;'>
+        $list.="<div id='myModal' class='modal fade' style='overflow:visible;width:875px;margin-left:0px;left:15%;min-height: 100%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style='overflow:visible;width:875px;left:0px;'>
                 <div class='modal-header'>
@@ -176,7 +176,7 @@ class Suites extends Utils {
             }
         }
 
-        $list.="<div id='myModal' class='modal fade' style='background-color:transparent;overflow:visible;width:875px;margin-left:0px;left:5%;min-height: 100%;'>
+        $list.="<div id='myModal' class='modal fade' style='overflow:visible;width:875px;margin-left:0px;left:15%;min-height: 100%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style='overflow:visible;width:875px;left:0px;'>
                 <div class='modal-header'>
