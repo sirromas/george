@@ -648,6 +648,111 @@ $(document).ready(function () {
         }
 
 
+        if (event.target.id.indexOf("group_info_userid_") >= 0) {
+            var userid = event.target.id.replace("group_info_userid_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var course = {courseid: courseid, userid: userid};
+                            var url = "http://" + domain + "/lms/custom/common/gel_practice_admin_modal_dialog.php";
+                            $.post(url, {userid: userid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+
+        }
+
+        if (event.target.id.indexOf("group_practiceid_") >= 0) {
+            var practiceid = event.target.id.replace("group_practiceid_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/gel_practice_courses_dialog.php";
+                            $.post(url, {practiceid: practiceid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'gpadmin_update_button') {
+            var userid = $('#gpadmin_userid').val();
+            var firstname = $('#gpadmin_firstname').val();
+            var lastname = $('#gpadmin_lastname').val();
+            var email = $('#gpadmin_email').val();
+            var pwd = $('#gpadmin_pwd').val();
+            if (firstname != '' && lastname != '' && email != '') {
+                $('#gpadmin_err').html('');
+                if (confirm('Update user profile?')) {
+                    var url = "http://" + domain + "/lms/custom/common/update_gpadmin.php";
+                    var user = {userid: userid,
+                        firstname: firstname,
+                        lastname: lastname,
+                        email: email,
+                        pwd: pwd};
+                    $.post(url, {user: JSON.stringify(user)}).done(function (data) {
+                        console.log(data);
+                        $("[data-dismiss=modal]").trigger({type: "click"});
+                        get_groups_page();
+                    });
+                }
+            } // end if
+            else {
+                $('#gpadmin_err').html('Please provide all required fields');
+            }
+        }
+
+
+        if (event.target.id.indexOf("practice_course_") >= 0) {
+            var userid = $('#gpadmin_userid').val();
+            var groupid = event.target.id.replace("practice_course_", "");
+            if (confirm('Remove current course from the Practice?')) {
+                var url = "http://" + domain + "/lms/custom/common/remove_course_from_practice.php";
+                $.post(url, {userid: userid, groupid: groupid}).done(function (data) {
+                    $('#existing_practice_courses_container').html(data);
+                });
+            }
+        }
+
+        if (event.target.id == 'practice_add_course_button') {
+            var practiceid = $('#practiceid').val();
+            var userid = $('#gpadmin_userid').val();
+            var courses = $('#gpcourses').val();
+            var practice = {practiceid: practiceid, userid: userid, courses: courses};
+            var url = "http://" + domain + "/lms/custom/common/add_courses_to_practice.php";
+            $.post(url, {practice: JSON.stringify(practice)}).done(function (data) {
+                console.log(data);
+                $("[data-dismiss=modal]").trigger({type: "click"});
+                get_groups_page();
+            });
+        }
 
     }); // end of $('body').click(function (event) {
 
