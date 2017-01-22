@@ -845,4 +845,98 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_repeat_training_page($userid) {
+        $list = "";
+        if ($userid == 2) {
+            $list.=$this->get_admin_repeat_training_page();
+        } // end if $userid==2
+        else {
+            $list.=$this->get_gpadmin_repeat_training_page();
+        } // end else
+
+        return $list;
+    }
+
+    function get_course_repeat_box($courseid) {
+        $list = "";
+        $list.="<select id='course_duration_$courseid'>";
+        $query = "select * from uk_course_duration where courseid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $db_duration = $row['duration'];
+        }
+        for ($i = 1; $i <= 36; $i++) {
+            if ($i == $db_duration) {
+                $list.="<option value='$i' selected>$i</option>";
+            } // end if $i==$db_duration
+            else {
+                $list.="<option value='$i'>$i</option>";
+            } // end else
+        }
+        $list.="</select>";
+        return $list;
+    }
+
+    function update_course_duration($courseid, $duration) {
+        $query = "update uk_course_duration set duration=$duration "
+                . "where courseid=$courseid";
+        $this->db->query($query);
+    }
+
+    function get_admin_repeat_training_page() {
+        $list = "";
+
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>Repeated courses</span>";
+        $list.="</div>";
+
+        $list.="<table id='repeat_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Repeat Duration</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        $query = "select * from uk_course where id<>1";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $catname = $this->get_course_category_name($row['category']);
+                $duration = $this->get_course_repeat_box($row['id']);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $row['fullname'] . "</td>";
+                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(months)</span></td>";
+                $list.="</tr>";
+            } // end while
+        } // end if $num > 0
+
+        $list.="</tbody>";
+
+        $list.="</table>";
+
+        //$list.="</div></div>"; // end of panel
+
+        return $list;
+
+
+        return $list;
+    }
+
+    function get_gpadmin_repeat_training_page() {
+        
+    }
+
+    function create_repeat_training_page() {
+        $list = "";
+
+        return $list;
+    }
+
 }

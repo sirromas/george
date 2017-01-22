@@ -14,6 +14,7 @@ $(document).ready(function () {
     $('#all_external_courses').DataTable();
     $('#all_groups').DataTable();
     $('#data-users').DataTable();
+    $('#repeat_courses').DataTable();
 
 
     var dialog_loaded;
@@ -974,6 +975,17 @@ $(document).ready(function () {
                 var url = "http://" + domain + "/lms/custom/common/get_course_by_category.php";
                 $.post(url, {catid: catid}).done(function (data) {
                     $('#courses_container').html(data);
+                });
+            }
+        }
+
+        if (event.target.id.indexOf("course_duration_") >= 0) {
+            var courseid = event.target.id.replace("course_duration_", "");
+            var duration = $('#' + event.target.id).val();
+            if (confirm('Change duration for current course?')) {
+                var url = "http://" + domain + "/lms/custom/common/update_course_duration.php";
+                $.post(url, {courseid: courseid, duration: duration}).done(function () {
+                    console.log('Done ...');
                 });
             }
         }

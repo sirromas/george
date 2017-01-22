@@ -64,13 +64,14 @@ class Navigation extends Utils {
         $c = new Courses();
         $courses = $c->get_courses_page($this->user->id);
         $ext = $c->get_personal_external_training_courses($this->user->id);
+        $repeat = $c->get_repeat_training_page($this->user->id);
 
         $g = new Groups();
-        $groups=$g->get_groups_page($this->user->id);
-        
-        $u=new Users();
-        $users=$u->get_users_page($this->user->id);
-     
+        $groups = $g->get_groups_page($this->user->id);
+
+        $u = new Users();
+        $users = $u->get_users_page($this->user->id);
+
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</li></a>
           <li><a data-toggle = 'tab'  href = '#profile'><i style='padding-left:13px;cursor:pointer;' class='fa fa-id-card-o fa-2x'aria-hidden='true' ></i><br>My profile</span></a></li>
@@ -99,8 +100,7 @@ class Navigation extends Utils {
             $ext
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
-            <h3>Repeat Training</h3>
-            <p>Some content.</p>
+            $repeat
           </div>
           <div id = 'policy' class = 'tab-pane fade'>
             <h3>Policies</h3>
@@ -212,9 +212,9 @@ class Navigation extends Utils {
         $c = new Courses();
         $courses = $c->get_courses_page($this->user->id);
         $ext = $c->get_personal_external_training_courses($this->user->id);
-        
-        $u=new Users();
-        $users=$u->get_users_page($this->user->id);
+
+        $u = new Users();
+        $users = $u->get_users_page($this->user->id);
 
         $list.="<ul class = 'nav nav-tabs' >
          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
