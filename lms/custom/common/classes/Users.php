@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Groups.php';
 
 /**
  * Description of Users
@@ -14,6 +15,646 @@ class Users extends Utils {
     }
 
     function get_users_page($userid) {
+        $list = "";
+        if ($userid == 2) {
+            $list.=$this->get_admin_users_page($userid);
+        } // end if $userid==2
+        else {
+            $list.=$this->get_gp_users_page($userid);
+        } // end else
+        return $list;
+    }
+
+    function get_practice_name_by_userid($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        //echo "Query: ".$query."<br>";
+        $result = $this->db->query($query);
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $practiceid = $row['practiceid'];
+            } // end hwile
+        } // end if $num > 0
+        else {
+            $practiceid = 0;
+        }
+
+        if ($practiceid > 0) {
+            $query = "select * from uk_practice where id=$practiceid";
+            //echo "Query: ".$query."<br>";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $name = $row['name'];
+            }
+        } // end if $practiceid>0
+        else {
+            $name = 'N/A';
+        }
+        return $name;
+    }
+
+    function get_admin_users_page($current_userid) {
+        $list = "";
+        $users = array();
+        $query = "select * from uk_user where id<>2 and deleted=0";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = $row['id'];
+        }
+
+        $list.="<div class='row-fluid'>";
+        $list.="<input type='hidden' id='current_user' value='$current_userid'>";
+        $list.="<span class='span3'><button id='users_add_user'>Add User</button></span>";
+        $list.="</div>";
+
+        if (count($users) > 0) {
+            $list.="<div id='users_container'>";
+            $list.="<table id='data-users' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Practice name</th>";
+            $list.="<th>Role</th>";
+            $list.="<th>Firstname</th>";
+            $list.="<th>Lastname</th>";
+            $list.="<th>Email</th>";
+            $list.="<th>Actions</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+
+            $list.="<tbody>";
+
+            foreach ($users as $userid) {
+                $user = $this->get_user_data_by_id($userid);
+                $practicename = $this->get_practice_name_by_userid($userid);
+                $rolename = $this->get_user_rolename($this->get_user_role($userid));
+                if ($practicename != 'N/A') {
+                    $list.="<tr>";
+                    $list.="<td>$practicename</td>";
+                    $list.="<td>$rolename</td>";
+                    $list.="<td>$user->firstname</td>";
+                    $list.="<td>$user->lastname</td>";
+                    $list.="<td>$user->email</td>";
+                    $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
+                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                    $list.="</tr>";
+                }
+            } // end foreach
+            $list.="</table>";
+            $list.="</div>";
+        } // end ifcount($users)>0
+        else {
+            $list.="<div class='row-fluid'>";
+            $list.="<span class='span9'>There are no users in the systen</span>";
+            $list.="</div>";
+        }
+
+        return $list;
+    }
+
+    function get_gp_users_page($userid) {
+        $list = "";
+        $groups = array();
+        $users = array();
+        $g = new Groups();
+
+        $query = "select * from uk_groups_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row['groupid'];
+        }
+
+        $query = "select * from uk_practice where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['id'];
+            $practicename = $row['name'];
+        }
+
+        $query = "select * from uk_practice_members where practiceid=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $users[] = $row['userid'];
+        }
+
+        if (count($users) > 0) {
+            $list.="<div id='users_container'>";
+            $list.="<table id='data-users' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Practice name</th>";
+            $list.="<th>Role</th>";
+            $list.="<th>Firstname</th>";
+            $list.="<th>Lastname</th>";
+            $list.="<th>Email</th>";
+            $list.="<th>Actions</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+
+            $list.="<tbody>";
+            foreach ($users as $userid) {
+                $user = $this->get_user_data_by_id($userid);
+                $rolename = $this->get_user_rolename($this->get_user_role($userid));
+                $list.="<tr>";
+                $list.="<td>$practicename</td>";
+                $list.="<td>$rolename</td>";
+                $list.="<td>$user->firstname</td>";
+                $list.="<td>$user->lastname</td>";
+                $list.="<td>$user->mail</td>";
+                $list.="<td>&nbsp;</td>";
+                $list.="</tr>";
+            }
+            $list.="</tbody>";
+
+            $list.="</table>";
+            $list.="</div>";
+        } // end if count($users)>0
+        else {
+            $list.="<div class='row-fluid'>";
+            $list.="<span class='span9'>There are no users inside practice</span>";
+            $list.="</div>";
+        }
+
+        return $list;
+    }
+
+    function get_edit_user_dialog($current_user, $userid) {
+        $list = "";
+        if ($current_user == 2) {
+            $list.=$this->get_admin_edit_user_dialog($current_user, $userid);
+        } // end if $current_user == 2
+        else {
+            $list.=$this->get_gpadmin_edit_user_dialog($current_user, $userid);
+        }
+        return $list;
+    }
+
+    function get_courseid_by_context($contextid) {
+        $query = "select * from uk_context where id=$contextid "
+                . "and contextlevel=50";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courseid = $row['instanceid'];
+        }
+        return $courseid;
+    }
+
+    function get_users_course_block($userid, $toolbar = true) {
+        $list = "";
+        if ($toolbar) {
+            $list.="<div class='row-fluid' id='existing_user_courses_container'>";
+        }
+        $list.="<ul>";
+
+        $query = "select * from uk_role_assignments "
+                . "where roleid=5 and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courseid = $this->get_courseid_by_context($row['contextid']);
+                $coursename = $this->get_course_name($courseid);
+                $list.="<div class='row-fluid'>";
+                $list.="<span class='span6'>$coursename</span><span class='span1'><i id='user_course_$courseid' style='cursor:pointer;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></span>";
+                $list.="</div>";
+            } // end while
+        } // end if $num > 0
+        else {
+            $list.="<div class='row-fluid'>";
+            $list.="<span class='span6'>N/A</span>";
+            $list.="</div>";
+        } // end else
+        $list.="</ul>";
+        if ($toolbar) {
+            $list.="</div>";
+        }
+        return $list;
+    }
+
+    function get_admin_edit_user_dialog($current_user, $userid) {
+        $list = "";
+        $user = $this->get_user_data_by_id($userid);
+
+        $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style=''>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Edit User</h4>
+                </div>
+                <div class='modal-body' style=''>
+                <input type='hidden' id='user_section_userid' value='$userid'>
+                    
+                <div class='container-fluid'>
+                <span class='span1'>Firstname*</span>
+                <span class='span6'><input type='text' id='user_firstname' value='$user->firstname'></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Lastname*</span>
+                <span class='span6'><input type='text' id='user_lastname' value='$user->lastname'></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Email*</span>
+                <span class='span6'><input type='text' id='user_email' value='$user->email'></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Password</span>
+                <span class='span6'><input type='password' id='user_pwd' value=''></span>
+                </div>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span6' style='color:red;' id='user_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='update_user_section_user'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function get_user_courses_dialog($current_user, $userid) {
+        $list = "";
+        $ext_courses = $this->get_users_course_block($userid);
+        $g = new Groups();
+        $pcategories = $g->get_practice_types();
+        $pcourses = $g->get_practice_courses();
+
+        $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style='width:800px;'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Edit User Courses</h4>
+                </div>
+                <div class='modal-body' style='min-height:520px;'>
+                <input type='hidden' id='user_section_userid' value='$userid'>
+                
+                <div class='container-fluid' >
+                <span class='span2' style='font-weight:bold;'>Enrolled courses:</span>
+                <span class='span6'>$ext_courses</span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span7'><hr></span>
+                </div>
+                
+                <div class='container-fluid' >
+                <span class='span2' style='font-weight:bold;'>Enroll into course</span>
+                </div>
+                
+                <ul>
+                <div class='container-fluid' style=''>
+                <span class='span2'>Practice type</span>
+                <span class='span3'>$pcategories</span>
+                </div>
+                    
+                <div class='container-fluid' style=''>
+                <span class='span2'>Practice courses</span>
+                <span class='span3' id='courses_container'>$pcourses</span>
+                </div>
+                </ul>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span6' style='color:red;' id='user_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='update_user_courses'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function get_course_groupid($courseid) {
+        $query = "select * from uk_groups where courseid=$courseid";
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $groupid = $row['id'];
+            }
+        } // end if $num > 0
+        else {
+            $groupid = 0;
+        }
+        return $groupid;
+    }
+
+    function enroll_user($courseid, $userid) {
+        $contextid = $this->get_course_context($courseid);
+        $roleid = 5; // student
+        $enrolid = 1; // manual enrollment
+        // 1. Insert into uk_user_enrolments table
+        $query = "insert into uk_user_enrolments
+             (enrolid,
+              userid,
+              timestart,
+              modifierid,
+              timecreated,
+              timemodified)
+               values ('" . $enrolid . "',
+                       '" . $userid . "',
+                        '" . time() . "',   
+                        '2',
+                         '" . time() . "',
+                         '" . time() . "')";
+        //echo "Query: ".$query."<br/>";
+        $this->db->query($query);
+
+        // 2. Insert into uk_role_assignments table
+        $query = "insert into uk_role_assignments
+                  (roleid,
+                   contextid,
+                   userid,
+                   timemodified,
+                   modifierid)                   
+                   values ('" . $roleid . "',
+                           '" . $contextid . "',
+                           '" . $userid . "',
+                           '" . time() . "',
+                            '2'         )";
+        // echo "Query: ".$query."<br/>";
+        $this->db->query($query);
+    }
+
+    function unenroll_user($courseid, $userid) {
+        $contextid = $this->get_course_context($courseid);
+        $query = "delete from uk_role_assignments "
+                . "where contextid=$contextid "
+                . "and userid=$userid";
+        $this->db->query($query);
+    }
+
+    function add_user_to_group($groupid, $userid) {
+        $query = "insert into uk_groups_members "
+                . "(groupid,"
+                . "userid,"
+                . "timeadded) "
+                . "values($groupid,$userid,'" . time() . "')";
+        $this->db->query($query);
+    }
+
+    function remove_user_from_group($groupid, $userid) {
+        $query = "delete from uk_groups_members "
+                . "where groupid=$groupid "
+                . "and userid=$userid";
+        echo "Query: " . $query;
+        $this->db->query($query);
+    }
+
+    function remove_user_from_course($courseid, $userid) {
+        $list = "";
+        $this->unenroll_user($courseid, $userid);
+        $groupid = $this->get_course_groupid($courseid);
+        if ($groupid > 0) {
+            $this->remove_user_from_group($groupid, $userid);
+        }
+        $list.=$this->get_users_course_block($userid, false);
+        return $list;
+    }
+
+    function update_user($user) {
+        $g = new Groups();
+        $g->update_gpadmin($user);
+    }
+
+    function update_user_courses($user) {
+        $query = "select * from uk_cohort_members "
+                . "where userid=$user->userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $cohortid = $row['cohortid'];
+            }
+        } // end if $num > 0
+        else {
+            $cohortid = 0;
+        }
+
+        if ($cohortid > 0) {
+            $query = "select * from uk_cohort where id=$cohortid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $cohort_name = $row['name'];
+            }
+        } // end if $cohortid>0
+        else {
+            $cohort_name = "Practice Index";
+        }
+
+        $query = "select * from uk_practice_members where userid=$user->userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $practiceid = $row['practiceid'];
+            }
+        } // end if $num > 0
+        else {
+            $practiceid = 0;
+        }
+
+        if ($practiceid > 0) {
+            $query = "select * from uk_practice where id=$practiceid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $praticename = $row['name'];
+            }
+        } // end if $practiceid>0
+        else {
+            $praticename = 'Practice Index';
+        }
+
+        $courses = $user->courses;
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                if ($courseid > 0) {
+                    $this->enroll_user($courseid, $user->userid);
+                    $groupid = $this->get_course_groupid($courseid);
+                    if ($groupid == 0) {
+                        if ($user->userid == 2) {
+                            $group_name = 'Practice Index';
+                        } // end if 
+                        else {
+                            $coursename = $this->get_course_name($courseid);
+                            $g = new Groups();
+                            $group_name = $cohort_name . " - " . $praticename . " - " . $coursename;
+                            $groupid = $g->create_group($courseid, $group_name);
+                        } // end else
+                    } // end if $groupid == 0
+                    $this->add_user_to_group($groupid, $user->userid);
+                } // end if $courseid>0
+            } // end foreach
+        } // end if count($courses)>0
+    }
+
+    function get_add_user_dialog($userid) {
+        $list = "";
+        if ($userid == 2) {
+            $list.=$this->get_admin_add_user_dialog($userid);
+        } // end if $userid==2
+        else {
+            $list.=$this->get_gpadmin_add_user_dialog($userid);
+        } // end else 
+
+        return $list;
+    }
+
+    function get_practices_list() {
+        $list = "";
+        $list.="<select id='practices_list' style='width:220px;'>";
+        $list.="<option value='0' selected>Please select</option>";
+        $query = "select * from uk_practice order by name";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $list.="<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
+            } // end while
+        } // end if $num > 0
+        $list.="</select>";
+        return $list;
+    }
+
+    function get_admin_add_user_dialog($userid) {
+        $list = "";
+        $practices = $this->get_practices_list();
+        $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style=''>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Add User</h4>
+                </div>
+                <div class='modal-body' style=''>
+                <input type='hidden' id='user_section_userid' value='$userid'>
+                    
+                <div class='container-fluid'>
+                <span class='span1'>Firstname*</span>
+                <span class='span6'><input type='text' id='user_firstname' value=''></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Lastname*</span>
+                <span class='span6'><input type='text' id='user_lastname' value=''></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Email*</span>
+                <span class='span6'><input type='text' id='user_email' value=''></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Password*</span>
+                <span class='span6'><input type='password' id='user_pwd' value=''></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Practice*</span>
+                <span class='span6'>$practices</span>
+                </div>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span6' style='color:red;' id='user_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='add_new_user'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function add_user_to_practice($practiceid, $userid) {
+        $query = "insert into uk_practice_members "
+                . "(practiceid,userid) "
+                . "values ($practiceid,$userid)";
+        $this->db->query($query);
+    }
+
+    function add_user_to_cohort($practiceid, $userid) {
+        $query = "select * from uk_practice where id=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $cohortid = $row['cohortid'];
+        }
+
+        $query = "insert into uk_cohort_members "
+                . "(cohortid,"
+                . "userid,"
+                . "timeadded) "
+                . "values ($cohortid,$userid,'" . time() . "')";
+        $this->db->query($query);
+    }
+
+    function add_new_user($user) {
+
+        $status = $this->create_user($user);
+        if ($status) {
+            $dbuser = $this->get_user_data_by_email($user->email); // object
+            $userid = $dbuser->id;
+            $this->add_user_to_practice($user->practiceid, $userid);
+            $this->add_user_to_cohort($user->practiceid, $userid);
+        }
+    }
+
+    function delete_user($userid) {
+
+        // 1. Remove from groups
+        // 2. Unenroll user
+        // 3. Remove from cohorts
+        // 4. Remove from practice
+        // 5. Delete user
+
+        $query = "delete from uk_groups_members where userid=$userid";
+        $this->db->query($query);
+
+        $courses = $this->get_user_courses($userid);
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $this->unenroll_user($courseid, $userid);
+            }
+        }
+
+        $query = "delete from uk_cohort_members where userid=$userid";
+        $this->db->query($query);
+
+        $query = "delete from uk_practice_members where userid=$userid";
+        $this->db->query($query);
+
+        $query = "update uk_user set deleted=1 where id=$userid";
+        $this->db->query($query);
+    }
+
+    function get_gpadmin_add_user_dialog($userid) {
+        
+    }
+
+    function get_gpadmin_edit_user_dialog($current_user, $userid) {
         
     }
 

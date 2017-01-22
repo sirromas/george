@@ -39,6 +39,15 @@ class Utils {
         return $context;
     }
 
+    function get_user_rolename($roleid) {
+        $query = "select * from uk_role where id=$roleid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['shortname'];
+        }
+        return $name;
+    }
+
     function get_user_role($userid) {
         $context = $this->get_context($userid);
         if ($userid != 2) {
@@ -59,6 +68,17 @@ class Utils {
             $roleid = 0; // admin user
         } // end else
         return $roleid;
+    }
+
+    function get_course_context($courseid) {
+        $query = "select * from uk_context "
+                . "where contextlevel=50 "
+                . "and instanceid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $contextid = $row['id'];
+        }
+        return $contextid;
     }
 
     function get_user_data_by_email($email) {

@@ -153,14 +153,12 @@ class Groups extends Utils {
 
     function get_practice_courses($catid = null) {
         $list = "";
-
+        $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
+        $list.="<option value=0 selected>Please select</option>";
         if ($catid == null) {
-            $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
-            $list.="<option value=0 selected>Please select</option>";
+            $query = "select * from uk_course order by fullname";
         } // end if $catid==null
         else {
-            $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
-            $list.="<option value=0 selected>Please select</option>";
             $query = "select * from uk_course where category=$catid order by fullname";
             $num = $this->db->numrows($query);
             if ($num > 0) {

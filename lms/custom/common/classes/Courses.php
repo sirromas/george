@@ -269,7 +269,7 @@ class Courses extends Utils {
         }
 
         $list = "";
-        $list.="<select id='my_courses_year_selection_box' style='padding-top:8px;'>";
+        $list.="<select id='my_courses_year_selection_box' style=''>";
         for ($i = 2014; $i <= 2035; $i++) {
             if ($i == $year) {
                 $list.="<option value='$i' selected>$i</option>";
@@ -469,6 +469,9 @@ class Courses extends Utils {
 
     function get_gp_page($userid) {
         $list = "";
+        $courses = $this->get_user_courses($userid);
+        $mycourses = $this->get_my_courses_block($courses, $userid);
+        $list.=$mycourses;
 
         return $list;
     }
@@ -546,8 +549,8 @@ class Courses extends Utils {
                     $list2 = $this->get_ccg_external_training($cohortid);
                     break;
                 case 10:
-                    $groupingid = $this->get_user_grouping($userid);
-                    $list2 = $this->get_gp_external_training($groupingid);
+
+                    $list2 = $this->get_gp_external_training($userid);
                     break;
             } // end of switch
         } // end else
@@ -749,7 +752,7 @@ class Courses extends Utils {
         return $list;
     }
 
-    function get_gp_external_training($groupingid) {
+    function get_gp_external_training($userid) {
         $list = "";
 
         return $list;

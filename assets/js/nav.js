@@ -13,6 +13,7 @@ $(document).ready(function () {
     $('#my_external_courses').DataTable();
     $('#all_external_courses').DataTable();
     $('#all_groups').DataTable();
+    $('#data-users').DataTable();
 
 
     var dialog_loaded;
@@ -67,6 +68,14 @@ $(document).ready(function () {
         $.post(url, {userid: 2}).done(function (data) {
             $('#groups').html(data);
             $('#all_groups').DataTable();
+        });
+    }
+
+    function get_users_page() {
+        var url = "/lms/custom/common/get_users_page.php";
+        $.post(url, {userid: 2}).done(function (data) {
+            $('#users').html(data);
+            $('#data-users').DataTable();
         });
     }
 
@@ -753,6 +762,192 @@ $(document).ready(function () {
                 get_groups_page();
             });
         }
+
+        if (event.target.id.indexOf("users_info_userid_") >= 0) {
+            var current_user = $('#current_user').val();
+            var userid = event.target.id.replace("users_info_userid_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_edit_user_dialog.php";
+                            $.post(url, {current_user: current_user, userid: userid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id.indexOf("users_courses_") >= 0) {
+            var current_user = $('#current_user').val();
+            var userid = event.target.id.replace("users_courses_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_user_courses_dialog.php";
+                            $.post(url, {current_user: current_user, userid: userid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id.indexOf("users_delete_userid_") >= 0) {
+            var userid = event.target.id.replace("users_delete_userid_", "");
+            if (confirm('Delete current user?')) {
+                var url = "http://" + domain + "/lms/custom/common/delete_user.php";
+                $.post(url, {userid: userid}).done(function (data) {
+                    console.log(data);
+                    get_users_page();
+                });
+            }
+        }
+
+        if (event.target.id.indexOf("user_course_") >= 0) {
+            var courseid = event.target.id.replace("user_course_", "");
+            var userid = $('#user_section_userid').val();
+            console.log('Course ID: ' + courseid);
+            if (confirm('Unenroll current user from this course?')) {
+                var url = "http://" + domain + "/lms/custom/common/remove_user_from_course.php";
+                $.post(url, {courseid: courseid, userid: userid}).done(function (data) {
+                    $('#existing_user_courses_container').html(data);
+                });
+            }
+        }
+
+
+        if (event.target.id == 'update_user_section_user') {
+            var userid = $('#user_section_userid').val();
+            var firstname = $('#user_firstname').val();
+            var lastname = $('#user_lastname').val();
+            var email = $('#user_email').val();
+            var pwd = $('#user_pwd').val();
+
+            var user = {userid: userid,
+                firstname: firstname,
+                lastname: lastname,
+                email: email,
+                pwd: pwd
+            };
+            //console.log('User obj: ' + JSON.stringify(user));
+            if (firstname != '' && lastname != '' && email != '') {
+                $('#user_err').html('');
+                var url = "http://" + domain + "/lms/custom/common/update_user_section_user.php";
+                $.post(url, {user: JSON.stringify(user)}).done(function (data) {
+                    console.log(data);
+                    $("[data-dismiss=modal]").trigger({type: "click"});
+                    get_users_page();
+                });
+            } // end if
+            else {
+                $('#user_err').html('Please provide require fieds');
+            }
+
+        }
+
+        if (event.target.id == 'update_user_courses') {
+            var userid = $('#user_section_userid').val();
+            var courses = $('#gpcourses').val();
+            var user = {userid: userid, courses: courses};
+            var url = "http://" + domain + "/lms/custom/common/update_user_courses.php";
+            $.post(url, {user: JSON.stringify(user)}).done(function (data) {
+                console.log(data);
+                $("[data-dismiss=modal]").trigger({type: "click"});
+                get_users_page();
+            });
+        }
+
+        if (event.target.id == 'users_add_user') {
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_add_user_dialog.php";
+                            $.post(url, {userid: 2}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'add_new_user') {
+            var firstname = $('#user_firstname').val();
+            var lastname = $('#user_lastname').val();
+            var email = $('#user_email').val();
+            var pwd = $('#user_pwd').val();
+            var practiceid = $('#practices_list').val();
+
+            var user = {firstname: firstname,
+                lastname: lastname,
+                email: email,
+                pwd: pwd,
+                practiceid: practiceid};
+            console.log('User object: ' + JSON.stringify(user));
+
+            if (firstname != '' && lastname != '' && email != '' && pwd != '' && practiceid > 0) {
+                $('#user_err').html('');
+                var check_url = "http://" + domain + "/lms/custom/common/is_email_exists.php";
+                $.post(check_url, {email: email}).done(function (data) {
+                    if (data == 0) {
+                        $('#user_err').html('')
+                        var url = "http://" + domain + "/lms/custom/common/add_new_user.php";
+                        $.post(url, {user: JSON.stringify(user)}).done(function (data) {
+                            console.log(data);
+                            $("[data-dismiss=modal]").trigger({type: "click"});
+                            get_users_page();
+                        });
+                    } // end if data == 0
+                    else {
+                        $('#user_err').html('Email already in use');
+                    }
+                });
+            } // end if firstname!=''
+            else {
+                $('#user_err').html('Please provide all required fields');
+            } // end else
+
+
+        }
+
+
+
 
     }); // end of $('body').click(function (event) {
 
