@@ -61,6 +61,48 @@ class Utils {
         return $roleid;
     }
 
+    function get_user_data_by_email($email) {
+        $query = "select * from uk_user where email='$email'";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $user = new stdClass();
+            foreach ($row as $key => $value) {
+                $user->$key = $value;
+            }
+        }
+        return $user;
+    }
+
+    function get_user_data_by_id($id) {
+        $query = "select * from uk_user where id='$id'";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $user = new stdClass();
+            foreach ($row as $key => $value) {
+                $user->$key = $value;
+            }
+        }
+        return $user;
+    }
+
+    function get_table_last_id($table) {
+        $query = "select * from $table order by id desc limit 0, 1";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+        return $id;
+    }
+
+    function get_course_name($courseid) {
+        $query = "select * from uk_course where id=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['fullname'];
+        }
+        return $name;
+    }
+
     function random_string($length) {
         $pool = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 
@@ -68,6 +110,29 @@ class Utils {
             $key .= $pool[mt_rand(0, count($pool) - 1)];
         }
         return $key;
+    }
+
+    function create_user($user) {
+        $encoded_user = base64_encode(json_encode($user));
+        $data = array('user' => $encoded_user);
+
+        $options = array(
+            'http' => array(
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data),
+            ),
+        );
+
+        $context = stream_context_create($options);
+        $response = file_get_contents($this->signup_url, false, $context);
+
+        if ($response !== false) {
+            return true;
+        }  // end if $response !== false        
+        else {
+            return false;
+        }
     }
 
     function create_random_user() {
@@ -174,6 +239,12 @@ class Utils {
         } // end if $num > 0
 
         return $courses;
+    }
+
+    function is_email_exists($email) {
+        $query = "select * from uk_user where username='$email'";
+        $num = $this->db->numrows($query);
+        return $num;
     }
 
     function get_username_by_id($id) {

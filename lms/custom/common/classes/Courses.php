@@ -269,7 +269,7 @@ class Courses extends Utils {
         }
 
         $list = "";
-        $list.="<select id='my_courses_year_selection_box style='padding-top:8px;'>";
+        $list.="<select id='my_courses_year_selection_box' style='padding-top:8px;'>";
         for ($i = 2014; $i <= 2035; $i++) {
             if ($i == $year) {
                 $list.="<option value='$i' selected>$i</option>";
@@ -302,9 +302,19 @@ class Courses extends Utils {
         $year_box = $this->get_year_selection_box();
         $list.="<input type='hidden' id='userid' value='$userid'>";
         if ($toolbar) {
-            $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-            $list.="<div class='panel-heading'>My Courses <span style='padding-left:15px;padding-top:10px;'>$year_box</span></div>";
-            $list.="<div class='panel-body'>";
+            if ($userid != 2) {
+                $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+                $list.="<span class='span2'>My Courses</span>";
+                $list.="<span class='span2'>$year_box</span>";
+                $list.="</div>";
+            } // end if
+            else {
+                $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+                $list.="<span class='span2'>My Courses</span>";
+                $list.="<span class='span2'>$year_box</span>";
+                $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
+                $list.="</div>";
+            }
         }
         $list.="<div id='my_courses_container' style='background-color:none;'>";
         $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
@@ -353,7 +363,7 @@ class Courses extends Utils {
         $list.="</tbody>";
         $list.="</table>";
         if ($toolbar) {
-            $list.="</div></div>"; // end of panel
+            //$list.="</div></div>"; // end of panel
         }
         $list.="</div>";
 
@@ -363,9 +373,13 @@ class Courses extends Utils {
     function get_all_system_courses_block() {
         $list = "";
 
-        $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-        $list.="<div class='panel-heading'>All system courses</div>";
-        $list.="<div class='panel-body'>";
+        $list.="<div class='row-fluid' style=''>";
+        $list.="<span class='span12'><hr></span>";
+        $list.="</div>";
+
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>All system courses</span>";
+        $list.="</div>";
 
         $list.="<table id='all_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
 
@@ -397,7 +411,7 @@ class Courses extends Utils {
 
         $list.="</table>";
 
-        $list.="</div></div>"; // end of panel
+        //$list.="</div></div>"; // end of panel
 
         return $list;
     }
@@ -405,11 +419,6 @@ class Courses extends Utils {
     function get_admin_page($userid) {
         $list = "";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
-        //$list.="<span class='span2'><button style='width:147px;' id='add_course_category'>Add Category</button></span>";
-        //$list.="<span class='span2'><button style='width:147px;' id='add_course'>Add Course</button></span>";
-        $list.="</div><br>";
         $courses = $this->get_user_courses($userid);
         $mycourses = $this->get_my_courses_block($courses, $userid);
         $allcourses = $this->get_all_system_courses_block();
@@ -467,9 +476,9 @@ class Courses extends Utils {
     function get_personal_external_training_courses($userid) {
         $list = "";
 
-        $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-        $list.="<div class='panel-heading'>My External Training</div>";
-        $list.="<div class='panel-body'>";
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span3'>My External Training</span>";
+        $list.="</div>";
 
         $list.="<table id='my_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
         $list.="<thead>";
@@ -504,7 +513,6 @@ class Courses extends Utils {
             } // end while
             $list.="</table>";
             $list.= "<div class='container-fluid'>";
-            $list.="<span class='span9'>There are no external courses you enrolled</span>";
             $list.="<input type='hidden' id='external_userid' value='$userid'>";
             $list.="</div>";
             $list.= "<div class='container-fluid'>";
@@ -520,7 +528,7 @@ class Courses extends Utils {
             $list.="<span class='span9'><button id='add_ext_training'>Add Course</button></span>";
             $list.="</div>";
         } // end else
-        $list.="</div></div>";
+        //$list.="</div></div>";
         if ($userid == 2) {
             // It is admin - get all external courses
             $list2 = $this->get_all_external_training_courses();
@@ -752,13 +760,18 @@ class Courses extends Utils {
         $progress = 0;
         $complete = 0;
         $list = "";
+
+        $list.="<div class='row-fluid' style='font-weight:bold;'>";
+        $list.="<span class='span12'><hr></span>";
+        $list.="</div>";
+
         $query = "select * from uk_external_training order by name";
         $num = $this->db->numrows($query);
         if ($num > 0) {
 
-            $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-            $list.="<div class='panel-heading'>All External Training</div>";
-            $list.="<div class='panel-body'>";
+            $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+            $list.="<span class='span3'>All External Training</span>";
+            $list.="</div>";
 
             $list.="<table id='all_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
 
@@ -824,8 +837,7 @@ class Courses extends Utils {
             $list.="<span class='span12'>There are no external courses in the system</span>";
             $list.="</div>";
         } // end else
-
-        $list.="</div></div>";
+        //$list.="</div></div>";
 
         return $list;
     }

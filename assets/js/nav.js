@@ -12,6 +12,8 @@ $(document).ready(function () {
     $('#all_courses').DataTable();
     $('#my_external_courses').DataTable();
     $('#all_external_courses').DataTable();
+    $('#all_groups').DataTable();
+
 
     var dialog_loaded;
     var domain = 'mycodebusters.com';
@@ -57,6 +59,14 @@ $(document).ready(function () {
         var url = "/lms/custom/common/get_my_courses_page.php";
         $.post(url, {userid: userid}).done(function (data) {
             $('#external').html(data);
+        });
+    }
+
+    function get_groups_page() {
+        var url = "/lms/custom/common/get_groups_page.php";
+        $.post(url, {userid: 2}).done(function (data) {
+            $('#groups').html(data);
+            $('#all_groups').DataTable();
         });
     }
 
@@ -544,6 +554,100 @@ $(document).ready(function () {
             } // end else
         }
 
+        if (event.target.id == 'add_gp') {
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var course = {courseid: courseid, userid: userid};
+                            var url = "http://" + domain + "/lms/custom/common/get_add_gp_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'add_gp_button') {
+            var cohortid = $('#cohort').val();
+            var new_ccg = $('#new_ccg').val();
+            var gpname = $('#gpname').val();
+            var firstname = $('#gpfirstname').val();
+            var lastname = $('#gplastname').val();
+            var gpcourses = $('#gpcourses').val();
+            var email = $('#gpemail').val();
+            var pwd = $('#gppwd').val();
+            var courses_length = gpcourses.length;
+            var practice = {new_ccg: new_ccg,
+                cohortid: cohortid,
+                gpname: gpname,
+                firstname: firstname,
+                lastname: lastname,
+                email: email,
+                pwd: pwd,
+                gpcourses: gpcourses};
+            console.log('Courses length ' + courses_length);
+            //console.log('Practice:' + JSON.stringify(practice));
+            if ((cohortid > 0 || new_ccg != '') && gpname != '' && firstname != '' && lastname != '' && email != '' && pwd != '' && gpcourses.length > 0 && gpcourses[0] != 0) {
+                $('#gp_err').html('');
+                var check_url = "http://" + domain + "/lms/custom/common/is_email_exists.php";
+                $.post(check_url, {email: email}).done(function (data) {
+                    if (data == 0) {
+                        $('#gp_err').html('');
+                        $('#gp_loader').show();
+                        var url = "http://" + domain + "/lms/custom/common/add_practice.php";
+                        $.post(url, {practice: JSON.stringify(practice)}).done(function (data) {
+                            console.log(data);
+                            $('#gp_loader').hide();
+                            $("[data-dismiss=modal]").trigger({type: "click"});
+                            get_groups_page();
+                        });
+                    } // end if data==0
+                    else {
+                        $('#gp_err').html('Email already in use');
+                    }
+                });
+            } // end if gpname != '' && firstname != '' ...
+            else {
+                $('#gp_err').html('Please provide all required fields');
+            }
+        }
+
+        if (event.target.id == 'create_new_ccg') {
+            if ($('#create_new_ccg').prop('checked')) {
+                console.log('Checked ...');
+                $('#new_ccg').prop("disabled", false);
+            } // end if
+            else {
+                console.log('Unchecked ...');
+                $('#new_ccg').prop("disabled", true);
+            } // end else 
+        }
+
+        if (event.target.id.indexOf("group_delete_userid_") >= 0) {
+            var userid = event.target.id.replace("group_delete_userid_", "");
+            if (confirm('All Practice data will be deleted. Continue anyway?')) {
+                var url = "http://" + domain + "/lms/custom/common/del_practice.php";
+                $.post(url, {userid: userid}).done(function (data) {
+                    console.log(data);
+                    get_groups_page();
+                });
+            }
+        }
+
+
 
     }); // end of $('body').click(function (event) {
 
@@ -564,8 +668,19 @@ $(document).ready(function () {
 
         }
 
+        if (event.target.id == 'gptypes') {
+            var catid = $('#gptypes').val();
+            if (catid > 0) {
+                var url = "http://" + domain + "/lms/custom/common/get_course_by_category.php";
+                $.post(url, {catid: catid}).done(function (data) {
+                    $('#courses_container').html(data);
+                });
+            }
+        }
+
 
 
     }); // end of  $('body').change(function (event) {
+
 
 }); // end of document ready
