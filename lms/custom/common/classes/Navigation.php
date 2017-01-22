@@ -65,6 +65,7 @@ class Navigation extends Utils {
         $courses = $c->get_courses_page($this->user->id);
         $ext = $c->get_personal_external_training_courses($this->user->id);
         $repeat = $c->get_repeat_training_page($this->user->id);
+        $policy = $c->get_policy_page($this->user->id);
 
         $g = new Groups();
         $groups = $g->get_groups_page($this->user->id);
@@ -103,8 +104,7 @@ class Navigation extends Utils {
             $repeat
           </div>
           <div id = 'policy' class = 'tab-pane fade'>
-            <h3>Policies</h3>
-            <p>Some content.</p>
+            $policy
           </div>
           <div id = 'users' class = 'tab-pane fade'>
             $users

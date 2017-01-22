@@ -15,6 +15,8 @@ $(document).ready(function () {
     $('#all_groups').DataTable();
     $('#data-users').DataTable();
     $('#repeat_courses').DataTable();
+    $('#courses_policy').DataTable();
+
 
 
     var dialog_loaded;
@@ -77,6 +79,14 @@ $(document).ready(function () {
         $.post(url, {userid: 2}).done(function (data) {
             $('#users').html(data);
             $('#data-users').DataTable();
+        });
+    }
+
+    function get_policy_page() {
+        var url = "/lms/custom/common/get_policy_page.php";
+        $.post(url, {userid: 2}).done(function (data) {
+            $('#policy').html(data);
+            $('#courses_policy').DataTable();
         });
     }
 
@@ -943,11 +953,66 @@ $(document).ready(function () {
             else {
                 $('#user_err').html('Please provide all required fields');
             } // end else
-
-
         }
 
 
+        if (event.target.id.indexOf("p_upload_") >= 0) {
+            var courseid = event.target.id.replace("p_upload_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_upload_policy_dialog.php";
+                            $.post(url, {courseid: courseid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+
+        }
+
+        if (event.target.id == 'add_policy_button') {
+            var courseid = $('#policy_course').val();
+            var title = $('#policy_title').val();
+            var file_data = $('#policy_file').prop('files');
+            var url = '/lms/custom/common/add_policy.php';
+            if (title != '' && file_data != '') {
+                $('#policy_err').html('');
+                var form_data = new FormData();
+                $.each(file_data, function (key, value) {
+                    form_data.append(key, value);
+                });
+                form_data.append('courseid', courseid);
+                form_data.append('title', title);
+                $.ajax({
+                    url: url,
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    type: 'POST',
+                    success: function (data) {
+                        console.log(data);
+                        $("[data-dismiss=modal]").trigger({type: "click"});
+                        get_policy_page();
+                    }
+                });
+            } // end if 
+            else {
+                $('#policy_err').html('Please provide all required fields');
+            } // end else
+        }
 
 
     }); // end of $('body').click(function (event) {

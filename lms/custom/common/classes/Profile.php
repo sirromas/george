@@ -21,12 +21,11 @@ class Profile extends Utils {
         }
 
         $list.="<input type='hidden' id='id' value='$userid'>";
+        $list.="<div class='row-fluid' style='font-weight:bold;margin-left:15px;'>";
+        $list.="<span class='span3'>My Profile</span><span class='span7'style='color:red;' id='profile_err'>";
+        $list.="</div>";
 
-        $list.="<div class='panel panel-default' style='margin-left:15px;'>";
-        $list.="<div class='panel-heading'>My Profile</div>";
-        $list.="<div class='panel-body'>";
-
-        $list.="<table>";
+        $list.="<table class='table table-striped table-bordered' cellspacing='0' width='50%'>";
 
         $list.="<tr>";
         $list.="<td style='padding:15px;'>First Name*</td>";
@@ -49,17 +48,13 @@ class Profile extends Utils {
         $list.="</tr>";
 
         $list.="<tr>";
-        $list.="<td colspan='2' style='padding-left:15px;'><span class='span7'style='color:red;' id='profile_err'></td>";
-        $list.="</tr>";
-
-        $list.="<tr>";
         $list.="<td style='padding:15px;'>&nbsp;</td>";
         $list.="<td style='padding:15px;'><button id='update_profile'>Update</button></td>";
         $list.="</tr>";
 
         $list.="</table>";
 
-        $list.="</div></div>";
+        
 
         return $list;
     }

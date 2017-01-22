@@ -704,6 +704,51 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_upload_policy_dialog($courseid) {
+        $list = "";
+
+        $list.="<div id='myModal' class='modal fade' style='width:825px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style='width:825px;'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Upload policy to course</h4>
+                </div>
+                <input type='hidden' id='policy_course' value='$courseid'>
+                <div class='modal-body' style=''>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Title*</span>
+                <span class='span6'><input type='text' id='policy_title' style='width:600px;'></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span1'>Summary</span>
+                <span class='span6'><input type='textarea' id='policy_summary' style='width:570px;height:45px;'></textarea></span>
+                </div>
+                
+                <div class='container-fluid' style='padding-top:15px;'>
+                <span class='span1'>File*</span>
+                <span class='span6'><input type='file' id='policy_file' ></span>
+                </div>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span6' style='color:red;' id='policy_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='add_policy_button'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
     function add_course_category($name) {
 
         $query = "insert into uk_course_categories "
@@ -921,11 +966,6 @@ class Courses extends Utils {
 
         $list.="</table>";
 
-        //$list.="</div></div>"; // end of panel
-
-        return $list;
-
-
         return $list;
     }
 
@@ -933,7 +973,120 @@ class Courses extends Utils {
         
     }
 
-    function create_repeat_training_page() {
+    function get_policy_page($userid) {
+        $list = "";
+        if ($userid == 2) {
+            $list.=$this->get_admin_policy_page($userid);
+        } // end if $userid==2
+        else {
+            $list.=$this->get_gpadmin_policy_page($userid);
+        } // end else 
+        return $list;
+    }
+
+    function get_policy_box($courseid) {
+        $list = "";
+        $list.="<div class='row-fluid'>";
+        $query = "select * from uk_course_policies where courseid=$courseid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>" . $row['title'] . "</a>";
+                $list.="<span class='span6'>$link</span>";
+                $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+            }
+        } // end if $num > 0
+        else {
+            $list.="<span class='span3'>N/A</span>";
+            $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+        } // end else 
+        $list.="</div>";
+
+        return $list;
+    }
+
+    function get_admin_policy_page($userid) {
+        $list = "";
+
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>Courses policy</span>";
+        $list.="</div>";
+
+        $list.="<table id='courses_policy' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Course Policy</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        $query = "select * from uk_course where id<>1";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $catname = $this->get_course_category_name($row['category']);
+                $policy_box = $this->get_policy_box($row['id']);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $row['fullname'] . "</td>";
+                $list.="<td align='center'><span class='col6' style='text-align:center;padding-left:0px;'>$policy_box</span></td>";
+                $list.="</tr>";
+            } // end while
+        } // end if $num > 0
+
+        $list.="</tbody>";
+
+        $list.="</table>";
+
+        return $list;
+    }
+
+    function add_new_policy($files, $post) {
+
+        echo "<pre>";
+        print_r($files);
+        echo "</pre><br>-----------------------------<br>";
+
+        echo "<pre>";
+        print_r($post);
+        echo "</pre><br>-----------------------------<br>";
+
+        $file = $files[0];
+        $name = $file['name'];
+        $tmp_name = $file['tmp_name'];
+        $error = $file['error'];
+        $size = $file['size'];
+        $courseid = $post['courseid'];
+        $title = $post['title'];
+        $summary = $post['summary'];
+
+        if ($tmp_name != '' && $error == 0 && $size > 0) {
+            $newfile = time() . pdf;
+            $destination = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid/$newfile";
+            $status = move_uploaded_file($tmp_name, $destination);
+            if ($status) {
+                
+            }
+        } // end if $tmp_name!='' && $error==0 && $size>0
+        $query = "insert into uk_course_policies "
+                . "(courseid,"
+                . "title,"
+                . "summary,"
+                . "path) "
+                . "values($courseid,"
+                . "'$title', "
+                . "'$summary',"
+                . "'$newfile')";
+        $this->db->query($query);
+    }
+
+    function get_gpadmin_policy_page($userid) {
         $list = "";
 
         return $list;
