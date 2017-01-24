@@ -284,12 +284,60 @@ class Users extends Utils {
         return $list;
     }
 
+    function get_user_practice_courses($userid) {
+        $list = "";
+        $courses = array();
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['practiceid'];
+        }
+
+        $query = "select * from uk_practice where id=$practiceid";
+        //echo "Query: " . $query . "<br>";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $pracice_admin_userid = $row['userid'];
+        }
+
+        $query = "select * from uk_groups_members where userid=$pracice_admin_userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row['groupid'];
+        }
+
+        echo "<br>Groups----------------------<br>";
+        print_r($groups);
+
+
+        foreach ($groups as $groupid) {
+            $query = "select * from uk_groups where id=$groupid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['courseid'];
+            }
+        }
+
+        echo "<br>Courses----------------------<br>";
+        print_r($courses);
+
+        $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
+        $list.="<option value=0 selected>Please select</option>";
+        foreach ($courses as $courseid) {
+            $coursename = $this->get_course_name($courseid);
+            $list.="<option value='$courseid'>$coursename</option>";
+        }
+        $list.="</select>";
+
+        return $list;
+    }
+
     function get_user_courses_dialog($current_user, $userid) {
         $list = "";
         $ext_courses = $this->get_users_course_block($userid);
         $g = new Groups();
-        $pcategories = $g->get_practice_types();
-        $pcourses = $g->get_practice_courses();
+        //$pcategories = $g->get_practice_types();
+        $pcourses = $this->get_user_practice_courses($userid);
 
         $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
         <div class='modal-dialog' >
@@ -311,12 +359,6 @@ class Users extends Utils {
                 
                 <div class='container-fluid' >
                 <span class='span2' style='font-weight:bold;'>Enroll into course</span>
-                </div>
-                
-                <ul>
-                <div class='container-fluid' style=''>
-                <span class='span2'>Practice type</span>
-                <span class='span3'>$pcategories</span>
                 </div>
                     
                 <div class='container-fluid' style=''>
@@ -345,14 +387,9 @@ class Users extends Utils {
 
     function get_course_groupid($courseid) {
         $query = "select * from uk_groups where courseid=$courseid";
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $groupid = $row['id'];
-            }
-        } // end if $num > 0
-        else {
-            $groupid = 0;
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groupid = $row['id'];
         }
         return $groupid;
     }
@@ -361,8 +398,14 @@ class Users extends Utils {
         $contextid = $this->get_course_context($courseid);
         $roleid = 5; // student
         $enrolid = 1; // manual enrollment
-        // 1. Insert into uk_user_enrolments table
-        $query = "insert into uk_user_enrolments
+        // Check before make enroll, maybe already enrolled?
+        $query = "select * from uk_role_assignments "
+                . "where contextid=$contextid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            // 1. Insert into uk_user_enrolments table
+            $query = "insert into uk_user_enrolments
              (enrolid,
               userid,
               timestart,
@@ -375,11 +418,11 @@ class Users extends Utils {
                         '2',
                          '" . time() . "',
                          '" . time() . "')";
-        //echo "Query: ".$query."<br/>";
-        $this->db->query($query);
+            //echo "Query: ".$query."<br/>";
+            $this->db->query($query);
 
-        // 2. Insert into uk_role_assignments table
-        $query = "insert into uk_role_assignments
+            // 2. Insert into uk_role_assignments table
+            $query = "insert into uk_role_assignments
                   (roleid,
                    contextid,
                    userid,
@@ -390,8 +433,9 @@ class Users extends Utils {
                            '" . $userid . "',
                            '" . time() . "',
                             '2'         )";
-        // echo "Query: ".$query."<br/>";
-        $this->db->query($query);
+            // echo "Query: ".$query."<br/>";
+            $this->db->query($query);
+        } // end if $num==0
     }
 
     function unenroll_user($courseid, $userid) {
@@ -403,19 +447,24 @@ class Users extends Utils {
     }
 
     function add_user_to_group($groupid, $userid) {
-        $query = "insert into uk_groups_members "
-                . "(groupid,"
-                . "userid,"
-                . "timeadded) "
-                . "values($groupid,$userid,'" . time() . "')";
-        $this->db->query($query);
+        $query = "select * from uk_groups_members "
+                . "where groupid=$groupid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $query = "insert into uk_groups_members "
+                    . "(groupid,"
+                    . "userid,"
+                    . "timeadded) "
+                    . "values($groupid,$userid,'" . time() . "')";
+            $this->db->query($query);
+        }
     }
 
     function remove_user_from_group($groupid, $userid) {
         $query = "delete from uk_groups_members "
                 . "where groupid=$groupid "
                 . "and userid=$userid";
-        echo "Query: " . $query;
         $this->db->query($query);
     }
 
@@ -489,17 +538,6 @@ class Users extends Utils {
                 if ($courseid > 0) {
                     $this->enroll_user($courseid, $user->userid);
                     $groupid = $this->get_course_groupid($courseid);
-                    if ($groupid == 0) {
-                        if ($user->userid == 2) {
-                            $group_name = 'Practice Index';
-                        } // end if 
-                        else {
-                            $coursename = $this->get_course_name($courseid);
-                            $g = new Groups();
-                            $group_name = $cohort_name . " - " . $praticename . " - " . $coursename;
-                            $groupid = $g->create_group($courseid, $group_name);
-                        } // end else
-                    } // end if $groupid == 0
                     $this->add_user_to_group($groupid, $user->userid);
                 } // end if $courseid>0
             } // end foreach

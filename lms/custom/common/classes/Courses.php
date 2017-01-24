@@ -316,7 +316,8 @@ class Courses extends Utils {
                 $list.="</div>";
             }
         }
-        $list.="<div id='my_courses_container' style='background-color:none;'>";
+        
+        $list.="<div id='my_courses_container' style=''>";
         $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
 
         $list.="<thead>";
@@ -515,6 +516,7 @@ class Courses extends Utils {
                 $list.="</tbody>";
             } // end while
             $list.="</table>";
+            
             $list.= "<div class='container-fluid'>";
             $list.="<input type='hidden' id='external_userid' value='$userid'>";
             $list.="</div>";
@@ -532,6 +534,7 @@ class Courses extends Utils {
             $list.="</div>";
         } // end else
         //$list.="</div></div>";
+        
         if ($userid == 2) {
             // It is admin - get all external courses
             $list2 = $this->get_all_external_training_courses();
@@ -549,14 +552,12 @@ class Courses extends Utils {
                     $list2 = $this->get_ccg_external_training($cohortid);
                     break;
                 case 10:
-
                     $list2 = $this->get_gp_external_training($userid);
                     break;
             } // end of switch
         } // end else
 
         $list.=$list2;
-
         return $list;
     }
 

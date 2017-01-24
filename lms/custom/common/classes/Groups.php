@@ -192,21 +192,33 @@ class Groups extends Utils {
     }
 
     function create_group($courseid, $groupname) {
-        $idnumber = substr(time(), -4);
-        $query = "insert into uk_groups "
-                . "(courseid,"
-                . "idnumber,"
-                . "name,"
-                . "timecreated,"
-                . "timemodified) "
-                . "values($courseid,"
-                . "'$idnumber',"
-                . "'$groupname',"
-                . "'" . time() . "',"
-                . "'" . time() . "')";
-        //echo "Query: " . $query . "<br>";
-        $this->db->query($query);
-        $lastid = $this->get_table_last_id('uk_groups');
+        $query = "select * from uk_groups "
+                . "where courseid=$courseid "
+                . "and name='$groupname'";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $idnumber = substr(time(), -4);
+            $query = "insert into uk_groups "
+                    . "(courseid,"
+                    . "idnumber,"
+                    . "name,"
+                    . "timecreated,"
+                    . "timemodified) "
+                    . "values($courseid,"
+                    . "'$idnumber',"
+                    . "'$groupname',"
+                    . "'" . time() . "',"
+                    . "'" . time() . "')";
+            //echo "Query: " . $query . "<br>";
+            $this->db->query($query);
+            $lastid = $this->get_table_last_id('uk_groups');
+        } // end if
+        else {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $lastid = $row['id'];
+            } // end else
+        }
         return $lastid;
     }
 
@@ -225,32 +237,42 @@ class Groups extends Utils {
                 . "userid,"
                 . "timeadded) "
                 . "values($cohortid,$userid,'" . time() . "')";
-        //echo "Query: " . $query . "<br>";
         $this->db->query($query);
     }
 
     function add_user_to_group($groupid, $userid) {
-        $query = "insert into uk_groups_members "
-                . "(groupid,"
-                . "userid,"
-                . "timeadded) "
-                . "values($groupid,$userid,'" . time() . "')";
-        //echo "Query: " . $query . "<br>";
-        $this->db->query($query);
+        $query = "select * from uk_groups_members "
+                . "where groupid=$groupid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $query = "insert into uk_groups_members "
+                    . "(groupid,"
+                    . "userid,"
+                    . "timeadded) "
+                    . "values($groupid,$userid,'" . time() . "')";
+            $this->db->query($query);
+        }
     }
 
     function attach_course_to_group($courseid, $groupid) {
         $query = "insert into uk_courses2groups (groupid,courseid) "
                 . "values($groupid,$courseid)";
-        //echo "Query: " . $query . "<br>";
         $this->db->query($query);
     }
 
     function attach_course_to_cohort($cohortid, $courseid, $groupid) {
-        $query = "insert into uk_courses2cohorts "
-                . "(cohortid,groupid,courseid) values($cohortid, $groupid, $courseid)";
-        //echo "Query: " . $query . "<br>";
-        $this->db->query($query);
+        $query = "select * from uk_courses2cohorts "
+                . "where cohortid=$cohortid "
+                . "and courseid=$courseid "
+                . "and groupid=$groupid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $query = "insert into uk_courses2cohorts "
+                    . "(cohortid,groupid,courseid) "
+                    . "values($cohortid, $groupid, $courseid)";
+            $this->db->query($query);
+        }
     }
 
     function assign_gp_admin_role($userid) {
@@ -416,7 +438,7 @@ class Groups extends Utils {
     }
 
     function del_practice($userid) {
-
+        // $userid - is practice manager user
         // 1. Get practice cohort, groups and users
         // 2. Remove users from cohort
         // 3. Delete cohort
@@ -446,15 +468,15 @@ class Groups extends Utils {
             $groups[] = $row['groupid'];
         }
 
-        /*
-          echo "<pre>";
-          print_r($users);
-          echo "</pre><br>-------------------------<br>";
 
-          echo "<pre>";
-          print_r($groups);
-          echo "</pre>";
-         */
+        echo "<pre>";
+        print_r($users);
+        echo "</pre><br>-------------------------<br>";
+
+        echo "<pre>";
+        print_r($groups);
+        echo "</pre>";
+
 
         $this->remove_practice_course_links($groups);
         $this->remove_role_assignments($users);
@@ -470,7 +492,7 @@ class Groups extends Utils {
         $cohorts = $this->get_cohorts_list();
         $categories = $this->get_practice_types();
         $courses = $this->get_practice_courses();
-        $list.="<div id='myModal' class='modal fade' style='overflow: visible;width:1000px;margin-left:0px;left:15%;'>;
+        $list.="<div id='myModal' class='modal fade' style='overflow: visible;width:1000px;margin-left:0px;left:15%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style='width:1000px;'>
                 <div class='modal-header'>
@@ -636,11 +658,15 @@ class Groups extends Utils {
         $list.="<ul>";
         foreach ($groups as $groupid) {
             //echo "Grpoup ID: ".$groupid."<br>";
-            $courseid = $this->get_practice_course_id($groupid);
-            $coursename = $this->get_course_name($courseid);
-            $list.="<div class='row-fluid'>";
-            $list.="<span class='span6'>$coursename</span><span class='span1'><i id='practice_course_$groupid' style='cursor:pointer;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></span>";
-            $list.="</div>";
+            if ($groupid > 0) {
+                $courseid = $this->get_practice_course_id($groupid);
+                if ($courseid > 0) {
+                    $coursename = $this->get_course_name($courseid);
+                    $list.="<div class='row-fluid'>";
+                    $list.="<span class='span6'>$coursename</span><span class='span1'><i id='practice_course_$groupid' style='cursor:pointer;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></span>";
+                    $list.="</div>";
+                } // end if
+            } // end if $groupid > 0
         }
         $list.="</ul>";
         $list.="</div>";
@@ -776,7 +802,8 @@ class Groups extends Utils {
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
                 $coursename = $this->get_course_name($courseid);
-                $groupname = $cohort_name . " - " . $practicename . " - " . $coursename;
+                // practice name already includes CCG name
+                $groupname = $practicename . " - " . $coursename;
                 $groupid = $this->create_group($courseid, $groupname);
                 $this->add_user_to_group($groupid, $userid);
                 $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
@@ -802,7 +829,5 @@ class Groups extends Utils {
         } // end else
         $this->db->query($query);
     }
-
-    
 
 }
