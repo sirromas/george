@@ -462,10 +462,20 @@ class Users extends Utils {
     }
 
     function remove_user_from_group($groupid, $userid) {
-        $query = "delete from uk_groups_members "
-                . "where groupid=$groupid "
-                . "and userid=$userid";
-        $this->db->query($query);
+        // GP admin should be never removed from any GP course group
+        $status = $this->is_user_gpadmin($userid);
+        if ($status == 0) {
+            $query = "delete from uk_groups_members "
+                    . "where groupid=$groupid "
+                    . "and userid=$userid";
+            $this->db->query($query);
+        }
+    }
+
+    function is_user_gpadmin($userid) {
+        $query = "select * from uk_practice where userid=$userid";
+        $num = $this->db->numrows($query);
+        return $num;
     }
 
     function remove_user_from_course($courseid, $userid) {

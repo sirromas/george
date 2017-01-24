@@ -248,7 +248,7 @@ class Navigation extends Utils {
             $repeat
           </div>
           <div id = 'policy' class = 'tab-pane fade'>
-            $policy
+            
           </div>
           <div id = 'users' class = 'tab-pane fade'>
             

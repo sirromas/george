@@ -316,7 +316,7 @@ class Courses extends Utils {
                 $list.="</div>";
             }
         }
-        
+
         $list.="<div id='my_courses_container' style=''>";
         $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
 
@@ -462,8 +462,48 @@ class Courses extends Utils {
         return $list;
     }
 
-    function get_ccg_page($userid) {
+    function get_practice_courses_block($userid) {
         $list = "";
+        $courses = array();
+        $groups = $this->get_practice_groups($userid);
+        foreach ($groups as $groupid) {
+            $query = "select * from uk_groups where id=$groupid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['courseid'];
+            }
+        }
+        $list.="<div class='row-fluid' style=''>";
+        $list.="<span class='span12'><hr></span>";
+        $list.="</div>";
+
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>Practice courses</span>";
+        $list.="</div>";
+
+        $list.="<table id='all_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Actions</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+        foreach ($courses as $courseid) {
+            $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
+            $name = $this->get_course_name($courseid);
+            $list.="<tr>";
+            $list.="<td>$catname</td>";
+            $list.="<td>" . $name . "</td>";
+            $list.="<td><span class='col1'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=" . $courseid . "' target='_blank' target='_blank'>View</a></span></td>";
+            $list.="</tr>";
+        } // end foreach
+        $list.="</tbody>";
+
+        $list.="</table>";
 
         return $list;
     }
@@ -472,8 +512,9 @@ class Courses extends Utils {
         $list = "";
         $courses = $this->get_user_courses($userid);
         $mycourses = $this->get_my_courses_block($courses, $userid);
+        $practicecourses = $this->get_practice_courses_block($userid);
         $list.=$mycourses;
-
+        $list.=$practicecourses;
         return $list;
     }
 
@@ -484,23 +525,25 @@ class Courses extends Utils {
         $list.="<span class='span3'>My External Training</span>";
         $list.="</div>";
 
-        $list.="<table id='my_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
-        $list.="<thead>";
-        $list.="<tr>";
-        $list.="<th>Course Name</th>";
-        $list.="<th>Provider</th>";
-        $list.="<th>Date</th>";
-        $list.="<th>Duration</th>";
-        $list.="<th>Status</th>";
-        $list.="<th>User</th>";
-        $list.="<th>Notes</th>";
-        $list.="</tr>";
-        $list.="</thead>";
         $query = "select * from uk_external_training where userid=$userid";
         $num = $this->db->numrows($query);
         if ($num > 0) {
+            $list.="<table id='my_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Course Name</th>";
+            $list.="<th>Provider</th>";
+            $list.="<th>Date</th>";
+            $list.="<th>Duration</th>";
+            $list.="<th>Status</th>";
+            $list.="<th>User</th>";
+            $list.="<th>Notes</th>";
+            $list.="<th>Actions</th>";
+            $list.="</tr>";
+            $list.="</thead>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $id = $row['id'];
                 $username = $this->get_username_by_id($row['userid']);
                 $status = $this->get_status_text($row['status']);
                 $list.="<tbody>";
@@ -508,15 +551,16 @@ class Courses extends Utils {
                 $list.="<td>" . $row['name'] . "</td>";
                 $list.="<td>" . $row['provider'] . "</td>";
                 $list.="<td>" . date('m/d/Y', $row['cdate']) . "</td>";
-                $list.="<td>" . $row['duration'] . "</td>";
+                $list.="<td>" . $row['duration'] . "&nbsp;&nbsp;(month)</td>";
                 $list.="<td>" . $status . "</tdd>";
                 $list.="<td>" . $username . "</td>";
                 $list.="<td>" . $row['notes'] . "</td>";
+                $list.="<td><a style='cursor:pointer;' onClick='return false;' id='update_external_course_$id'>Update Status</a></td>";
                 $list.="</tr>";
                 $list.="</tbody>";
             } // end while
             $list.="</table>";
-            
+
             $list.= "<div class='container-fluid'>";
             $list.="<input type='hidden' id='external_userid' value='$userid'>";
             $list.="</div>";
@@ -534,7 +578,7 @@ class Courses extends Utils {
             $list.="</div>";
         } // end else
         //$list.="</div></div>";
-        
+
         if ($userid == 2) {
             // It is admin - get all external courses
             $list2 = $this->get_all_external_training_courses();
@@ -800,6 +844,96 @@ class Courses extends Utils {
 
     function get_gp_external_training($userid) {
         $list = "";
+        $not_started = 0;
+        $progress = 0;
+        $complete = 0;
+        $courses = array();
+
+        $practice_users_arr = $this->get_practice_users($userid);
+        $practice_users_list = implode(',', $practice_users_arr);
+
+        $query = "select * from uk_external_training "
+                . "where userid in ($practice_users_list) ";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $course = new stdClass();
+                foreach ($row as $key => $value) {
+                    $course->$key = $value;
+                }
+                $courses[] = $course;
+            }
+        } // end if $num > 0
+
+        $list.="<div class='row-fluid' style='font-weight:bold;'>";
+        $list.="<span class='span12'><hr></span>";
+        $list.="</div>";
+
+        $list.= "<div class='container-fluid' style='font-weight:bold;'>";
+        $list.="<span class='span12'>Practice External Training</span>";
+        $list.="</div>";
+
+        if (count($courses) > 0) {
+
+            $list.="<table id='all_external_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Course Name</th>";
+            $list.="<th>Provider</th>";
+            $list.="<th>Date</th>";
+            $list.="<th>Duration</th>";
+            $list.="<th>Status</th>";
+            $list.="<th>User</th>";
+            $list.="<th>Notes</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+            $list.="<tbody>";
+
+            foreach ($courses as $courseObj) {
+                $username = $this->get_username_by_id($courseObj->userid);
+                $status = $this->get_status_text($courseObj->status);
+
+                switch ($courseObj->status) {
+                    case "1":
+                        $not_started++;
+                        break;
+                    case "2":
+                        $progress++;
+                        break;
+                    case "3":
+                        $complete++;
+                        break;
+                }
+
+                $list.="<tr>";
+                $list.="<td>" . $courseObj->name . "</td>";
+                $list.="<td>" . $courseObj->provider . "</td>";
+                $list.="<td>" . date('m/d/Y', $courseObj->cdate) . "</td>";
+                $list.="<td>" . $courseObj->duration . "&nbsp;&nbsp;(month)</td>";
+                $list.="<td>" . $status . "</td>";
+                $list.="<td>" . $username . "</td>";
+                $list.="<td>" . $courseObj->notes . "</td>";
+                $list.="</tr>";
+            } // end foreach
+            $list.="</tbody>";
+            $list.="</table>";
+
+            $list.="<div class='container-fluid' style='font-weight:bold;'>";
+            $list.="<span class='span2'>Total Not Started</span>";
+            $list.="<span class='span1'>$not_started</span>";
+            $list.="<span class='span2'>Total In Progress</span>";
+            $list.="<span class='span1'>$progress</span>";
+            $list.="<span class='span2'>Total Complete</span>";
+            $list.="<span class='span1'>$complete</span>";
+            $list.="</div>";
+        } // end if count($courses)>0
+        else {
+            $list.= "<div class='container-fluid'>";
+            $list.="<span class='span12'>There are no external courses inside practice</span>";
+            $list.="</div>";
+        }
 
         return $list;
     }
@@ -857,7 +991,7 @@ class Courses extends Utils {
                 $list.="<td>" . $row['name'] . "</td>";
                 $list.="<td>" . $row['provider'] . "</td>";
                 $list.="<td>" . date('m/d/Y', $row['cdate']) . "</td>";
-                $list.="<td>" . $row['duration'] . "</td>";
+                $list.="<td>" . $row['duration'] . "&nbsp;&nbsp;(month)</td>";
                 $list.="<td>" . $status . "</td>";
                 $list.="<td>" . $username . "</td>";
                 $list.="<td>" . $row['notes'] . "</td>";
@@ -894,10 +1028,10 @@ class Courses extends Utils {
     function get_repeat_training_page($userid) {
         $list = "";
         if ($userid == 2) {
-            $list.=$this->get_admin_repeat_training_page();
+            $list.=$this->get_admin_repeat_training_page($userid);
         } // end if $userid==2
         else {
-            $list.=$this->get_gpadmin_repeat_training_page();
+            $list.=$this->get_gpadmin_repeat_training_page($userid);
         } // end else
 
         return $list;
@@ -923,10 +1057,49 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_practice_course_repeat_box($practiceid, $courseid) {
+        $list = "";
+        $list.="<select id='practice2_$courseid'>";
+        $query = "select * from uk_practice_course_duration "
+                . "where courseid=$courseid "
+                . "and practiceid=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $db_duration = $row['duration'];
+        }
+
+        for ($i = 1; $i <= 36; $i++) {
+            if ($i == $db_duration) {
+                $list.="<option value='$i' selected>$i</option>";
+            } // end if $i==$db_duration
+            else {
+                $list.="<option value='$i'>$i</option>";
+            } // end else
+        }
+        $list.="</select>";
+        return $list;
+    }
+
     function update_course_duration($courseid, $duration) {
         $query = "update uk_course_duration set duration=$duration "
                 . "where courseid=$courseid";
         $this->db->query($query);
+    }
+
+    function is_course_duration_exists($courseid) {
+        $query = "select * from uk_course_duration where courseid=$courseid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
+    function create_course_duration_data($courseid) {
+        $status = $this->is_course_duration_exists($courseid);
+        if ($status == 0) {
+            $query = "insert into uk_course_duration "
+                    . "(courseid, duration) "
+                    . "values ($courseid, 12)";
+            $this->db->query($query);
+        } // end if $status==0 
     }
 
     function get_admin_repeat_training_page() {
@@ -953,12 +1126,13 @@ class Courses extends Utils {
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $this->create_course_duration_data($row['id']);
                 $catname = $this->get_course_category_name($row['category']);
                 $duration = $this->get_course_repeat_box($row['id']);
                 $list.="<tr>";
                 $list.="<td>$catname</td>";
                 $list.="<td>" . $row['fullname'] . "</td>";
-                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(months)</span></td>";
+                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
                 $list.="</tr>";
             } // end while
         } // end if $num > 0
@@ -970,8 +1144,87 @@ class Courses extends Utils {
         return $list;
     }
 
-    function get_gpadmin_repeat_training_page() {
-        
+    function is_practice_course_duration_exists($practiceid, $courseid) {
+        $query = "select * from uk_practice_course_duration "
+                . "where courseid=$courseid and practiceid=$practiceid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
+    function create_practice_initial_courses_duration($practiceid, $courses) {
+        foreach ($courses as $courseid) {
+            $status = $this->is_practice_course_duration_exists($practiceid, $courseid);
+            if ($status == 0) {
+                $query = "insert into uk_practice_course_duration "
+                        . "(practiceid,"
+                        . "courseid,"
+                        . "duration) "
+                        . "values($practiceid,"
+                        . "$courseid,12)";
+                $this->db->query($query);
+            } // end if
+        } // end foreach
+    }
+
+    function get_gpadmin_repeat_training_page($userid) {
+        $list = "";
+        $courses = array();
+        $groups = $this->get_practice_groups($userid);
+        $practice = $this->get_practice_by_admin_userid($userid);
+        $practiceid = $practice->id;
+
+        foreach ($groups as $groupid) {
+            $query = "select * from uk_groups where id=$groupid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['courseid'];
+            }
+        }
+        $this->create_practice_initial_courses_duration($practiceid, $courses);
+
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>Repeated courses</span>";
+        $list.="<input type='hidden' id='repeat_practice_id' value='$practiceid'>";
+        $list.="</div>";
+
+        $list.="<table id='repeat_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Repeat Duration</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        $query = "select * from uk_practice_course_duration where practiceid=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
+            $coursename = $this->get_course_name($row['courseid']);
+            $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
+            $list.="<tr>";
+            $list.="<td>$catname</td>";
+            $list.="<td>" . $coursename . "</td>";
+            $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
+            $list.="</tr>";
+        }
+
+        $list.="</tbody>";
+
+        $list.="</table>";
+
+        return $list;
+    }
+
+    function update_practice_course_duration($course) {
+        $query = "update uk_practice_course_duration "
+                . "set duration=$course->duration "
+                . "where courseid=$course->courseid "
+                . "and practiceid=$course->practiceid";
+        $this->db->query($query);
     }
 
     function get_policy_page($userid) {

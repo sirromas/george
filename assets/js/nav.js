@@ -1055,6 +1055,19 @@ $(document).ready(function () {
             }
         }
 
+        if (event.target.id.indexOf("practice2_") >= 0) {
+            var courseid = event.target.id.replace("practice2_", "");
+            var practiceid = $('#repeat_practice_id').val();
+            var duration = $('#' + event.target.id).val();
+            if (confirm('Change duration for current course?')) {
+                var url = "http://" + domain + "/lms/custom/common/update_practice_course_duration.php";
+                var course = {courseid: courseid, duration: duration, practiceid: practiceid};
+                $.post(url, {course: JSON.stringify(course)}).done(function () {
+                    console.log('Done ...');
+                });
+            }
+        }
+
 
 
     }); // end of  $('body').change(function (event) {

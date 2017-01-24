@@ -123,6 +123,56 @@ class Utils {
         return $name;
     }
 
+    function get_practice_by_admin_userid($userid) {
+        $query = "select * from uk_practice where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practice = new stdClass();
+            foreach ($row as $key => $value) {
+                $practice->$key = $value;
+            }
+        }// end hwile
+        return $practice;
+    }
+
+    function get_practice_groups($userid) {
+        $groups = array();
+        $query = "select * from uk_groups_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row['groupid'];
+        }
+        return $groups;
+    }
+
+    function get_course_categoryid($courseid) {
+        $query = "select * from uk_course where id=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $categoryid = $row['category'];
+        }
+        return $categoryid;
+    }
+
+    function get_practice_users($admin_userid) {
+        $query = "select * from uk_groups_members "
+                . "where userid=$admin_userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row['groupid'];
+        }
+
+        foreach ($groups as $groupid) {
+            $query = "select * from uk_groups_members where groupid=$groupid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $users[] = $row['userid'];
+            }
+        }
+        array_unique($users);
+        return $users;
+    }
+
     function random_string($length) {
         $pool = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 
