@@ -113,19 +113,19 @@ class Users extends Utils {
         return $list;
     }
 
-    function get_gp_users_page($userid) {
+    function get_gp_users_page($adminuserid) {
         $list = "";
         $groups = array();
         $users = array();
         $g = new Groups();
 
-        $query = "select * from uk_groups_members where userid=$userid";
+        $query = "select * from uk_groups_members where userid=$adminuserid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $groups[] = $row['groupid'];
         }
 
-        $query = "select * from uk_practice where userid=$userid";
+        $query = "select * from uk_practice where userid=$adminuserid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $practiceid = $row['id'];
@@ -162,8 +162,10 @@ class Users extends Utils {
                 $list.="<td>$rolename</td>";
                 $list.="<td>$user->firstname</td>";
                 $list.="<td>$user->lastname</td>";
-                $list.="<td>$user->mail</td>";
-                $list.="<td>&nbsp;</td>";
+                $list.="<td>$user->email</td>";
+                $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
+                        . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                        . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
                 $list.="</tr>";
             }
             $list.="</tbody>";

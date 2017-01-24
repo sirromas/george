@@ -431,34 +431,8 @@ class Courses extends Utils {
 
     function get_student_page($userid) {
         $list = "";
-
         $courses = $this->get_user_courses($userid);
-        if (count($courses) > 0) {
-            $list.="<div class='container-fluid' style='font-weight:bold;'>";
-            $list.="<span class='span3'>Course name/provider</span>";
-            $list.="<span class='span1'>Length</span>";
-            $list.="<span class='span1'>Frequency</span>";
-            $list.="<span class='span2'>Status</span>";
-            $list.="<span class='span1'>Plicies</span>";
-            $list.="<span class='span1'>Certificates</span>";
-            $list.="<span class='span1'>Date passed</span>";
-            $list.="<span class='span1'>Due date</span>";
-            $list.="</div>";
-
-            foreach ($courses as $courseid) {
-                $course_data = $this->get_course_detailes($courseid);
-                $list.= "<div class='container-fluid'>";
-                $list.="<span class='span3'></span>";
-                $list.="<span class='span3'></span>";
-                $list.="</div>";
-            } // end foreach
-        } // end if count($courses)>0
-        else {
-            $list.="<div class='container-fluid'>";
-            $list.="<span class='span6' style='padding-left:7px;'>You are not enrolled into any course</span>";
-            $list.="</div>";
-        }
-
+        $list.=$this->get_my_courses_block($courses, $userid);
         return $list;
     }
 
@@ -1031,10 +1005,75 @@ class Courses extends Utils {
             $list.=$this->get_admin_repeat_training_page($userid);
         } // end if $userid==2
         else {
-            $list.=$this->get_gpadmin_repeat_training_page($userid);
+            $roleid = $this->get_user_role($userid);
+            if ($roleid == 5) {
+                $list.=$this->get_student_repeat_training_page($userid);
+            }
+
+            if ($roleid == 10) {
+                $list.=$this->get_gpadmin_repeat_training_page($userid);
+            }
         } // end else
 
         return $list;
+    }
+
+    function get_student_repeat_training_page($userid) {
+        $list = "";
+        $courses = $this->get_user_courses($userid);
+        $practiceid = $this->get_student_practice($userid);
+
+        $list.= "<div class='container-fluid' style='font-weight:bold;'>";
+        $list.="<span class='span12'>My External Training</span>";
+        $list.="</div>";
+
+        if (count($courses) > 0) {
+
+            $list.="<table id='repeat_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Course Category</th>";
+            $list.="<th>Course Name</th>";
+            $list.="<th>Repeat Duration</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+
+            $list.="<tbody>";
+
+            foreach ($courses as $courseid) {
+                $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
+                $coursename = $this->get_course_name($courseid);
+                $duration = $this->get_student_course_duration_info($practiceid, $courseid);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $coursename . "</td>";
+                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
+                $list.="</tr>";
+            }
+
+            $list.="</tbody>";
+
+            $list.="</table>";
+        } // end if count($courses)>0
+        else {
+            $list.="<tr>";
+            $list.="<td colspan='5'>You are not enrolled into any course</td>";
+            $list.="</tr>";
+        } // end else 
+
+        return $list;
+    }
+
+    function get_student_course_duration_info($practiceid, $courseid) {
+        $query = "select * from uk_practice_course_duration "
+                . "where practiceid=$practiceid "
+                . "and courseid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $duration = $row['duration'];
+        }
+        return $duration;
     }
 
     function get_course_repeat_box($courseid) {
@@ -1238,7 +1277,7 @@ class Courses extends Utils {
         return $list;
     }
 
-    function get_policy_box($courseid) {
+    function get_policy_box($courseid, $upload = true) {
         $list = "";
         $list.="<div class='row-fluid'>";
         $query = "select * from uk_course_policies where courseid=$courseid";
@@ -1248,12 +1287,16 @@ class Courses extends Utils {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>" . $row['title'] . "</a>";
                 $list.="<span class='span6'>$link</span>";
-                $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+                if ($upload) {
+                    $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+                }
             }
         } // end if $num > 0
         else {
             $list.="<span class='span3'>N/A</span>";
-            $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+            if ($upload) {
+                $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+            }
         } // end else 
         $list.="</div>";
 
@@ -1342,6 +1385,46 @@ class Courses extends Utils {
 
     function get_gpadmin_policy_page($userid) {
         $list = "";
+        $practice = $this->get_practice_by_admin_userid($userid);
+        $practiceid = $practice->id;
+
+        $query = "select * from uk_practice_course_duration "
+                . "where practiceid=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courses[] = $row['courseid'];
+        }
+        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
+        $list.="<span class='span2'>Courses policy</span>";
+        $list.="</div>";
+
+        $list.="<table id='courses_policy' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Category</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th>Course Policy</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        foreach ($courses as $courseid) {
+            $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
+            $coursename = $this->get_course_name($courseid);
+            $policy_box = $this->get_policy_box($courseid, false);
+
+            $list.="<tr>";
+            $list.="<td>$catname</td>";
+            $list.="<td>" . $coursename . "</td>";
+            $list.="<td align='center'><span class='col6' style='text-align:center;padding-left:0px;'>$policy_box</span></td>";
+            $list.="</tr>";
+        } // end foreach
+
+        $list.="</tbody>";
+
+        $list.="</table>";
 
         return $list;
     }

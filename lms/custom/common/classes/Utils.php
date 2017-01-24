@@ -288,6 +288,15 @@ class Utils {
         return $courseid;
     }
 
+    function get_student_practice($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['practiceid'];
+        }
+        return $practiceid;
+    }
+
     function get_user_courses($userid, $year = NULL) {
         $courses = array();
 

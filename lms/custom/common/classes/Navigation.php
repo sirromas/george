@@ -248,10 +248,10 @@ class Navigation extends Utils {
             $repeat
           </div>
           <div id = 'policy' class = 'tab-pane fade'>
-            
+            $policy
           </div>
           <div id = 'users' class = 'tab-pane fade'>
-            
+            $users
           </div>
           
           <div id = 'reports' class = 'tab-pane fade'>
@@ -281,16 +281,17 @@ class Navigation extends Utils {
         $c = new Courses();
         $courses = $c->get_courses_page($this->user->id);
         $ext = $c->get_personal_external_training_courses($this->user->id);
+        $repeat = $c->get_repeat_training_page($this->user->id);
 
 
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:13px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
-          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:9px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
-          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:5px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
+          <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:14px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
+          <li><a data-toggle = 'tab' href = '#courses'><i style='padding-left:10px;cursor:pointer;' class='fa fa-desktop fa-2x' aria-hidden='true'></i><br>Courses</a></li>
           <li><a data-toggle = 'tab' href = '#external'><i style='padding-left:32px;cursor:pointer;' class='fa fa-comments fa-2x' aria-hidden='true'></i><br>External Training</a></li>
           <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
           <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
-          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
+          <li><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:12px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
         </ul>";
 
         $list.="<div class = 'tab-content'>
@@ -307,8 +308,7 @@ class Navigation extends Utils {
             <p>$ext</p>
           </div>
           <div id = 'repeat' class = 'tab-pane fade'>
-            <h3>Repeat Training</h3>
-            <p>Some content.</p>
+            $repeat
           </div>
           <div id = 'help' class = 'tab-pane fade'>
             <h3>Help</h3>
