@@ -424,7 +424,7 @@ $(document).ready(function () {
                 } // end if $('#profile_err').html()==''
             } // end if firstname != '' && lastname != '' && email != ''
             else {
-                $('#profile_err').html('Please provide all required fields');
+                $('#profile_err').html('* Please provide all required fields');
             }
         }
 

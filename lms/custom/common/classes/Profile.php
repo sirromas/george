@@ -22,7 +22,7 @@ class Profile extends Utils {
 
         $list.="<input type='hidden' id='id' value='$userid'>";
         $list.="<div class='row-fluid' style='font-weight:bold;margin-left:15px;'>";
-        $list.="<span class='span3'>My Profile</span><span class='span7'style='color:red;' id='profile_err'>";
+        $list.="<span class='span3'>My Profile</span><span style='padding-left:40px;color:red;' class='span7' id='profile_err'></span>";
         $list.="</div>";
 
         $list.="<table class='table table-striped table-bordered' cellspacing='0' width='50%'>";

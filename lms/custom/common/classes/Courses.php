@@ -173,7 +173,7 @@ class Courses extends Utils {
         $certificate = $this->get_user_course_certificate($c->courseid, $c->userid);
         $passed_date = $this->get_user_passed_course_date($c->courseid, $c->userid);
 
-        $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:25%;min-height:375px'>
+        $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:29%;min-height:375px'>
         <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
             <div class='modal-content'>
                 <div class='modal-header'>
