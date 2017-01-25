@@ -277,6 +277,9 @@ $PAGE->requires->string_for_js('networkdropped', 'mod_scorm');
 $PAGE->requires->yui_module('moodle-core-checknet', 'M.core.checknet.init', array(array(
     'message' => array('networkdropped', 'mod_scorm'),
 )));
+echo "<div class='row-fluid' style='text-align:center;'>";
+echo "<span class='span12'><a href='http://".$_SERVER['SERVER_NAME']."/lms/my/'><button>Back to Dashboard</button></a></span>";
+echo "</div>";
 echo $OUTPUT->footer();
 
 // Set the start time of this SCO.

@@ -4,6 +4,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 
 class Courses extends Utils {
 
+    public $scorm_module_id = 18;
+
     function __construct() {
         parent::__construct();
     }
@@ -304,6 +306,47 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_course_scorm_link($courseid) {
+        $link = "";
+        $query = "select * from uk_course_modules "
+                . "where course=$courseid "
+                . "and module=$this->scorm_module_id";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $cmid = $row['id']; // it is SCORM module id
+        }
+
+        if ($cmid > 0) {
+            $query = "select * from uk_scorm where course=$courseid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $scormid = $row['id'];
+                $launchid = $row['launch']; // it is launcher id
+            }
+
+            $query = "select * from uk_scorm_scoes "
+                    . "where scorm=$scormid "
+                    . "and organization<>''";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $organization = $row['organization'];
+            }
+
+
+            $link.="<form id='scormviewform' method='post' action='http://" . $_SERVER['SERVER_NAME'] . "/lms/mod/scorm/player.php'>
+                <input type='hidden' name='mode' value='normal'>
+                <input type='hidden' name='newattempt' value='on'>
+                <input type='hidden' name='scoid' value='$launchid'>
+                <input type='hidden' name='cm' value='$cmid'>
+                <input type='hidden' name='currentorg' value='$organization'>
+                <input type='submit' value='Continue'>
+                </form>";
+        } // end if $cmid > 0
+
+        //$link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/mod/scorm/view.php?id=$id' target='_blank'>Continue >></a>";
+        return $link;
+    }
+
     function get_my_courses_block($courses, $userid, $toolbar = true) {
         $list = "";
 
@@ -350,7 +393,7 @@ class Courses extends Utils {
                 $duration = $this->get_course_duration($courseid, $userid); // months
                 $due_date = $enr_date + (86400 * 30 * $duration);
                 $due_h_date = date('m-d-Y', $due_date);
-
+                $link = $this->get_course_scorm_link($courseid);
 
                 $list.="<tr>";
                 $list.="<td><a href='#' onClick='return false;' title='Click to get details' id='my_course_title_$courseid' data-userid='$userid'>$course_data->fullname</a></td>";
@@ -358,7 +401,7 @@ class Courses extends Utils {
                 $list.="<td>$enroll_date</td>";
                 $list.="<td>$due_h_date</td>";
                 $list.="<td>$progress</td>";
-                $list.="<td><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=$courseid' target='_blank'>Continue >></a></td>";
+                $list.="<td>$link</td>";
                 $list.="</tr>";
             } // end foreach
         } // end if count($courses)>0
