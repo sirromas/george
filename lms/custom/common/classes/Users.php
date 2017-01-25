@@ -16,6 +16,7 @@ class Users extends Utils {
 
     function get_users_page($userid) {
         $list = "";
+
         if ($userid == 2) {
             $list.=$this->get_admin_users_page($userid);
         } // end if $userid==2
@@ -27,7 +28,7 @@ class Users extends Utils {
 
     function get_practice_name_by_userid($userid) {
         $query = "select * from uk_practice_members where userid=$userid";
-        //echo "Query: ".$query."<br>";
+
         $result = $this->db->query($query);
         $num = $this->db->numrows($query);
         if ($num > 0) {
@@ -137,6 +138,11 @@ class Users extends Utils {
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $row['userid'];
         }
+
+        $list.="<div class='row-fluid'>";
+        $list.="<input type='hidden' id='current_user' value='$adminuserid'>";
+        $list.="<span class='span3'><button id='users_add_user'>Add User</button></span>";
+        $list.="</div>";
 
         if (count($users) > 0) {
             $list.="<div id='users_container'>";
@@ -308,10 +314,6 @@ class Users extends Utils {
             $groups[] = $row['groupid'];
         }
 
-        echo "<br>Groups----------------------<br>";
-        print_r($groups);
-
-
         foreach ($groups as $groupid) {
             $query = "select * from uk_groups where id=$groupid";
             $result = $this->db->query($query);
@@ -319,9 +321,6 @@ class Users extends Utils {
                 $courses[] = $row['courseid'];
             }
         }
-
-        echo "<br>Courses----------------------<br>";
-        print_r($courses);
 
         $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
         $list.="<option value=0 selected>Please select</option>";
@@ -558,35 +557,36 @@ class Users extends Utils {
 
     function get_add_user_dialog($userid) {
         $list = "";
-        if ($userid == 2) {
-            $list.=$this->get_admin_add_user_dialog($userid);
-        } // end if $userid==2
-        else {
-            $list.=$this->get_gpadmin_add_user_dialog($userid);
-        } // end else 
-
+        $list.=$this->get_admin_add_user_dialog($userid);
         return $list;
     }
 
-    function get_practices_list() {
+    function get_practices_list($userid) {
         $list = "";
-        $list.="<select id='practices_list' style='width:220px;'>";
-        $list.="<option value='0' selected>Please select</option>";
-        $query = "select * from uk_practice order by name";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $list.="<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
-            } // end while
-        } // end if $num > 0
-        $list.="</select>";
+        if ($userid == 2) {
+            $list.="<select id='practices_list' style='width:220px;'>";
+            $list.="<option value='0' selected>Please select</option>";
+            $query = "select * from uk_practice order by name";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $list.="<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
+                } // end while
+            } // end if $num > 0
+            $list.="</select>";
+        } // end if $userid==2
+        else {
+            $practice = $this->get_practice_by_admin_userid($userid);
+            $list.="<input type='hidden' id='practices_list' value='$practice->id'>";
+            $list.=$practice->name;
+        }
         return $list;
     }
 
     function get_admin_add_user_dialog($userid) {
         $list = "";
-        $practices = $this->get_practices_list();
+        $practices = $this->get_practices_list($userid);
         $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style=''>

@@ -100,8 +100,16 @@ class Courses extends Utils {
         return $date;
     }
 
-    function get_course_duration($courseid) {
-        $query = "select * from uk_course_duration where courseid=$courseid";
+    function get_course_duration($courseid, $userid) {
+        if ($userid == 2) {
+            $query = "select * from uk_course_duration where courseid=$courseid";
+        } // end if $userid==2
+        else {
+            $practiceid = $this->get_student_practice($userid);
+            $query = "select * from uk_practice_course_duration "
+                    . "where practiceid=$practiceid "
+                    . "and courseid=$courseid";
+        }
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $duration = $row['duration'];
@@ -162,7 +170,7 @@ class Courses extends Utils {
     function get_my_course_details($c) {
 
         $enr_date = $this->get_user_enrollment_date($c->courseid, $c->userid);
-        $duration = $this->get_course_duration($c->courseid); // months
+        $duration = $this->get_course_duration($c->courseid, $c->userid); // months
         $due_date = $enr_date + (86400 * 30 * $duration);
         $enr_h_date = date('m-d-Y', $enr_date);
         $due_h_date = date('m-d-Y', $due_date);
@@ -339,7 +347,7 @@ class Courses extends Utils {
                 $progress = $this->get_course_progress($courseid, $userid);
                 $enroll_date = date('m-d-Y', $this->get_user_enrollment_date($courseid, $userid));
                 $enr_date = $this->get_user_enrollment_date($courseid, $userid);
-                $duration = $this->get_course_duration($courseid); // months
+                $duration = $this->get_course_duration($courseid, $userid); // months
                 $due_date = $enr_date + (86400 * 30 * $duration);
                 $due_h_date = date('m-d-Y', $due_date);
 
@@ -497,6 +505,7 @@ class Courses extends Utils {
 
         $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
         $list.="<span class='span3'>My External Training</span>";
+        $list.="<input type='hidden' id='external_training_userid' value='$userid'>";
         $list.="</div>";
 
         $query = "select * from uk_external_training where userid=$userid";
@@ -603,13 +612,45 @@ class Courses extends Utils {
         return $list;
     }
 
-    function get_external_coure_status_box() {
+    function update_external_course_status($course) {
+        $query = "update uk_external_training "
+                . "set status='$course->duration' "
+                . "where id=$course->courseid";
+        $this->db->query($query);
+    }
+
+    function get_external_status_label($id) {
+        switch ($id) {
+            case 1:
+                $label = "Not started yet";
+                break;
+            case 2:
+                $label = "In progress";
+                break;
+            case 3:
+                $label = "Complete";
+                break;
+        }
+        return $label;
+    }
+
+    function get_external_coure_status_box($id = null) {
         $list = "";
+
         $list.="<select id='ext_course_status'>";
-        $list.="<option value='0' selected>Please select</option>";
-        $list.="<option value='1'>Not started yet</option>";
-        $list.="<option value='2'>In progress</option>";
-        $list.="<option value='3'>Complete</option>";
+        if ($id == null) {
+            $list.="<option value='0' selected>Please select</option>";
+            $list.="<option value='1'>Not started yet</option>";
+            $list.="<option value='2'>In progress</option>";
+            $list.="<option value='3'>Complete</option>";
+        } // end if 
+        else {
+            for ($i = 1; $i <= 3; $i++) {
+                $status = ($i == $id) ? 'selected' : '';
+                $label = $this->get_external_status_label($i);
+                $list.="<option value='$i' $status>$label</option>";
+            }
+        }
         $list.="</select>";
 
         return $list;
@@ -681,6 +722,41 @@ class Courses extends Utils {
                     <span class='span1'>&nbsp;</span>
                     <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
                     <span align='center'><button type='button'  id='add_external_course_button'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function get_update_external_training_dialog($courseid) {
+
+        $query = "select * from uk_external_training where id=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $status = $row['status'];
+        }
+        $status_box = $this->get_external_coure_status_box($status);
+
+        $list.="<div id='myModal' class='modal fade' style='transparent;overflow: visible;width:675px;margin-left:0px;left:23%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style=';'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Update External Course Status</h4>
+                    <input type='hidden' id='external_training_courseid_to_update' value='$courseid'>
+                </div>
+                <div class='modal-body'>
+                <div class='container-fluid' style='text-align:center;'>
+                <span class='span1'>Status</span>
+                <span class='span3'>$status_box</span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='update_external_course_status'>OK</button></span>
                 </div>
                 
             </div>

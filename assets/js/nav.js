@@ -902,7 +902,8 @@ $(document).ready(function () {
                         .done(function () {
                             console.log('Script bootstrap.min.js is loaded ...');
                             var url = "http://" + domain + "/lms/custom/common/get_add_user_dialog.php";
-                            $.post(url, {userid: 2}).done(function (data) {
+                            var userid = $('#current_user').val();
+                            $.post(url, {userid: userid}).done(function (data) {
                                 console.log(data);
                                 $("body").append(data);
                                 $("#myModal").modal('show');
@@ -1013,6 +1014,49 @@ $(document).ready(function () {
                 $('#policy_err').html('Please provide all required fields');
             } // end else
         }
+
+        if (event.target.id.indexOf("update_external_course_") >= 0) {
+            var courseid = event.target.id.replace("update_external_course_", "");
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_update_external_training_dialog.php";
+                            $.post(url, {courseid: courseid}).done(function (data) {
+                                console.log(data);
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                            });
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+        }
+
+        if (event.target.id == 'update_external_course_status') {
+            var courseid = $('#external_training_courseid_to_update').val();
+            var duration = $('#ext_course_status').val();
+            //console.log('Course ID: ' + courseid);
+            //console.log('Course Status: ' + duration);
+            var url = "http://" + domain + "/lms/custom/common/update_external_status.php";
+            course = {courseid: courseid, duration: duration};
+            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                console.log(data);
+                $("[data-dismiss=modal]").trigger({type: "click"});
+                get_external_courses_page();
+            });
+
+        }
+
+
 
 
     }); // end of $('body').click(function (event) {
