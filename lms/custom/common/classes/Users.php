@@ -190,12 +190,7 @@ class Users extends Utils {
 
     function get_edit_user_dialog($current_user, $userid) {
         $list = "";
-        if ($current_user == 2) {
-            $list.=$this->get_admin_edit_user_dialog($current_user, $userid);
-        } // end if $current_user == 2
-        else {
-            $list.=$this->get_gpadmin_edit_user_dialog($current_user, $userid);
-        }
+        $list.=$this->get_admin_edit_user_dialog($current_user, $userid);
         return $list;
     }
 
@@ -698,14 +693,6 @@ class Users extends Utils {
 
         $query = "update uk_user set deleted=1 where id=$userid";
         $this->db->query($query);
-    }
-
-    function get_gpadmin_add_user_dialog($userid) {
-        
-    }
-
-    function get_gpadmin_edit_user_dialog($current_user, $userid) {
-        
     }
 
 }
