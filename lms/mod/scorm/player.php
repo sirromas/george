@@ -279,11 +279,11 @@ $PAGE->requires->yui_module('moodle-core-checknet', 'M.core.checknet.init', arra
     'message' => array('networkdropped', 'mod_scorm'),
 )));
 
-
+/*
 echo "<div class='row-fluid' style='text-align:center;'>";
 echo "<span class='span12'><a href='http://".$_SERVER['SERVER_NAME']."/lms/my/'><button>Back to Dashboard</button></a></span>";
 echo "</div>";
-
+*/
 
 echo $OUTPUT->footer();
 
