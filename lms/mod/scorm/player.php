@@ -104,6 +104,7 @@ $coursecontext = context_course::instance($course->id);
 if ($displaymode == 'popup') {
     $PAGE->set_pagelayout('embedded');
 } else {
+    $PAGE->set_pagelayout('embedded'); // workaround
     $shortname = format_string($course->shortname, true, array('context' => $coursecontext));
     $pagetitle = strip_tags("$shortname: ".format_string($scorm->name));
     $PAGE->set_title($pagetitle);
@@ -277,9 +278,13 @@ $PAGE->requires->string_for_js('networkdropped', 'mod_scorm');
 $PAGE->requires->yui_module('moodle-core-checknet', 'M.core.checknet.init', array(array(
     'message' => array('networkdropped', 'mod_scorm'),
 )));
+
+
 echo "<div class='row-fluid' style='text-align:center;'>";
 echo "<span class='span12'><a href='http://".$_SERVER['SERVER_NAME']."/lms/my/'><button>Back to Dashboard</button></a></span>";
 echo "</div>";
+
+
 echo $OUTPUT->footer();
 
 // Set the start time of this SCO.
