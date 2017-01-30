@@ -1056,6 +1056,21 @@ $(document).ready(function () {
 
         }
 
+        if (event.target.id == 'progress_stat') {
+            var userid = $('#progress_stat').data('userid');
+            console.log('User ID: ' + userid);
+        }
+
+        if (event.target.id == 'completed_stat') {
+            var userid = $('#completed_stat').data('userid');
+            console.log('User ID: ' + userid);
+        }
+
+        if (event.target.id == 'overdue_stat') {
+            var userid = $('#overdue_stat').data('userid');
+            console.log('User ID: ' + userid);
+        }
+
 
 
 

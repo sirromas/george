@@ -100,15 +100,18 @@ class Dashboard extends Utils {
         $list.="</div><br>";
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses completed this year: <a href='#' style='color:#058DC7;' onClick='return false;'>$c_completed</a></span>";
+        $link = ($c_completed == 0) ? "<span style='color:#058DC7;'>$c_completed</span>" : "<a href='#' style='color:#058DC7;' onClick='return false;' id='completed_stat' data-userid='$userid'>$c_completed</a>";
+        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses completed this year: $link</span>";
         $list.="</div>";
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses left to do this year: <a href='#' style='color:#50B432;' onClick='return false;'>$c_left</a></span>";
+        $link = ($c_left == 0) ? "<span style='color:#50B432;'>$c_left</span>" : "<a href='#' style='color:#50B432;' onClick='return false;' id='progress_stat' data-userid='$userid'>$c_left</a>";
+        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses left to do this year: $link</span>";
         $list.="</div>";
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses overdue: <a href='#' style='color:#ED561B;' onClick='return false;'>$c_overdue</a></span>";
+        $link = ($c_overdue == 0) ? "<span style='color:#ED561B;'>$c_overdue</span>" : "<a href='#' style='color:#ED561B;' onClick='return false;' id='overdue_stat' data-userid='$userid'>$c_overdue</a>";
+        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses overdue: $link</span>";
         $list.="</div><br>";
 
         $list.="<div class='container-fluid'>";
@@ -179,9 +182,10 @@ class Dashboard extends Utils {
     function get_dashboard_by_role($userid, $roleid) {
         $list = "";
         $comp = new Completion();
-        $c_completed = $comp->get_completed_courses($userid);
-        $c_left = $comp->get_not_completed_courses($userid);
-        $c_overdue = $comp->get_overdue_courses($userid);
+        $c_completed = $comp->get_student_passed_courses($userid);
+        $c_left = $comp->get_student_progress_courses($userid);
+        $c_overdue = $comp->get_student_overdue_courses($userid);
+
         $courses = $this->get_user_courses($userid, $roleid);
         $left = $this->get_left_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);
         $right = $this->get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);
