@@ -16,7 +16,7 @@ class Users extends Utils {
 
     function get_users_page($userid) {
         $list = "";
-
+        $userid = $this->user->id;
         if ($userid == 2) {
             $list.=$this->get_admin_users_page($userid);
         } // end if $userid==2
@@ -123,26 +123,27 @@ class Users extends Utils {
         $users = array();
         $g = new Groups();
 
-        $query = "select * from uk_groups_members where userid=$adminuserid";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $groups[] = $row['groupid'];
-        }
-       
+        /*
+          $query = "select * from uk_groups_members where userid=$adminuserid";
+          $result = $this->db->query($query);
+          while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+          $groups[] = $row['groupid'];
+          }
+         */
+
         $query = "select * from uk_practice where userid=$adminuserid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $practiceid = $row['id'];
             $practicename = $row['name'];
         }
-
+        //echo "Practice id: " . $practiceid . "<br>";
+        //echo "Practice name: " . $practicename . "<br>";
         $query = "select * from uk_practice_members where practiceid=$practiceid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $row['userid'];
         }
-        
-        
 
         $list.="<div class='row-fluid'>";
         $list.="<input type='hidden' id='current_user' value='$adminuserid'>";
@@ -166,19 +167,21 @@ class Users extends Utils {
 
             $list.="<tbody>";
             foreach ($users as $userid) {
-                $user = $this->get_user_data_by_id($userid);
-                $rolename = $this->get_user_rolename($this->get_user_role($userid));
-                $list.="<tr>";
-                $list.="<td>$practicename</td>";
-                $list.="<td>$rolename</td>";
-                $list.="<td>$user->firstname</td>";
-                $list.="<td>$user->lastname</td>";
-                $list.="<td>$user->email</td>";
-                $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                        . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
-                        . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
-                $list.="</tr>";
-            }
+                if ($userid != 2) {
+                    $user = $this->get_user_data_by_id($userid);
+                    $rolename = $this->get_user_rolename($this->get_user_role($userid));
+                    $list.="<tr>";
+                    $list.="<td>$practicename</td>";
+                    $list.="<td>$rolename</td>";
+                    $list.="<td>$user->firstname</td>";
+                    $list.="<td>$user->lastname</td>";
+                    $list.="<td>$user->email</td>";
+                    $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
+                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                    $list.="</tr>";
+                } // end if 
+            } // end foreach
             $list.="</tbody>";
 
             $list.="</table>";

@@ -533,19 +533,21 @@ class Courses extends Utils {
         $list.="<tr>";
         $list.="<th>Course Category</th>";
         $list.="<th>Course Name</th>";
-        $list.="<th>Actions</th>";
+        //$list.="<th>Actions</th>";
         $list.="</tr>";
         $list.="</thead>";
 
         $list.="<tbody>";
         foreach ($courses as $courseid) {
-            $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
-            $name = $this->get_course_name($courseid);
-            $list.="<tr>";
-            $list.="<td>$catname</td>";
-            $list.="<td>" . $name . "</td>";
-            $list.="<td><span class='col1'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=" . $courseid . "' target='_blank' target='_blank'>View</a></span></td>";
-            $list.="</tr>";
+            if ($courseid > 0) {
+                $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
+                $name = $this->get_course_name($courseid);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $name . "</td>";
+                //$list.="<td><span class='col1'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=" . $courseid . "' target='_blank' target='_blank'>View</a></span></td>";
+                $list.="</tr>";
+            } // end if 
         } // end foreach
         $list.="</tbody>";
 
@@ -558,7 +560,7 @@ class Courses extends Utils {
         $list = "";
         $courses = $this->get_user_courses($userid);
         $mycourses = $this->get_my_courses_block($courses, $userid);
-        //$practicecourses = $this->get_practice_courses_block($userid);
+        $practicecourses = $this->get_practice_courses_block($userid);
         $list.=$mycourses;
         $list.=$practicecourses;
         return $list;
@@ -966,6 +968,8 @@ class Courses extends Utils {
         $practice_users_arr = $this->get_practice_users($userid);
         $practice_users_list = implode(',', $practice_users_arr);
 
+        //echo $practice_users_list ."<br>";
+
         $query = "select * from uk_external_training "
                 . "where userid in ($practice_users_list) ";
         $num = $this->db->numrows($query);
@@ -1164,7 +1168,7 @@ class Courses extends Utils {
         $practiceid = $this->get_student_practice($userid);
 
         $list.= "<div class='container-fluid' style='font-weight:bold;'>";
-        $list.="<span class='span12'>My External Training</span>";
+        $list.="<span class='span12'>Repeated courses</span>";
         $list.="</div>";
 
         if (count($courses) > 0) {
@@ -1345,6 +1349,13 @@ class Courses extends Utils {
         } // end foreach
     }
 
+    function is_practice_course($courseid) {
+        $userid = $this->user->id;
+        $groups = $this->get_practice_groups($userid);
+        $courses = $this->get_practice_courses_by_groups($groups); // array
+        return in_array($courseid, $courses);
+    }
+
     function get_gpadmin_repeat_training_page($userid) {
         $list = "";
         $courses = array();
@@ -1382,14 +1393,16 @@ class Courses extends Utils {
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             if ($row['courseid'] > 0) {
-                $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
-                $coursename = $this->get_course_name($row['courseid']);
-                $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
-                $list.="<tr>";
-                $list.="<td>$catname</td>";
-                $list.="<td>" . $coursename . "</td>";
-                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
-                $list.="</tr>";
+                if ($this->is_practice_course($row['courseid'])) {
+                    $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
+                    $coursename = $this->get_course_name($row['courseid']);
+                    $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
+                    $list.="<tr>";
+                    $list.="<td>$catname</td>";
+                    $list.="<td>" . $coursename . "</td>";
+                    $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
+                    $list.="</tr>";
+                } // end if is_practice_course($courseid)
             } // end if $row['courseid']>0
         }
 
@@ -1553,15 +1566,16 @@ class Courses extends Utils {
         $list.="<tbody>";
 
         foreach ($courses as $courseid) {
-            $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
-            $coursename = $this->get_course_name($courseid);
-            $policy_box = $this->get_policy_box($courseid, false);
-
-            $list.="<tr>";
-            $list.="<td>$catname</td>";
-            $list.="<td>" . $coursename . "</td>";
-            $list.="<td align='center'><span class='col6' style='text-align:center;padding-left:0px;'>$policy_box</span></td>";
-            $list.="</tr>";
+            if ($courseid > 0) {
+                $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
+                $coursename = $this->get_course_name($courseid);
+                $policy_box = $this->get_policy_box($courseid, false);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $coursename . "</td>";
+                $list.="<td align='center'><span class='col6' style='text-align:center;padding-left:0px;'>$policy_box</span></td>";
+                $list.="</tr>";
+            } // end if $courseid>0
         } // end foreach
 
         $list.="</tbody>";

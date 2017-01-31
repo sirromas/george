@@ -145,6 +145,17 @@ class Utils {
         return $groups;
     }
 
+    function get_practice_courses_by_groups($groups) {
+        foreach ($groups as $groupid) {
+            $query = "select * from uk_groups where id=$groupid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['courseid'];
+            } // end while
+        } // end foreach
+        return $courses;
+    }
+
     function get_course_categoryid($courseid) {
         $query = "select * from uk_course where id=$courseid";
         $result = $this->db->query($query);
@@ -169,6 +180,7 @@ class Utils {
                 $users[] = $row['userid'];
             }
         }
+
         array_unique($users);
         return $users;
     }
