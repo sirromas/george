@@ -54,6 +54,7 @@ class Users extends Utils {
 
     function get_admin_users_page($current_userid) {
         $list = "";
+        $current_user = $this->user->id;
         $users = array();
         $query = "select * from uk_user where deleted=0";
         $result = $this->db->query($query);
@@ -100,8 +101,10 @@ class Users extends Utils {
                     $list.="<td>$user->lastname</td>";
                     $list.="<td>$user->email</td>";
                     $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
-                            . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>";
+                    if ($current_user != $userid) {
+                        $list.="<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                    }
                     $list.="</tr>";
                 } // end if $practicename != 'N/A'
             } // end foreach
@@ -119,17 +122,9 @@ class Users extends Utils {
 
     function get_gp_users_page($adminuserid) {
         $list = "";
-        $groups = array();
+        $current_user = $this->user->id;
         $users = array();
         $g = new Groups();
-
-        /*
-          $query = "select * from uk_groups_members where userid=$adminuserid";
-          $result = $this->db->query($query);
-          while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-          $groups[] = $row['groupid'];
-          }
-         */
 
         $query = "select * from uk_practice where userid=$adminuserid";
         $result = $this->db->query($query);
@@ -177,10 +172,12 @@ class Users extends Utils {
                     $list.="<td>$user->lastname</td>";
                     $list.="<td>$user->email</td>";
                     $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
-                            . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>";
+                    if ($current_user != $userid) {
+                        $list.="<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                    } // end if 
                     $list.="</tr>";
-                } // end if 
+                } // end if $userid != 2
             } // end foreach
             $list.="</tbody>";
 
