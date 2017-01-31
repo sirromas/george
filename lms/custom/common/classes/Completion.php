@@ -15,19 +15,38 @@ class Completion extends Utils {
         parent::__construct();
     }
 
+    function has_scorm_activity($courseid, $userid) {
+        $scoid = $this->get_scorm_scoid($courseid);
+        if ($scoid > 0) {
+            $query = "select * from uk_scorm_scoes_track "
+                    . "where scoid=$scoid and userid=$userid";
+            $num = $this->db->numrows($query);
+        } // end if $scoid>0
+        else {
+            $num = 0;
+        } // end else
+        return $num;
+    }
+
     function get_scorm_scoid($courseid) {
         $query = "select * from uk_scorm where course=$courseid";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $id = $row['id'];
-        }
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $id = $row['id'];
+            }
 
-        $query = "select * from uk_scorm_scoes "
-                . "where launch='index_lms.html' and scorm=$id";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $scoid = $row['id'];
-        }
+            $query = "select * from uk_scorm_scoes "
+                    . "where launch='index_lms.html' and scorm=$id";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $scoid = $row['id'];
+            }
+        } // end if $num>0
+        else {
+            $scoid = 0;
+        } // end else
         return $scoid;
     }
 
@@ -87,11 +106,13 @@ class Completion extends Utils {
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $passgrade = $this->get_scorm_passing_grade($row['scoid']);
-                $score = $this->get_student_course_score($row['scoid'], $userid); // object
-                if ($score->value < $passgrade) {
-                    $total++;
-                } // end if
+                if ($row['scoid'] != null) {
+                    $passgrade = $this->get_scorm_passing_grade($row['scoid']);
+                    $score = $this->get_student_course_score($row['scoid'], $userid); // object
+                    if ($score->value < $passgrade) {
+                        $total++;
+                    } // end if $score->value < $passgrade
+                } // end if $row['scoid']!=null
             } // end while
         } // end if $num>0 
         return $total;
@@ -106,11 +127,13 @@ class Completion extends Utils {
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $passgrade = $this->get_scorm_passing_grade($row['scoid']);
-                $score = $this->get_student_course_score($row['scoid'], $userid); //object
-                if ($score->value >= $passgrade) {
-                    $total++;
-                } // end if
+                if ($row['scoid'] != null) {
+                    $passgrade = $this->get_scorm_passing_grade($row['scoid']);
+                    $score = $this->get_student_course_score($row['scoid'], $userid); //object
+                    if ($score->value >= $passgrade) {
+                        $total++;
+                    } // end if
+                } // end if ($row['scoid'] != null) {
             } // end while
         } // end if $num>0 
         return $total;
@@ -121,7 +144,9 @@ class Completion extends Utils {
         $courses = $this->get_user_courses($userid);
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
+                //echo "Current course id: " . $courseid . "<br>";
                 $scoid = $this->get_scorm_scoid($courseid);
+                //echo "Current scoid: " . $scoid . "<br>";
                 if ($scoid > 0) {
                     $passgrade = $this->get_scorm_passing_grade($scoid);
                     $score = $this->get_student_course_score($scoid, $userid);
@@ -139,22 +164,33 @@ class Completion extends Utils {
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $duration = $row['duration']; // months
                         }
+                        //echo "Course duration month(s): " . $duration . "<br>";
                         $query = "select * from uk_enrol where "
                                 . "courseid=$courseid "
-                                . "and enrol='self'"; // we decided to use self?
+                                . "and enrol='manual'";
                         $result = $this->db->query($query);
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $enrollid = $row['id'];
                         }
+                        //echo "Enroll id: " . $enrollid . "<br>";
                         $query = "select * from uk_user_enrolments "
                                 . "where enrolid=$enrollid "
                                 . "and userid=$userid";
+                        //echo "Query: " . $query . "<br>";
                         $result = $this->db->query($query);
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $start = $row['timestart']; // unix timestamp
                         }
+                        //echo "<br>Enrollment date (unix): " . $start . "<br>";
+                        //echo "Enrollment date (human): " . date('m-d-Y', $start);
                         $end = $start + ($duration * 2592000);
+                        //echo "<br>Expiration date (unix): " . $end . "<br>";
+                        //echo "Expiration date (human): " . date('m-d-Y', $end) . "<br>";
+
                         $now = time();
+                        //echo "<br>Current moment (unixtime): " . $now . "<br>";
+                        //echo "<br>Current moment (human): " . date('m-d-Y', $now);
+
                         if ($now > $end) {
                             $total++;
                         } // end if $now>$end

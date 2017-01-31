@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
 
 class Courses extends Utils {
 
@@ -43,10 +44,15 @@ class Courses extends Utils {
     }
 
     function get_course_category_name($id) {
-        $query = "select * from uk_course_categories where id=$id";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $name = $row['name'];
+        if ($id > 0) {
+            $query = "select * from uk_course_categories where id=$id";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $name = $row['name'];
+            }
+        } // end if $id > 0
+        else {
+            $name = 'N/A';
         }
         return $name;
     }
@@ -62,14 +68,6 @@ class Courses extends Utils {
             $c->catname = $this->get_course_category_name($row['category']);
         }
         return $c;
-    }
-
-    function get_user_course_scorm_progress($courseid, $userid) {
-        
-    }
-
-    function get_user_course_quiz_progress($courseid, $userid) {
-        
     }
 
     function get_course_progress($courseid, $userid) {
@@ -155,6 +153,14 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_user_course_scorm_progress($courseid, $userid) {
+        
+    }
+
+    function get_user_course_quiz_progress($courseid, $userid) {
+        
+    }
+
     function get_user_passed_course_date($courseid, $userid) {
         $list = "";
         $scorm_status = $this->get_user_course_scorm_progress($courseid, $userid);
@@ -170,6 +176,15 @@ class Courses extends Utils {
     }
 
     function get_my_course_details($c) {
+
+        /*
+         * 
+          echo "<pre>";
+          print_r($c);
+          echo "</pre>";
+          die();
+         * 
+         */
 
         $enr_date = $this->get_user_enrollment_date($c->courseid, $c->userid);
         $duration = $this->get_course_duration($c->courseid, $c->userid); // months
@@ -298,16 +313,15 @@ class Courses extends Utils {
 
     function get_course_by_year($userid, $year) {
         $list = "";
-        //echo "User ID: ".$userid."<br>";
-        //echo "Year: ".$year."<br>";
         $courses = $this->get_user_courses($userid, $year);
-        //print_r($courses);
         $list.=$this->get_my_courses_block($courses, $userid, false);
         return $list;
     }
 
     function get_course_scorm_link($courseid) {
         $link = "";
+        $comp = new Completion();
+        $userid = $this->user->id;
         $query = "select * from uk_course_modules "
                 . "where course=$courseid "
                 . "and module=$this->scorm_module_id";
@@ -332,6 +346,8 @@ class Courses extends Utils {
                 $organization = $row['organization'];
             }
 
+            $scormstatus = $comp->has_scorm_activity($courseid, $userid);
+            $caption = ($scormstatus == 0) ? 'Start' : 'Continue';
 
             $link.="<form id='scormviewform' method='post' action='http://" . $_SERVER['SERVER_NAME'] . "/lms/mod/scorm/player.php'>
                 <input type='hidden' name='mode' value='normal'>
@@ -339,10 +355,9 @@ class Courses extends Utils {
                 <input type='hidden' name='scoid' value='$launchid'>
                 <input type='hidden' name='cm' value='$cmid'>
                 <input type='hidden' name='currentorg' value='$organization'>
-                <input type='submit' value='Continue'>
+                <input type='submit' value='$caption'>
                 </form>";
         } // end if $cmid > 0
-
         //$link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/mod/scorm/view.php?id=$id' target='_blank'>Continue >></a>";
         return $link;
     }
@@ -368,24 +383,26 @@ class Courses extends Utils {
             }
         }
 
-        $list.="<div id='my_courses_container' style=''>";
-        $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
-
-        $list.="<thead>";
-        $list.="<tr>";
-        $list.="<th>Course name</th>";
-        $list.="<th>Duration</th>";
-        $list.="<th>Enrollment date</th>";
-        $list.="<th>Due date</th>";
-        $list.="<th>My Progress</th>";
-        $list.="<th>Actions</th>";
-        $list.="</tr>";
-        $list.="</thead>";
         if (count($courses) > 0) {
+
+            $list.="<div id='my_courses_container' style=''>";
+            $list.="<table id='my_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th>Course name</th>";
+            $list.="<th>Duration</th>";
+            $list.="<th>Enrollment date</th>";
+            $list.="<th>Due date</th>";
+            $list.="<th>My Progress</th>";
+            $list.="<th>Actions</th>";
+            $list.="</tr>";
+            $list.="</thead>";
 
             $list.="<tbody>";
 
             foreach ($courses as $courseid) {
+                //echo "Current courseid: " . $courseid . "<br>";
                 $course_data = $this->get_course_detailes($courseid);
                 $progress = $this->get_course_progress($courseid, $userid);
                 $enroll_date = date('m-d-Y', $this->get_user_enrollment_date($courseid, $userid));
@@ -394,6 +411,15 @@ class Courses extends Utils {
                 $due_date = $enr_date + (86400 * 30 * $duration);
                 $due_h_date = date('m-d-Y', $due_date);
                 $link = $this->get_course_scorm_link($courseid);
+
+                /*
+                  echo "<pre>";
+                  print_r($course_data);
+                  echo "</pre><br>";
+                  echo "Enroll date: " . $enroll_date . "<br>";
+                  echo "Expiration date: " . $due_h_date . "<br>";
+                  echo "Link: " . $link . "<br>";
+                 */
 
                 $list.="<tr>";
                 $list.="<td><a href='#' onClick='return false;' title='Click to get details' id='my_course_title_$courseid' data-userid='$userid'>$course_data->fullname</a></td>";
@@ -404,21 +430,16 @@ class Courses extends Utils {
                 $list.="<td>$link</td>";
                 $list.="</tr>";
             } // end foreach
+
+            $list.="</tbody>";
+            $list.="</table>";
+            $list.="</div>";
         } // end if count($courses)>0
         else {
-            $list.="<tr>";
-            $list.="<td colspan='5'>You are not enrolled into any course</td>";
-            $list.="</tr>";
+            $list.="<div class='row-fluid'>";
+            $list.="<span class='span3'>You are not enrolled into any course</span>";
+            $list.="</div>";
         }
-        $list.="</div>";
-
-        $list.="</tbody>";
-        $list.="</table>";
-        if ($toolbar) {
-            //$list.="</div></div>"; // end of panel
-        }
-        $list.="</div>";
-
         return $list;
     }
 
@@ -537,7 +558,7 @@ class Courses extends Utils {
         $list = "";
         $courses = $this->get_user_courses($userid);
         $mycourses = $this->get_my_courses_block($courses, $userid);
-        $practicecourses = $this->get_practice_courses_block($userid);
+        //$practicecourses = $this->get_practice_courses_block($userid);
         $list.=$mycourses;
         $list.=$practicecourses;
         return $list;
@@ -1360,14 +1381,16 @@ class Courses extends Utils {
         $query = "select * from uk_practice_course_duration where practiceid=$practiceid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
-            $coursename = $this->get_course_name($row['courseid']);
-            $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
-            $list.="<tr>";
-            $list.="<td>$catname</td>";
-            $list.="<td>" . $coursename . "</td>";
-            $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
-            $list.="</tr>";
+            if ($row['courseid'] > 0) {
+                $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
+                $coursename = $this->get_course_name($row['courseid']);
+                $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
+                $list.="<tr>";
+                $list.="<td>$catname</td>";
+                $list.="<td>" . $coursename . "</td>";
+                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
+                $list.="</tr>";
+            } // end if $row['courseid']>0
         }
 
         $list.="</tbody>";

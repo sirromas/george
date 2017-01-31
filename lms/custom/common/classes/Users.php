@@ -28,7 +28,6 @@ class Users extends Utils {
 
     function get_practice_name_by_userid($userid) {
         $query = "select * from uk_practice_members where userid=$userid";
-
         $result = $this->db->query($query);
         $num = $this->db->numrows($query);
         if ($num > 0) {
@@ -39,10 +38,8 @@ class Users extends Utils {
         else {
             $practiceid = 0;
         }
-
         if ($practiceid > 0) {
             $query = "select * from uk_practice where id=$practiceid";
-            //echo "Query: ".$query."<br>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $name = $row['name'];
@@ -51,13 +48,14 @@ class Users extends Utils {
         else {
             $name = 'N/A';
         }
+
         return $name;
     }
 
     function get_admin_users_page($current_userid) {
         $list = "";
         $users = array();
-        $query = "select * from uk_user where id<>2 and deleted=0";
+        $query = "select * from uk_user where deleted=0";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $row['id'];
@@ -88,7 +86,12 @@ class Users extends Utils {
             foreach ($users as $userid) {
                 $user = $this->get_user_data_by_id($userid);
                 $practicename = $this->get_practice_name_by_userid($userid);
-                $rolename = $this->get_user_rolename($this->get_user_role($userid));
+                if ($userid != 2) {
+                    $rolename = $this->get_user_rolename($this->get_user_role($userid));
+                } // end if $userid!=2
+                else {
+                    $rolename = 'Super Admin';
+                } // end else 
                 if ($practicename != 'N/A') {
                     $list.="<tr>";
                     $list.="<td>$practicename</td>";
@@ -100,7 +103,7 @@ class Users extends Utils {
                             . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
                             . "<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
                     $list.="</tr>";
-                }
+                } // end if $practicename != 'N/A'
             } // end foreach
             $list.="</table>";
             $list.="</div>";
@@ -125,7 +128,7 @@ class Users extends Utils {
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $groups[] = $row['groupid'];
         }
-
+       
         $query = "select * from uk_practice where userid=$adminuserid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -138,6 +141,8 @@ class Users extends Utils {
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $users[] = $row['userid'];
         }
+        
+        
 
         $list.="<div class='row-fluid'>";
         $list.="<input type='hidden' id='current_user' value='$adminuserid'>";
@@ -290,52 +295,124 @@ class Users extends Utils {
     function get_user_practice_courses($userid) {
         $list = "";
         $courses = array();
-        $query = "select * from uk_practice_members where userid=$userid";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $practiceid = $row['practiceid'];
-        }
 
-        $query = "select * from uk_practice where id=$practiceid";
-        //echo "Query: " . $query . "<br>";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $pracice_admin_userid = $row['userid'];
-        }
-
-        $query = "select * from uk_groups_members where userid=$pracice_admin_userid";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $groups[] = $row['groupid'];
-        }
-
-        foreach ($groups as $groupid) {
-            $query = "select * from uk_groups where id=$groupid";
+        if ($userid != 2) {
+            $query = "select * from uk_practice_members where userid=$userid";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $row['courseid'];
+                $practiceid = $row['practiceid'];
             }
-        }
 
-        $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
-        $list.="<option value=0 selected>Please select</option>";
-        foreach ($courses as $courseid) {
-            $coursename = $this->get_course_name($courseid);
-            $list.="<option value='$courseid'>$coursename</option>";
-        }
-        $list.="</select>";
+            $query = "select * from uk_practice where id=$practiceid";
+            //echo "Query: " . $query . "<br>";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $pracice_admin_userid = $row['userid'];
+            }
+
+            $query = "select * from uk_groups_members where userid=$pracice_admin_userid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $groups[] = $row['groupid'];
+            }
+
+            foreach ($groups as $groupid) {
+                $query = "select * from uk_groups where id=$groupid";
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $courses[] = $row['courseid'];
+                }
+            }
+
+            $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
+            $list.="<option value=0 selected>Please select</option>";
+            foreach ($courses as $courseid) {
+                $coursename = $this->get_course_name($courseid);
+                $list.="<option value='$courseid'>$coursename</option>";
+            }
+            $list.="</select>";
+        } // end if $userid!=2
+        else {
+            $list.="<select multiple id='gpcourses' style='width:220px;height:95px;'>";
+            $list.="<option value=0 selected>Please select</option>";
+
+            $list.="</select>";
+        } // end else 
+
+        return $list;
+    }
+
+    function get_admin_users_course_dialog($userid) {
+        $list = "";
+        $ext_courses = $this->get_users_course_block($userid);
+        $g = new Groups();
+        $pcategories = $g->get_practice_types();
+        $pcourses = $this->get_user_practice_courses($userid);
+
+        $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style='width:800px;'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Edit User Courses</h4>
+                </div>
+                <div class='modal-body' style='min-height:520px;'>
+                <input type='hidden' id='user_section_userid' value='$userid'>
+                
+                <div class='container-fluid' >
+                <span class='span2' style='font-weight:bold;'>Enrolled courses:</span>
+                <span class='span6'>$ext_courses</span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span7'><hr></span>
+                </div>
+                
+                <div class='container-fluid' >
+                <span class='span2' style='font-weight:bold;'>Enroll into course</span>
+                </div>
+                
+                <div class='container-fluid' style=''>
+                <span class='span2'>Categories</span>
+                <span class='span3' >$pcategories</span>
+                </div>
+                </ul>
+                    
+                <div class='container-fluid' style=''>
+                <span class='span2'>Courses</span>
+                <span class='span3' id='courses_container'>$pcourses</span>
+                </div>
+                </ul>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span6' style='color:red;' id='user_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='update_user_courses'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
 
         return $list;
     }
 
     function get_user_courses_dialog($current_user, $userid) {
         $list = "";
-        $ext_courses = $this->get_users_course_block($userid);
-        $g = new Groups();
-        //$pcategories = $g->get_practice_types();
-        $pcourses = $this->get_user_practice_courses($userid);
+        if ($userid == 2) {
+            $list.=$this->get_admin_users_course_dialog($userid);
+        } // end if $userid==2
+        else {
+            $ext_courses = $this->get_users_course_block($userid);
+            //$g = new Groups();
+            //$pcategories = $g->get_practice_types();
+            $pcourses = $this->get_user_practice_courses($userid);
 
-        $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
+            $list.="<div id='myModal' class='modal fade' style='width:800px;margin-left:0px;left:18%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style='width:800px;'>
                 <div class='modal-header'>
@@ -377,6 +454,7 @@ class Users extends Utils {
             </div>
         </div>
     </div>";
+        } // end else
 
         return $list;
     }
@@ -390,10 +468,44 @@ class Users extends Utils {
         return $groupid;
     }
 
+    function create_course_enrollment_method($courseid) {
+        $method = 'manual';
+        $period = '31536000';
+        $date = time();
+        $query = "insert into uk_enrol "
+                . "(enrol, "
+                . "courseid, "
+                . "enrolperiod, "
+                . "timecreated, "
+                . "timemodified) "
+                . "values ('$method',"
+                . "$courseid,"
+                . "'$period',"
+                . "'$date',"
+                . "$date)";
+        $this->db->query($query);
+    }
+
+    function get_entoll_id($courseid) {
+        $method = 'manual';
+        $query = "select * from uk_enrol "
+                . "where enrol='$method' "
+                . "and courseid=$courseid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $this->create_course_enrollment_method($courseid);
+        } // end if $num==0
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $enrollid = $row['id'];
+        }
+        return $enrollid;
+    }
+
     function enroll_user($courseid, $userid) {
         $contextid = $this->get_course_context($courseid);
         $roleid = 5; // student
-        $enrolid = 1; // manual enrollment
+        $enrolid = $this->get_entoll_id($courseid);
         // Check before make enroll, maybe already enrolled?
         $query = "select * from uk_role_assignments "
                 . "where contextid=$contextid "
@@ -436,8 +548,15 @@ class Users extends Utils {
 
     function unenroll_user($courseid, $userid) {
         $contextid = $this->get_course_context($courseid);
+        $enrolid = $this->get_entoll_id($courseid);
+
         $query = "delete from uk_role_assignments "
                 . "where contextid=$contextid "
+                . "and userid=$userid";
+        $this->db->query($query);
+
+        $query = "delete from uk_user_enrolments "
+                . "where enrolid=$enrolid "
                 . "and userid=$userid";
         $this->db->query($query);
     }
@@ -543,8 +662,10 @@ class Users extends Utils {
             foreach ($courses as $courseid) {
                 if ($courseid > 0) {
                     $this->enroll_user($courseid, $user->userid);
-                    $groupid = $this->get_course_groupid($courseid);
-                    $this->add_user_to_group($groupid, $user->userid);
+                    if ($user->userid != 2) {
+                        $groupid = $this->get_course_groupid($courseid);
+                        $this->add_user_to_group($groupid, $user->userid);
+                    } // end if $user->userid != 2
                 } // end if $courseid>0
             } // end foreach
         } // end if count($courses)>0
