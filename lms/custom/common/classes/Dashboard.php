@@ -182,16 +182,16 @@ class Dashboard extends Utils {
     function get_dashboard_by_role($userid, $roleid) {
         $list = "";
         $comp = new Completion();
-
-        $c_completed = $comp->get_student_passed_courses($userid);
-        $c_left = $comp->get_student_progress_courses($userid);
+        $courses = $this->get_user_courses($userid);
+        
+        $c_completed = $comp->get_student_passed_courses($courses, $userid);
+        $c_left = $comp->get_student_progress_courses($courses, $userid);
         $c_overdue = $comp->get_student_overdue_courses($userid);
 
         //$c_completed = 12;
         //$c_left = 3;
         //$c_overdue = 1;
 
-        $courses = $this->get_user_courses($userid, $roleid);
         $left = $this->get_left_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);
         $right = $this->get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);
 

@@ -29,24 +29,28 @@ class Completion extends Utils {
     }
 
     function get_scorm_scoid($courseid) {
-        $query = "select * from uk_scorm where course=$courseid";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $id = $row['id'];
-            }
-
-            $query = "select * from uk_scorm_scoes "
-                    . "where launch='index_lms.html' and scorm=$id";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $scoid = $row['id'];
-            }
-        } // end if $num>0
+        if ($courseid > 0) {
+            $query = "select * from uk_scorm where course=$courseid";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $id = $row['id'];
+                }
+                $query = "select * from uk_scorm_scoes "
+                        . "where launch='index_lms.html' and scorm=$id";
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $scoid = $row['id'];
+                }
+            } // end if $num>0
+            else {
+                $scoid = 0;
+            } // end else
+        } // end if $courseid>0
         else {
             $scoid = 0;
-        } // end else
+        } // end else 
         return $scoid;
     }
 
@@ -82,60 +86,61 @@ class Completion extends Utils {
         return $courses;
     }
 
-    function get_student_course_score($scoid, $userid) {
+    function get_student_course_score($scoid, $userid, $courseid) {
         $query = "SELECT * FROM `uk_scorm_scoes_track` "
                 . "WHERE element='cmi.core.score.raw' "
                 . "and scoid=$scoid and userid=$userid "
                 . "order by timemodified desc limit 0,1";
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $score = new stdClass();
+                foreach ($row as $key => $value) {
+                    $score->$key = $value;
+                } // end foreach
+            } // end while
+        } // end if $num > 0
+        else {
             $score = new stdClass();
-            foreach ($row as $key => $value) {
-                $score->$key = $value;
-            } // end foreach
-        } // end while
+            $tracks = $this->has_scorm_activity($courseid, $userid);
+            $value = ($tracks == 1) ? 0 : 5;
+            $score->value = $value;
+        } // end else
         return $score;
     }
 
-    function get_student_progress_courses($userid, $date = null) {
+    function get_student_progress_courses($courses, $userid, $date = null) {
         $total = 0;
-        $query = "select MAX(id), userid,scoid, element,value, attempt, "
-                . "timemodified from uk_scorm_scoes_track "
-                . "where userid=$userid and element='cmi.core.score.raw' ";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                if ($row['scoid'] != null) {
-                    $passgrade = $this->get_scorm_passing_grade($row['scoid']);
-                    $score = $this->get_student_course_score($row['scoid'], $userid); // object
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $scoid = $this->get_scorm_scoid($courseid);
+                if ($scoid > 0) {
+                    $passgrade = $this->get_scorm_passing_grade($scoid);
+                    $score = $this->get_student_course_score($scoid, $userid, $courseid); // object
                     if ($score->value < $passgrade) {
                         $total++;
                     } // end if $score->value < $passgrade
-                } // end if $row['scoid']!=null
-            } // end while
-        } // end if $num>0 
+                } // end if $scoid>0
+            } // end foreach 
+        } // end if count($courses)>0
         return $total;
     }
 
-    function get_student_passed_courses($userid, $date = null) {
+    function get_student_passed_courses($courses, $userid, $date = null) {
         $total = 0;
-        $query = "select MAX(id), userid,scoid, element,value, attempt, "
-                . "timemodified from uk_scorm_scoes_track "
-                . "where userid=$userid and element='cmi.core.score.raw' ";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                if ($row['scoid'] != null) {
-                    $passgrade = $this->get_scorm_passing_grade($row['scoid']);
-                    $score = $this->get_student_course_score($row['scoid'], $userid); //object
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $scoid = $this->get_scorm_scoid($courseid);
+                if ($scoid > 0) {
+                    $passgrade = $this->get_scorm_passing_grade($scoid);
+                    $score = $this->get_student_course_score($scoid, $userid, $courseid); // object
                     if ($score->value >= $passgrade) {
                         $total++;
-                    } // end if
-                } // end if ($row['scoid'] != null) {
-            } // end while
-        } // end if $num>0 
+                    } // end if $score->value < $passgrade
+                } // end if $scoid>0
+            } // end foreach 
+        } // end if count($courses)>0
         return $total;
     }
 
@@ -144,13 +149,13 @@ class Completion extends Utils {
         $courses = $this->get_user_courses($userid);
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
-                //echo "Current course id: " . $courseid . "<br>";
                 $scoid = $this->get_scorm_scoid($courseid);
-                //echo "Current scoid: " . $scoid . "<br>";
                 if ($scoid > 0) {
                     $passgrade = $this->get_scorm_passing_grade($scoid);
                     $score = $this->get_student_course_score($scoid, $userid);
                     if ($score->vaue < $passgrade) {
+
+                        // Get course duration
                         $practiceid = $this->get_student_practice($userid);
                         if ($practiceid > 0) {
                             $query = "select * from uk_practice_course_duration "
@@ -164,7 +169,8 @@ class Completion extends Utils {
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $duration = $row['duration']; // months
                         }
-                        //echo "Course duration month(s): " . $duration . "<br>";
+
+                        // Get user course enrollment date
                         $query = "select * from uk_enrol where "
                                 . "courseid=$courseid "
                                 . "and enrol='manual'";
@@ -172,25 +178,17 @@ class Completion extends Utils {
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $enrollid = $row['id'];
                         }
-                        //echo "Enroll id: " . $enrollid . "<br>";
                         $query = "select * from uk_user_enrolments "
                                 . "where enrolid=$enrollid "
                                 . "and userid=$userid";
-                        //echo "Query: " . $query . "<br>";
                         $result = $this->db->query($query);
                         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                             $start = $row['timestart']; // unix timestamp
                         }
-                        //echo "<br>Enrollment date (unix): " . $start . "<br>";
-                        //echo "Enrollment date (human): " . date('m-d-Y', $start);
+
+                        // Calculate expiration date
                         $end = $start + ($duration * 2592000);
-                        //echo "<br>Expiration date (unix): " . $end . "<br>";
-                        //echo "Expiration date (human): " . date('m-d-Y', $end) . "<br>";
-
                         $now = time();
-                        //echo "<br>Current moment (unixtime): " . $now . "<br>";
-                        //echo "<br>Current moment (human): " . date('m-d-Y', $now);
-
                         if ($now > $end) {
                             $total++;
                         } // end if $now>$end
