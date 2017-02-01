@@ -70,10 +70,35 @@ class Courses extends Utils {
         return $c;
     }
 
-    function get_course_progress($courseid, $userid) {
-        $list = "";
+    function get_courses_progress() {
+        $progress = array();
+        $userid = $this->user->id;
+        $courses = $this->get_user_courses($userid);
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $stat = $this->get_course_progress($courseid, $userid);
+                $pr = new stdClass();
+                $pr->courseid = $courseid;
+                $pr->stat = json_encode($stat);
+                $progress[] = $pr;
+            } // end foreach
+        } // end if count($courses)>0
+        //return json_encode($courses);
+        return json_encode($progress);
+    }
 
-        return $list;
+    function get_course_progress($courseid, $userid) {
+        $comp = new Completion();
+        $scoid = $comp->get_scorm_scoid($courseid);
+        if ($scoid > 0) {
+            $passgrade = $comp->get_scorm_passing_grade($scoid);
+            $stat = $comp->get_student_course_score($scoid, $userid, $courseid, TRUE);
+            $progress = ($stat >= $passgrade) ? 100 : $stat;
+        } // end if $scoid
+        else {
+            $progress = 0;
+        }
+        return $progress;
     }
 
     function get_course_context($courseid) {
@@ -225,11 +250,11 @@ class Courses extends Utils {
                 </tr>
                 
                 <tr>
-                <td style='padding-left:15px;padding-right:15px'>Frequency</td><td style='padding-left:15px;padding-right:15px'>$duration (month)</td>
+                <td style='padding-left:15px;padding-right:15px'>Duration</td><td style='padding-left:15px;padding-right:15px'>$duration (month)</td>
                 </tr>
                 
                 <tr>
-                <td style='padding-left:15px;padding-right:15px'>Status</td><td style='padding-left:15px;padding-right:15px'>$status</td>
+                <td style='padding-left:15px;padding-right:15px'>Progress</td><td style='padding-left:15px;padding-right:15px'>$status %</td>
                 </tr>
                 
                 <tr>
@@ -246,10 +271,6 @@ class Courses extends Utils {
                 
                 <tr>
                 <td style='padding-left:15px;padding-right:15px'>Enroll date</td><td style='padding-left:15px;padding-right:15px'>$enr_h_date</td>
-                </tr>
-                
-                <tr>
-                <td style='padding-left:15px;padding-right:15px'>Passed date</td><td style='padding-left:15px;padding-right:15px'>$passed_date</td>
                 </tr>
                 
                 <tr>
@@ -426,7 +447,7 @@ class Courses extends Utils {
                 $list.="<td>60 minutes</td>";
                 $list.="<td>$enroll_date</td>";
                 $list.="<td>$due_h_date</td>";
-                $list.="<td>$progress</td>";
+                $list.="<td><div id='pr_$courseid' title='Progress: $progress%'></div></td>";
                 $list.="<td>$link</td>";
                 $list.="</tr>";
             } // end foreach
@@ -1581,6 +1602,98 @@ class Courses extends Utils {
         $list.="</tbody>";
 
         $list.="</table>";
+
+        return $list;
+    }
+
+    function get_course_enroll_id($courseid) {
+        $query = "select * from uk_enrol "
+                . "where enrol='manual' "
+                . "and courseid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+        return $id;
+    }
+
+    function get_course_enrollment_date($courseid, $userid) {
+        $enrollid = $this->get_course_enroll_id($courseid);
+        $query = "select * from uk_user_enrolments "
+                . "where enrolid=$enrollid "
+                . "and $userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $start = $row['timestart'];
+        }
+        return $start;
+    }
+
+    function get_course_expiration_date($courseid, $userid) {
+        $start = $this->get_course_enrollment_date($courseid, $userid);
+        $practiceid = $this->get_student_practice($userid);
+        if ($practiceid > 0) {
+            $query = "select * from uk_practice_course_duration "
+                    . "where courseid=$courseid";
+        } // end if $practiceid>0
+        else {
+            $query = "select * from uk_course_duration "
+                    . "where courseid=$courseid";
+        } // end else
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $duration = $row['duration']; // months
+        }
+        $end = $start + ($duration * 2592000);
+        return $end;
+    }
+
+    function get_course_stat_dialog($c) {
+        $list = "";
+        $userid = $c->userid;
+        $courses = explode(',', $c->courses);
+
+        $list.="<div id='myModal' class='modal fade' style='width:825px;margin-left:0px;left:18%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style='width:825px;'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Courses</h4>
+                </div>
+                
+                <div class='modal-body' style='height:875px;'>";
+
+        $list.="<table id='courses_list' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course name</th>";
+        $list.="<th>Progress</th>";
+        $list.="<th>Enrollment date</th>";
+        $list.="<th>Due date</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+        foreach ($courses as $courseid) {
+            $coursename = $this->get_course_name($courseid);
+            $progress = $this->get_course_progress($courseid, $userid);
+            $starth = date('m-d-Y', $this->get_course_enrollment_date($courseid, $userid));
+            $expirh = date('m-d-Y', $this->get_course_expiration_date($courseid, $userid));
+            $list.="<tr>";
+            $list.="<td>$coursename</td>";
+            $list.="<td>$progress %</td>";
+            $list.="<td>$starth</td>";
+            $list.="<td>$expirh</td>";
+            $list.="</tr>";
+        } // end foeacj
+        $list.="</tbody>";
+        $list.="</table>";
+        $list.="<div class='container-fluid' style='text-align:center;padding-top:10px;'>
+                    <span align='center' class='span7' style='padding-left:250x;'><button type='button'  data-dismiss='modal' id='cancel'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
 
         return $list;
     }

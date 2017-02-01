@@ -17,7 +17,23 @@ $(document).ready(function () {
     $('#repeat_courses').DataTable();
     $('#courses_policy').DataTable();
 
+    var course_stat_url = "/lms/custom/common/get_courses_progress.php";
+    $.post(course_stat_url, {id: 1}).done(function (data) {
+        console.log('Server response: ' + data);
+        jQuery.each(JSON.parse(data), function (index, value) {
+            var divid = '#pr_' + value.courseid;
+            var progress = value.stat;
+            console.log('Progress: ' + progress);
+            $(divid).progressbar({
+                value: parseInt(progress)
+            });
 
+            $(divid).tooltip({
+                position: {my: "left+5 center", at: "right center"}
+            });
+
+        }); // end jQuery.each
+    }); // end of post
 
     var dialog_loaded;
     var domain = 'mycodebusters.com';
@@ -1056,9 +1072,32 @@ $(document).ready(function () {
 
         }
 
-        if (event.target.id == 'progress_stat') {
+        if ($(event.target).attr('class') == 'courses_list') {
             var userid = $('#progress_stat').data('userid');
-            console.log('User ID: ' + userid);
+            var courses = $('#progress_stat').data('courses');
+            var course = {userid: userid, courses: courses};
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_course_stat_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                                $('#courses_list').DataTable();
+                            }); // end of post
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
         }
 
         if (event.target.id == 'completed_stat') {

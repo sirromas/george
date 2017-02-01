@@ -86,32 +86,45 @@ class Completion extends Utils {
         return $courses;
     }
 
-    function get_student_course_score($scoid, $userid, $courseid) {
-        $query = "SELECT * FROM `uk_scorm_scoes_track` "
-                . "WHERE element='cmi.core.score.raw' "
-                . "and scoid=$scoid and userid=$userid "
-                . "order by timemodified desc limit 0,1";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $score = new stdClass();
-                foreach ($row as $key => $value) {
-                    $score->$key = $value;
-                } // end foreach
-            } // end while
-        } // end if $num > 0
-        else {
-            $score = new stdClass();
-            $tracks = $this->has_scorm_activity($courseid, $userid);
-            $value = ($tracks == 1) ? 0 : 5;
-            $score->value = $value;
-        } // end else
+    function get_student_course_score($scoid, $userid, $courseid, $progress = FALSE) {
+        if ($courseid > 0) {
+            $query = "SELECT * FROM `uk_scorm_scoes_track` "
+                    . "WHERE element='cmi.core.score.raw' "
+                    . "and scoid=$scoid and userid=$userid "
+                    . "order by timemodified desc limit 0,1";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    if ($progress == FALSE) {
+                        $score = new stdClass();
+                        foreach ($row as $key => $value) {
+                            $score->$key = $value;
+                        } // end foreach
+                    } // end if $progress==FALSE
+                    else {
+                        $score = $row['cmi.core.score.raw'];
+                    } // end else
+                } // end while
+            } // end if $num > 0
+            else {
+                $tracks = $this->has_scorm_activity($courseid, $userid);
+                $value = ($tracks > 0) ? 5 : 0;
+                if ($progress == FALSE) {
+                    $score = new stdClass();
+                    $score->value = $value;
+                } // end if $progress == FALSE
+                else {
+                    $score = $value;
+                }
+            } // end else
+        } // end if $courseid > 0
         return $score;
     }
 
     function get_student_progress_courses($courses, $userid, $date = null) {
         $total = 0;
+        $dscourses = array();
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
                 $scoid = $this->get_scorm_scoid($courseid);
@@ -120,14 +133,20 @@ class Completion extends Utils {
                     $score = $this->get_student_course_score($scoid, $userid, $courseid); // object
                     if ($score->value < $passgrade) {
                         $total++;
+                        $dscourses[] = $courseid;
                     } // end if $score->value < $passgrade
                 } // end if $scoid>0
             } // end foreach 
         } // end if count($courses)>0
-        return $total;
+        $courseslist = implode(',', $dscourses);
+        $c = new stdClass();
+        $c->courses = $courseslist;
+        $c->total = $total;
+        return $c;
     }
 
     function get_student_passed_courses($courses, $userid, $date = null) {
+        $dscourses = array();
         $total = 0;
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
@@ -137,15 +156,21 @@ class Completion extends Utils {
                     $score = $this->get_student_course_score($scoid, $userid, $courseid); // object
                     if ($score->value >= $passgrade) {
                         $total++;
+                        $dscourses[] = $courseid;
                     } // end if $score->value < $passgrade
                 } // end if $scoid>0
             } // end foreach 
         } // end if count($courses)>0
-        return $total;
+        $courseslist = implode(',', $dscourses);
+        $c = new stdClass();
+        $c->courses = $courseslist;
+        $c->total = $total;
+        return $c;
     }
 
     function get_student_overdue_courses($userid, $date = null) {
         $total = 0;
+        $dscourses = array();
         $courses = $this->get_user_courses($userid);
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
@@ -191,12 +216,17 @@ class Completion extends Utils {
                         $now = time();
                         if ($now > $end) {
                             $total++;
+                            $dscourses[] = $courseid;
                         } // end if $now>$end
                     } // end if $score->vaue<$passgrade
                 } // end if $scoeid>0
             }  // end foreach
         } // end if count($courses)>0
-        return $total;
+        $courseslist = implode(',', $dscourses);
+        $c = new stdClass();
+        $c->courses = $courseslist;
+        $c->total = $total;
+        return $c;
     }
 
 }

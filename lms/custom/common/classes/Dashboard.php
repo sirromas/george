@@ -44,6 +44,10 @@ class Dashboard extends Utils {
         $list.="<span class='span12' id='container' style='min-width: 310px; max-width: 800px; height: 220px; margin: 0 auto'></span>";
         $list.="</div>";
 
+        $c_completed_total = $c_completed->total;
+        $c_left_total = $c_left->total;
+        $c_overdue_total = $c_overdue->total;
+
         $list.="<script type='text/javascript'>";
 
         $list.="Highcharts.setOptions({
@@ -76,13 +80,13 @@ class Dashboard extends Utils {
                     },
                     series: [{
                             name: 'Courses completed',
-                            data: [$c_completed]
+                            data: [$c_completed_total]
                         }, {
                             name: 'Courses left',
-                            data: [$c_left]
+                            data: [$c_left_total]
                         }, {
                             name: 'Courses overdue',
-                            data: [$c_overdue]
+                            data: [$c_overdue_total]
                         }]
                         });
                     });";
@@ -95,22 +99,32 @@ class Dashboard extends Utils {
     function get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue) {
         $list = "";
 
+        $c_completed_total = $c_completed->total;
+        $c_completed_courses = $c_completed->courses;
+
+        $c_left_total = $c_left->total;
+        $c_left_courses = $c_left->courses;
+
+        $c_overdue_total = $c_overdue->total;
+        $c_overdue_courses = $c_overdue->courses;
+
+
         $list.="<div class='container-fluid'>";
         $list.="<span class='span12' style='font-size:18px;font-weight:bold;'>Your training summary</span>";
         $list.="</div><br>";
 
         $list.="<div class='container-fluid'>";
-        $link = ($c_completed == 0) ? "<span style='color:#058DC7;'>$c_completed</span>" : "<a href='#' style='color:#058DC7;' onClick='return false;' id='completed_stat' data-userid='$userid'>$c_completed</a>";
+        $link = ($c_completed_total == 0) ? "<span style='color:#058DC7;'>$c_completed_total</span>" : "<a href='#' style='color:#058DC7;' class='courses_list' onClick='return false;' id='completed_stat' data-userid='$userid' data-courses='$c_completed_courses'>$c_completed_total</a>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses completed this year: $link</span>";
         $list.="</div>";
 
         $list.="<div class='container-fluid'>";
-        $link = ($c_left == 0) ? "<span style='color:#50B432;'>$c_left</span>" : "<a href='#' style='color:#50B432;' onClick='return false;' id='progress_stat' data-userid='$userid'>$c_left</a>";
+        $link = ($c_left_total == 0) ? "<span style='color:#50B432;'>$c_left_total</span>" : "<a href='#' style='color:#50B432;' class='courses_list'  onClick='return false;' id='progress_stat' data-userid='$userid' data-courses='$c_left_courses'>$c_left_total</a>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses left to do this year: $link</span>";
         $list.="</div>";
 
         $list.="<div class='container-fluid'>";
-        $link = ($c_overdue == 0) ? "<span style='color:#ED561B;'>$c_overdue</span>" : "<a href='#' style='color:#ED561B;' onClick='return false;' id='overdue_stat' data-userid='$userid'>$c_overdue</a>";
+        $link = ($c_overdue_total == 0) ? "<span style='color:#ED561B;'>$c_overdue_total</span>" : "<a href='#' style='color:#ED561B;' class='courses_list' onClick='return false;' id='overdue_stat' data-userid='$userid' data-courses='$c_overdue_courses'>$c_overdue_total</a>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>Courses overdue: $link</span>";
         $list.="</div><br>";
 
@@ -162,13 +176,13 @@ class Dashboard extends Utils {
                     },
                     series: [{
                             name: 'Courses completed',
-                            data: [$c_completed]
+                            data: [$c_completed_total]
                         }, {
                             name: 'Courses left',
-                            data: [$c_left]
+                            data: [$c_left_total]
                         }, {
                             name: 'Courses overdue',
-                            data: [$c_overdue]
+                            data: [$c_overdue_total]
                         }]
                         });
                     });";
@@ -183,7 +197,7 @@ class Dashboard extends Utils {
         $list = "";
         $comp = new Completion();
         $courses = $this->get_user_courses($userid);
-        
+
         $c_completed = $comp->get_student_passed_courses($courses, $userid);
         $c_left = $comp->get_student_progress_courses($courses, $userid);
         $c_overdue = $comp->get_student_overdue_courses($userid);
