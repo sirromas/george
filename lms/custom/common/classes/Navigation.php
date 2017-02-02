@@ -10,6 +10,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Courses.php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Profile.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Groups.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Users.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Reports.php';
 
 /**
  * Description of Navigation
@@ -73,6 +74,9 @@ class Navigation extends Utils {
         $u = new Users();
         $users = $u->get_users_page($this->user->id);
 
+        $r = new Reports();
+        $report = $r->get_reports_page($this->user->id);
+
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:18px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</li></a>
           <li><a data-toggle = 'tab'  href = '#profile'><i style='padding-left:13px;cursor:pointer;' class='fa fa-id-card-o fa-2x'aria-hidden='true' ></i><br>My profile</span></a></li>
@@ -113,8 +117,7 @@ class Navigation extends Utils {
             $groups
           </div> 
           <div id = 'reports' class = 'tab-pane fade'>
-            <h3>Reports</h3>
-            <p>Some content.</p>
+            $report
           </div>
           <div id = 'pages' class = 'tab-pane fade'>
             $pages
@@ -218,6 +221,9 @@ class Navigation extends Utils {
         $u = new Users();
         $users = $u->get_users_page($this->user->id);
 
+        $r = new Reports();
+        $report = $r->get_reports_page($this->user->id);
+
         $list.="<ul class = 'nav nav-tabs' >
          <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:18px;cursor:pointer;' class='fa fa-tachometer fa-2x' aria-hidden='true'></i><br>Dashboard</a></li>
           <li><a data-toggle = 'tab' href = '#profile'><i style='padding-left:12px;cursor:pointer;' class='fa fa-id-card-o fa-2x' aria-hidden='true'></i><br>My profile</a></li>
@@ -255,8 +261,7 @@ class Navigation extends Utils {
           </div>
           
           <div id = 'reports' class = 'tab-pane fade'>
-            <h3>Reports</h3>
-            <p>Some content.</p>
+            $report
           </div>
           <div id = 'help' class = 'tab-pane fade'>
             <h3>Help</h3>

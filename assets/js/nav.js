@@ -17,13 +17,31 @@ $(document).ready(function () {
     $('#repeat_courses').DataTable();
     $('#courses_policy').DataTable();
 
+    $.post('/lms/custom/common/data/cohorts.json', {id: 1}, function (data) {
+        $('#r_cohort').typeahead({source: data, items: 240});
+    }, 'json');
+
+    $.post('/lms/custom/common/data/practices.json', {id: 1}, function (data) {
+        $('#r_practice').typeahead({source: data, items: 240});
+    }, 'json');
+
+    $.post('/lms/custom/common/data/courses.json', {id: 1}, function (data) {
+        $('#r_courses').typeahead({source: data, items: 240});
+    }, 'json');
+
+    $.post('/lms/custom/common/data/users.json', {id: 1}, function (data) {
+        $('#r_users').typeahead({source: data, items: 240});
+    }, 'json');
+
+    $('#date1').datepicker();
+    $('#date2').datepicker();
+
+
     var course_stat_url = "/lms/custom/common/get_courses_progress.php";
     $.post(course_stat_url, {id: 1}).done(function (data) {
-        console.log('Server response: ' + data);
         jQuery.each(JSON.parse(data), function (index, value) {
             var divid = '#pr_' + value.courseid;
             var progress = value.stat;
-            console.log('Progress: ' + progress);
             $(divid).progressbar({
                 value: parseInt(progress)
             });

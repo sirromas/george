@@ -1766,7 +1766,7 @@ class Courses extends Utils {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $has_practice = $this->has_practice($row['id']);
                 if ($has_practice > 0) {
-                    $name = $row['firstname'] . "-" . $row['lastname'];
+                    $name = $row['firstname'] . " " . $row['lastname'];
                     $users[] = mb_convert_encoding($name, 'UTF-8');
                 } // end if $has_practice >0 
             } // end while
