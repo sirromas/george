@@ -6,14 +6,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.
 class Courses extends Utils {
 
     public $scorm_module_id = 18;
+    public $path;
 
     function __construct() {
         parent::__construct();
+        $this->create_courses_json_data();
+        $this->path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/certificates';
     }
 
     function get_courses_page($userid) {
         $list = "";
         $this->create_duration_items();
+        $this->create_user_training_report();
         if ($userid == 2) {
             $roleid = 0;
         } // end if
@@ -210,7 +214,7 @@ class Courses extends Utils {
           die();
          * 
          */
-
+        $comp = new Completion();
         $enr_date = $this->get_user_enrollment_date($c->courseid, $c->userid);
         $duration = $this->get_course_duration($c->courseid, $c->userid); // months
         $due_date = $enr_date + (86400 * 30 * $duration);
@@ -220,8 +224,8 @@ class Courses extends Utils {
         $course = $this->get_course_detailes($c->courseid);
         $status = $this->get_course_progress($c->courseid, $c->userid);
         $policy = $this->get_course_policy($c->courseid);
-        $certificate = $this->get_user_course_certificate($c->courseid, $c->userid);
-        $passed_date = $this->get_user_passed_course_date($c->courseid, $c->userid);
+        $certificate = $comp->get_course_detailes_certificate_link($c->courseid);
+
 
         $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:29%;min-height:375px'>
         <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
@@ -1631,15 +1635,22 @@ class Courses extends Utils {
 
     function get_course_expiration_date($courseid, $userid) {
         $start = $this->get_course_enrollment_date($courseid, $userid);
-        $practiceid = $this->get_student_practice($userid);
-        if ($practiceid > 0) {
-            $query = "select * from uk_practice_course_duration "
-                    . "where courseid=$courseid";
-        } // end if $practiceid>0
+        if ($userid != 2) {
+            $practiceid = $this->get_student_practice($userid);
+            if ($practiceid > 0) {
+                $query = "select * from uk_practice_course_duration "
+                        . "where courseid=$courseid";
+            } // end if $practiceid>0
+            else {
+                $query = "select * from uk_course_duration "
+                        . "where courseid=$courseid";
+            } // end else
+        } // end if $userid!=2
         else {
             $query = "select * from uk_course_duration "
                     . "where courseid=$courseid";
-        } // end else
+        } // end else 
+
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $duration = $row['duration']; // months
@@ -1696,6 +1707,69 @@ class Courses extends Utils {
     </div>";
 
         return $list;
+    }
+
+    function create_courses_json_data() {
+        
+    }
+
+    function get_user_certificates() {
+        $userid = $this->user->id;
+        $list = "";
+
+        return $list;
+    }
+
+    function create_user_training_report() {
+        $list = "";
+        $comp = new Completion();
+        $userid = $this->user->id;
+        $courses = $this->get_user_courses($userid);
+
+        $list.="<html>";
+        $list.="<body>";
+        $list.="<br><p align='center'>";
+
+        $list.="<table align='center'>";
+
+        $list.="<tr>";
+        $list.="<th style='padding:15px;'>Course Name</th>";
+        $list.="<th style='padding:15px;'>Progress</th>";
+        $list.="<th style='padding:15px;'>Enroll Date</th>";
+        $list.="<th style='padding:15px;'>Due Date</th>";
+        $list.="<th style='padding:15px;'>Stats</th>";
+        $list.="</tr>";
+
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $coursename = $this->get_course_name($courseid);
+                $progress = $this->get_course_progress($courseid, $userid);
+                $starth = date('m-d-Y', $this->get_user_enrollment_date($courseid, $userid));
+                $endh = date('m-d-Y', $this->get_course_expiration_date($courseid, $userid));
+                $stat = $comp->get_user_course_stat($courseid, $userid);
+                $list.="<tr>";
+                $list.="<td style='padding:15px;'>$coursename</td>";
+                $list.="<td style='padding:15px;'>$progress</td>";
+                $list.="<td style='padding:15px;'>$starth</td>";
+                $list.="<td style='padding:15px;'>$endh</td>";
+                $list.="<td style='padding:15px;'>$stat</td>";
+                $list.="</tr>";
+            } // end foreach
+        } // end if count($courses)>0
+
+        $list.="</table>";
+        $list.="</p>";
+        $list.="</body>";
+        $list.= "</html>";
+
+        $path = $this->path . "/$userid";
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+        $htmlpath = $path . "/report.html";
+        file_put_contents($htmlpath, $list);
+        $link = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.html";
+        return $link;
     }
 
 }

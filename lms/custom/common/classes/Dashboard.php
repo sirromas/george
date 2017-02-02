@@ -98,7 +98,11 @@ class Dashboard extends Utils {
 
     function get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue) {
         $list = "";
-
+        
+        $comp=new Completion();
+        $training_report_link=$comp->get_user_training_report_link();
+        $certificates_link=$comp->get_user_certificates_link();
+        
         $c_completed_total = $c_completed->total;
         $c_completed_courses = $c_completed->courses;
 
@@ -133,11 +137,11 @@ class Dashboard extends Utils {
         $list.="</div><br>";
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'><a href='#' onClick='return false;' style='color:black;'>Download your training report</a></span>";
+        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$training_report_link</span>";
         $list.="</div>";
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'><a href='#' onClick='return false;' style='color:black;'>Download your training certificates</a></span>";
+        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$certificates_link</span>";
         $list.="</div>";
 
         $list.="<br><div class='container-fluid'>";
@@ -201,10 +205,11 @@ class Dashboard extends Utils {
         $c_completed = $comp->get_student_passed_courses($courses, $userid);
         $c_left = $comp->get_student_progress_courses($courses, $userid);
         $c_overdue = $comp->get_student_overdue_courses($userid);
+        
+        if ($c_completed->total > 0) {
+            $comp->create_user_certificates($c_completed);
+        }
 
-        //$c_completed = 12;
-        //$c_left = 3;
-        //$c_overdue = 1;
 
         $left = $this->get_left_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);
         $right = $this->get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue);

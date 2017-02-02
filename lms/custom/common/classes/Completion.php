@@ -229,4 +229,75 @@ class Completion extends Utils {
         return $c;
     }
 
+    function is_certificate_exists($courseid, $userid) {
+        $query = "select * from uk_course_certificates "
+                . "where courseid=$courseid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
+    function create_user_certificates($c) {
+        $userid = $c->userid;
+        $courses = $c->courses;
+
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $already_exists = $this->is_certificate_exists($courseid, $userid);
+                if ($already_exists == 0) {
+                    
+                } // end if $already_exists
+            } // end foreach
+        } // end if count($courses)>0
+    }
+
+    function get_user_course_stat($courseid, $userid) {
+        
+    }
+
+    function get_user_training_report_link() {
+        $list = "";
+        $userid = $this->user->id;
+        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.html";
+        $list.="<form action='$action' method='get' target='_blank' id='training_report_form'>";
+        $list.="<a href='#' onClick='return false;' id='training_report' style='color:black;'>Download your training report</a>";
+        $list.="</form>";
+        return $list;
+    }
+
+    function get_user_certificates_link() {
+        $userid = $this->user->id;
+        $list = "";
+        $query = "select * from uk_course_certificates where userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/certificates.pdf";
+            $list.="<form action='$action' method='get' target='_blank' id='user_certificates_form'>";
+            $list.="<a href='#' onClick='return false;' id='user_certificates' style='color:black;'>Download your training certificates</a>";
+            $list.="</form>";
+        } // end if $num > 0
+        else {
+            $list.="<a href='#' onClick='return false;' id='user_certificates' disabled style='color:black;'>Download your training certificates</a>";
+        } // end else
+        return $list;
+    }
+
+    function get_course_detailes_certificate_link($courseid) {
+        $userid = $this->user->id;
+        $query = "select * from uk_course_certificates "
+                . "where courseid=$courseid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.pdf";
+            $list.="<form action='$action' method='get' target='_blank' id='user_certificates_form'>";
+            $list.="<a href='#' onClick='return false;' id='user_certificates' style='color:black;'>Download</a>";
+            $list.="</form>";
+        } // end if $num > 0
+        else {
+            $list.="N/A";
+        } // end else
+        return $list;
+    }
+
 }

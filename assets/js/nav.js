@@ -1110,6 +1110,22 @@ $(document).ready(function () {
             console.log('User ID: ' + userid);
         }
 
+        if (event.target.id == 'training_report') {
+            $('#training_report_form').submit();
+        }
+
+        if (event.target.id == 'user_certificates') {
+            $('#user_certificates_form').submit();
+        }
+
+        if (event.target.id == 'training_certificates') {
+            var url = "/lms/custom/admin/get_user_certificates.php";
+            $.post(url, {id: id}).done(function (data) {
+                window.open(data, "print");
+            });
+        }
+
+
 
 
 
