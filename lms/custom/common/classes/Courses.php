@@ -2,16 +2,19 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/certificates/classes/Certificate.php';
 
 class Courses extends Utils {
 
     public $scorm_module_id = 18;
     public $path;
+    public $data_path;
 
     function __construct() {
         parent::__construct();
-        $this->create_courses_json_data();
+        $this->data_path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/data';
         $this->path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/certificates';
+        $this->create_courses_json_data();
     }
 
     function get_courses_page($userid) {
@@ -153,7 +156,7 @@ class Courses extends Utils {
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $list.="<a href='http://" . $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . " target='_blank'>Download</a>";
+                $list.="<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>Download</a>";
             } // end while
         } // end if $num > 0
         else {
@@ -262,7 +265,7 @@ class Courses extends Utils {
                 </tr>
                 
                 <tr>
-                <td style='padding-left:15px;padding-right:15px'>Policies</td><td style='padding-left:15px;padding-right:15px'>$policy</td>
+                <td style='padding-left:15px;padding-right:15px'>Policy</td><td style='padding-left:15px;padding-right:15px'>$policy</td>
                 </tr>
                 
                 <tr>
@@ -914,7 +917,11 @@ class Courses extends Utils {
                 
                 <div class='container-fluid' style='padding-top:15px;'>
                 <span class='span1'>File*</span>
-                <span class='span6'><input type='file' id='policy_file' ></span>
+                <span class='span6'>
+                <label class='btn btn-default btn-file'>
+                    Browse <input type='file' id='policy_file' style='display: none;'>
+                </label>
+                </span>
                 </div>
                 
                 <div class='container-fluid' style=''>
@@ -1524,16 +1531,13 @@ class Courses extends Utils {
         return $list;
     }
 
+    function is_policy_exists($courseid) {
+        $query = "select * from uk_course_policies where courseid=$courseid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
     function add_new_policy($files, $post) {
-
-        echo "<pre>";
-        print_r($files);
-        echo "</pre><br>-----------------------------<br>";
-
-        echo "<pre>";
-        print_r($post);
-        echo "</pre><br>-----------------------------<br>";
-
         $file = $files[0];
         $name = $file['name'];
         $tmp_name = $file['tmp_name'];
@@ -1542,25 +1546,37 @@ class Courses extends Utils {
         $courseid = $post['courseid'];
         $title = $post['title'];
         $summary = $post['summary'];
-
         if ($tmp_name != '' && $error == 0 && $size > 0) {
-            $newfile = time() . pdf;
-            $destination = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid/$newfile";
+            $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid";
+            if (!file_exists($dir)) {
+                mkdir($dir, 0777, true);
+            }
+            $destination = $dir . "/" . $name;
             $status = move_uploaded_file($tmp_name, $destination);
             if ($status) {
-                
-            }
+                $exists = $this->is_policy_exists($courseid);
+                if ($exists == 0) {
+                    $query = "insert into uk_course_policies "
+                            . "(courseid,"
+                            . "title,"
+                            . "summary,"
+                            . "path) "
+                            . "values($courseid,"
+                            . "'$title', "
+                            . "'$summary',"
+                            . "'$name')";
+                    $this->db->query($query);
+                } // end if $exists == 0
+                else {
+                    $query = "update uk_course_policies "
+                            . "set title='$title', "
+                            . "summary='$summary', "
+                            . "path='$name' "
+                            . "where courseid=$courseid";
+                    $this->db->query($query);
+                } // end else
+            } // end if $status
         } // end if $tmp_name!='' && $error==0 && $size>0
-        $query = "insert into uk_course_policies "
-                . "(courseid,"
-                . "title,"
-                . "summary,"
-                . "path) "
-                . "values($courseid,"
-                . "'$title', "
-                . "'$summary',"
-                . "'$newfile')";
-        $this->db->query($query);
     }
 
     function get_gpadmin_policy_page($userid) {
@@ -1710,7 +1726,58 @@ class Courses extends Utils {
     }
 
     function create_courses_json_data() {
-        
+        $query = "select * from uk_cohort order by name";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $name[] = mb_convert_encoding($row['name'], 'UTF-8');
+            } // end while
+            file_put_contents($this->data_path . "/cohorts.json", json_encode($name));
+        } // end if $num > 0
+
+        $query = "select * from uk_practice order by name";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $pr[] = mb_convert_encoding($row['name'], 'UTF-8');
+            } // end while
+            file_put_contents($this->data_path . "/practices.json", json_encode($pr));
+        } // end if $num > 0 
+
+
+        $query = "select * from uk_course where category>0 order by fullname";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $categoryname = $this->get_course_category_name($row['category']);
+                $coursename = $categoryname . "-" . $row['fullname'];
+                $courses[] = mb_convert_encoding($coursename, 'UTF-8');
+            } // end while
+            file_put_contents($this->data_path . "/courses.json", json_encode($courses));
+        } // end if$num > 0
+
+        $query = "select * from uk_user where deleted=0";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $has_practice = $this->has_practice($row['id']);
+                if ($has_practice > 0) {
+                    $name = $row['firstname'] . "-" . $row['lastname'];
+                    $users[] = mb_convert_encoding($name, 'UTF-8');
+                } // end if $has_practice >0 
+            } // end while
+            file_put_contents($this->data_path . "/users.json", json_encode($users));
+        } // end if $num > 0
+    }
+
+    function has_practice($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        $num = $this->db->numrows($query);
+        return $num;
     }
 
     function get_user_certificates() {
@@ -1723,24 +1790,35 @@ class Courses extends Utils {
     function create_user_training_report() {
         $list = "";
         $comp = new Completion();
+        $cert = new Certificate();
         $userid = $this->user->id;
         $courses = $this->get_user_courses($userid);
 
         $list.="<html>";
+        $list.="<head>";
+        $list.="<link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'>";
+        $list.="</head>";
         $list.="<body>";
+
+        $list.="<br><br>";
+        $list.="<div style='text-align:center;'><h2>Training report</h2></div>";
+
         $list.="<br><p align='center'>";
 
-        $list.="<table align='center'>";
+        $list.="<table id='stat' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
 
-        $list.="<tr>";
-        $list.="<th style='padding:15px;'>Course Name</th>";
-        $list.="<th style='padding:15px;'>Progress</th>";
-        $list.="<th style='padding:15px;'>Enroll Date</th>";
-        $list.="<th style='padding:15px;'>Due Date</th>";
-        $list.="<th style='padding:15px;'>Stats</th>";
+        $list.="<thead>";
+        $list.="<tr style='font-weight:bold;'>";
+        $list.="<th style='padding:15px;align:left;'>Course Name</th>";
+        $list.="<th style='padding:15px;align:left;'>Progress</th>";
+        $list.="<th style='padding:15px;align:left;'>Enroll Date</th>";
+        $list.="<th style='padding:15px;align:left;'>Due Date</th>";
+        $list.="<th style='padding:15px;align:left;'>Stats</th>";
         $list.="</tr>";
+        $list.="</thead>";
 
         if (count($courses) > 0) {
+            $list.="<tbody>";
             foreach ($courses as $courseid) {
                 $coursename = $this->get_course_name($courseid);
                 $progress = $this->get_course_progress($courseid, $userid);
@@ -1749,12 +1827,13 @@ class Courses extends Utils {
                 $stat = $comp->get_user_course_stat($courseid, $userid);
                 $list.="<tr>";
                 $list.="<td style='padding:15px;'>$coursename</td>";
-                $list.="<td style='padding:15px;'>$progress</td>";
+                $list.="<td style='padding:15px;' style='text-align:center;'>$progress %</td>";
                 $list.="<td style='padding:15px;'>$starth</td>";
                 $list.="<td style='padding:15px;'>$endh</td>";
                 $list.="<td style='padding:15px;'>$stat</td>";
                 $list.="</tr>";
             } // end foreach
+            $list.="</tbody>";
         } // end if count($courses)>0
 
         $list.="</table>";
@@ -1768,7 +1847,8 @@ class Courses extends Utils {
         }
         $htmlpath = $path . "/report.html";
         file_put_contents($htmlpath, $list);
-        $link = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.html";
+        $cert->create_report_pdf_file($list);
+        $link = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.pdf";
         return $link;
     }
 

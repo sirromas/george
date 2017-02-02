@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/certificates/classes/Certificate.php';
 
 /**
  * Description of Completion
@@ -251,14 +252,89 @@ class Completion extends Utils {
         } // end if count($courses)>0
     }
 
+    function get_user_last_attempt($scoid, $userid) {
+        $query = "SELECT * FROM `uk_scorm_scoes_track` "
+                . "WHERE userid=$userid and scoid=$scoid "
+                . "ORDER BY attempt DESC "
+                . "limit 0 , 1";
+        //echo "Query: " . $query . "<br>";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $attempt = $row['attempt'];
+            }
+        } // end if $num > 0
+        else {
+            $attempt = 0;
+        } // end else
+        return $attempt;
+    }
+
+    function get_scorm_element_value($scoid, $userid, $attempt, $element) {
+        $query = "select * from uk_scorm_scoes_track "
+                . "where scoid=$scoid "
+                . "and userid=$userid "
+                . "and attempt=$attempt "
+                . "and element='$element'";
+        //echo "Query: " . $query . "<br>";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $value = $row['value'];
+        }
+        return $value;
+    }
+
     function get_user_course_stat($courseid, $userid) {
-        
+        $list = "";
+        $scoid = $this->get_scorm_scoid($courseid);
+        if ($scoid > 0) {
+            $lastattempt = $this->get_user_last_attempt($scoid, $userid);
+            if ($lastattempt > 0) {
+                $score = $this->get_student_course_score($scoid, $userid, $courseid, TRUE);
+                $status = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'cmi.core.lesson_status');
+                $access = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'x.start.time');
+                $totaltime = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'cmi.core.total_time');
+
+                $list.="<table>";
+
+                $list.="<thead>";
+                $list.="<tr>";
+                $list.="<th style='padding:15px;'>Status</th>";
+                $list.="<th style='padding:15px;'>Last Access</th>";
+                $list.="<th style='padding:15px;'>Attempt</th>";
+                $list.="<th style='padding:15px;'>Score</th>";
+                $list.="<th style='padding:15px;'>Total Time</th>";
+                $list.="</tr>";
+                $list.="</thead>";
+
+                $list.="<tbody>";
+                $list.="<tr>";
+                $list.="<td style='padding:15px;'>$status</td>";
+                $list.="<td style='padding:15px;'>" . date('m-d-Y h:i:s', $access) . "</td>";
+                $list.="<td style='padding:15px;' align='center'>$lastattempt</td>";
+                $list.="<td style='padding:15px;' align='center'>$score %</td>";
+                $list.="<td style='padding:15px;'>$totaltime</td>";
+                $list.="</tr>";
+                $list.="</tbody>";
+
+                $list.="</table>";
+            } // end if $lastattempt>0
+            else {
+                $list.="N/A";
+            } // end else
+        } // end if $scoid>0
+        else {
+            $list.="N/A";
+        } // end else
+
+        return $list;
     }
 
     function get_user_training_report_link() {
         $list = "";
         $userid = $this->user->id;
-        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.html";
+        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.pdf";
         $list.="<form action='$action' method='get' target='_blank' id='training_report_form'>";
         $list.="<a href='#' onClick='return false;' id='training_report' style='color:black;'>Download your training report</a>";
         $list.="</form>";
