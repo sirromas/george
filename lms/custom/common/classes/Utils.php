@@ -148,10 +148,15 @@ class Utils {
     function get_practice_courses_by_groups($groups) {
         foreach ($groups as $groupid) {
             $query = "select * from uk_groups where id=$groupid";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $row['courseid'];
-            } // end while
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    if ($row['courseid'] > 0) {
+                        $courses[] = $row['courseid'];
+                    } // end if $row['courseid'] > 0
+                } // end while
+            } // end if $num > 0
         } // end foreach
         return $courses;
     }
@@ -166,6 +171,7 @@ class Utils {
     }
 
     function get_practice_users($admin_userid) {
+        $users = array();
         $query = "select * from uk_groups_members "
                 . "where userid=$admin_userid";
         $result = $this->db->query($query);
@@ -175,12 +181,14 @@ class Utils {
 
         foreach ($groups as $groupid) {
             $query = "select * from uk_groups_members where groupid=$groupid";
+            //echo "Query: " . $query . "<br>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $users[] = $row['userid'];
+                if (!in_array($row['userid'], $users)) {
+                    $users[] = $row['userid'];
+                }
             }
         }
-
         array_unique($users);
         return $users;
     }
