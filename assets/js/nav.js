@@ -16,6 +16,7 @@ $(document).ready(function () {
     $('#data-users').DataTable();
     $('#repeat_courses').DataTable();
     $('#courses_policy').DataTable();
+    $('#user_detailes_container').DataTable();
 
     $.post('/lms/custom/common/data/cohorts.json', {id: 1}, function (data) {
         $('#r_cohort').typeahead({source: data, items: 240});
@@ -42,6 +43,13 @@ $(document).ready(function () {
         jQuery.each(JSON.parse(data), function (index, value) {
             var divid = '#pr_' + value.courseid;
             var progress = value.stat;
+            console.log('Course id: ' + divid);
+            console.log('Course progress: ' + progress);
+            console.log('------------------------------');
+            if (progress === null) {
+                progress = 0;
+            }
+
             $(divid).progressbar({
                 value: parseInt(progress)
             });
@@ -1143,9 +1151,59 @@ $(document).ready(function () {
             });
         }
 
+        if (event.target.id == 'report_search_ad') {
+            var cohort = $('#r_cohort').val();
+            var practice = $('#r_practice').val();
+            var course = $('#r_courses').val();
+            var user = $('#r_users').val();
+            var date1 = $('#date1').val();
+            var date2 = $('#date2').val();
 
+            var search = {
+                cohort: cohort,
+                practice: practice,
+                course: course,
+                user: user,
+                date1: date1,
+                date2: date2,
+                src: 'ad'};
+            $('#report_ajax_loader').show();
+            var url = "/lms/custom/common/search_report_data.php";
+            $.post(url, {search: JSON.stringify(search)}).done(function (data) {
+                $('#report_ajax_loader').hide();
+                $('#report_data').html(data);
+                $('#user_detailes_container').DataTable();
+            });
+        }
 
+        if (event.target.id == 'report_search_gp') {
+            var course = $('#r_courses').val();
+            var user = $('#r_users').val();
+            var date1 = $('#date1').val();
+            var date2 = $('#date2').val();
 
+            var search = {
+                course: course,
+                user: user,
+                date1: date1,
+                date2: date2,
+                src: 'gp'};
+            $('#report_ajax_loader').show();
+            var url = "/lms/custom/common/search_report_data.php";
+            $.post(url, {search: JSON.stringify(search)}).done(function (data) {
+                $('#report_ajax_loader').hide();
+                $('#report_data').html(data);
+                $('#user_detailes_container').DataTable();
+            });
+        }
+
+        if (event.target.id.indexOf("get_user_training_report_") >= 0) {
+            var userid = event.target.id.replace("get_user_training_report_", "");
+            console.log('User id: ' + userid);
+            var formid = '#report_form_' + userid;
+            console.log('Form id: ' + formid);
+            $(formid).submit();
+        }
 
     }); // end of $('body').click(function (event) {
 
@@ -1199,7 +1257,6 @@ $(document).ready(function () {
                 });
             }
         }
-
 
 
     }); // end of  $('body').change(function (event) {

@@ -292,6 +292,9 @@ class Completion extends Utils {
             $lastattempt = $this->get_user_last_attempt($scoid, $userid);
             if ($lastattempt > 0) {
                 $score = $this->get_student_course_score($scoid, $userid, $courseid, TRUE);
+                if ($score === NULL) {
+                    $score = 0;
+                }
                 $status = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'cmi.core.lesson_status');
                 $access = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'x.start.time');
                 $totaltime = $this->get_scorm_element_value($scoid, $userid, $lastattempt, 'cmi.core.total_time');
@@ -374,6 +377,22 @@ class Completion extends Utils {
             $list.="N/A";
         } // end else
         return $list;
+    }
+
+    function get_user_passed_courses($courses, $userid) {
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $scoid = $this->get_scorm_scoid($courseid);
+                if ($scoid > 0) {
+                    $passgrade = $this->get_scorm_passing_grade($scoid);
+                    $score = $this->get_student_course_score($scoid, $userid, $courseid); // object
+                    if ($score->value >= $passgrade) {
+                        $pcourses[] = $courseid;
+                    } // end if $score->value < $passgrade
+                } // end if $scoid>0
+            } // end foreach
+        } // end if count($courses)>0
+        return $pcourses;
     }
 
 }

@@ -15,12 +15,35 @@ class Courses extends Utils {
         $this->data_path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/data';
         $this->path = $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/certificates';
         $this->create_courses_json_data();
+        //$this->update_courses_data();
+    }
+
+    function update_courses_data() {
+        // This is very expensive - need to find workaround later
+        $currentuserid = $this->user->id;
+        $comp = new Completion();
+        if ($currentuserid == 2) {
+            $users = $this->get_all_users();
+            if (count($users) > 0) {
+                foreach ($users as $userid) {
+                    if ($userid != $currentuserid) {
+                        $this->create_user_training_report($userid);
+                        $courses = $this->get_user_courses($userid);
+                        $passed_courses = $comp->get_user_passed_courses($courses, $userid);
+                        $c = new stdClass();
+                        $c->courses = $passed_courses;
+                        $c->userid = $userid;
+                        $comp->create_user_certificates($c);
+                    } // end if $userid != $currentuserid
+                } // end foreach
+            } // end if count($users)>0
+        } // end if $currentuserid == 2
     }
 
     function get_courses_page($userid) {
         $list = "";
         $this->create_duration_items();
-        $this->create_user_training_report();
+        $this->create_user_training_report($userid);
         if ($userid == 2) {
             $roleid = 0;
         } // end if
@@ -100,7 +123,12 @@ class Courses extends Utils {
         if ($scoid > 0) {
             $passgrade = $comp->get_scorm_passing_grade($scoid);
             $stat = $comp->get_student_course_score($scoid, $userid, $courseid, TRUE);
-            $progress = ($stat >= $passgrade) ? 100 : $stat;
+            if ($stat !== NULL) {
+                $progress = ($stat >= $passgrade) ? 100 : $stat;
+            } // end if $stat!=NULL
+            else {
+                $progress = 0;
+            } // end else
         } // end if $scoid
         else {
             $progress = 0;
@@ -544,7 +572,9 @@ class Courses extends Utils {
             $query = "select * from uk_groups where id=$groupid";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $row['courseid'];
+                if (!in_array($row['courseid'], $courses)) {
+                    $courses[] = $row['courseid'];
+                } // end if !in_array($row['courseid'], $courses)
             }
         }
         $list.="<div class='row-fluid' style=''>";
@@ -1787,11 +1817,10 @@ class Courses extends Utils {
         return $list;
     }
 
-    function create_user_training_report() {
+    function create_user_training_report($userid) {
         $list = "";
         $comp = new Completion();
         $cert = new Certificate();
-        $userid = $this->user->id;
         $courses = $this->get_user_courses($userid);
 
         $list.="<html>";
@@ -1822,6 +1851,7 @@ class Courses extends Utils {
             foreach ($courses as $courseid) {
                 $coursename = $this->get_course_name($courseid);
                 $progress = $this->get_course_progress($courseid, $userid);
+
                 $starth = date('m-d-Y', $this->get_user_enrollment_date($courseid, $userid));
                 $endh = date('m-d-Y', $this->get_course_expiration_date($courseid, $userid));
                 $stat = $comp->get_user_course_stat($courseid, $userid);

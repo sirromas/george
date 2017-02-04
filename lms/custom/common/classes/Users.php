@@ -26,32 +26,6 @@ class Users extends Utils {
         return $list;
     }
 
-    function get_practice_name_by_userid($userid) {
-        $query = "select * from uk_practice_members where userid=$userid";
-        $result = $this->db->query($query);
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $practiceid = $row['practiceid'];
-            } // end hwile
-        } // end if $num > 0
-        else {
-            $practiceid = 0;
-        }
-        if ($practiceid > 0) {
-            $query = "select * from uk_practice where id=$practiceid";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $name = $row['name'];
-            }
-        } // end if $practiceid>0
-        else {
-            $name = 'N/A';
-        }
-
-        return $name;
-    }
-
     function get_admin_users_page($current_userid) {
         $list = "";
         $current_user = $this->user->id;

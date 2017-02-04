@@ -146,6 +146,7 @@ class Utils {
     }
 
     function get_practice_courses_by_groups($groups) {
+        $courses = array();
         foreach ($groups as $groupid) {
             $query = "select * from uk_groups where id=$groupid";
             $num = $this->db->numrows($query);
@@ -153,7 +154,9 @@ class Utils {
                 $result = $this->db->query($query);
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     if ($row['courseid'] > 0) {
-                        $courses[] = $row['courseid'];
+                        if (!in_array($row['courseid'], $courses)) {
+                            $courses[] = $row['courseid'];
+                        } // end if !in_array($row['courseid'], $courses)
                     } // end if $row['courseid'] > 0
                 } // end while
             } // end if $num > 0
@@ -170,10 +173,21 @@ class Utils {
         return $categoryid;
     }
 
+    function is_practice_member($practiceid, $userid) {
+        $query = "select * from uk_practice_members "
+                . "where practiceid=$practiceid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
     function get_practice_users($admin_userid) {
         $users = array();
+        $practiceid = $this->get_student_practice($admin_userid);
+
         $query = "select * from uk_groups_members "
                 . "where userid=$admin_userid";
+        //echo "Query: ".$query."<br>";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $groups[] = $row['groupid'];
@@ -184,9 +198,10 @@ class Utils {
             //echo "Query: " . $query . "<br>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                if (!in_array($row['userid'], $users)) {
+                $member = $this->is_practice_member($practiceid, $row['userid']);
+                if (!in_array($row['userid'], $users) && $member > 0) {
                     $users[] = $row['userid'];
-                }
+                } // end if !in_array($row['userid'], $users) && $member>0
             }
         }
         array_unique($users);
@@ -353,6 +368,64 @@ class Utils {
             $names = $row['firstname'] . "&nbsp;" . $row['lastname'];
         }
         return $names;
+    }
+
+    function get_practice_name_by_userid($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $practiceid = $row['practiceid'];
+            } // end hwile
+        } // end if $num > 0
+        else {
+            $practiceid = 0;
+        }
+        if ($practiceid > 0) {
+            $query = "select * from uk_practice where id=$practiceid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $name = $row['name'];
+            }
+        } // end if $practiceid>0
+        else {
+            $name = 'N/A';
+        }
+
+        return $name;
+    }
+
+    function get_all_users() {
+        $users = array();
+        $query = "select * from uk_user where deleted=0";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $dusers[] = $row['id'];
+        }
+        if (count($dusers) > 0) {
+            foreach ($dusers as $userid) {
+                $practicename = $this->get_practice_name_by_userid($userid);
+                if ($practicename != 'N/A') {
+                    $users[] = $userid;
+                } // end if
+            } // end foreach
+        } // end if count($dusers)>0
+        return $users;
+    }
+
+    function get_all_courses() {
+        $courses = array();
+        $query = "select * from uk_course "
+                . "where category>0 and visible=1";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['id'];
+            } // while
+        } // end if $num > 0
+        return $courses;
     }
 
 }
