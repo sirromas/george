@@ -1671,7 +1671,7 @@ class Courses extends Utils {
         $enrollid = $this->get_course_enroll_id($courseid);
         $query = "select * from uk_user_enrolments "
                 . "where enrolid=$enrollid "
-                . "and $userid=$userid";
+                . "and userid=$userid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $start = $row['timestart'];

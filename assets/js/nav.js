@@ -1177,8 +1177,8 @@ $(document).ready(function () {
         }
 
         if (event.target.id == 'report_search_gp') {
-            var course = $('#r_courses').val();
-            var user = $('#r_users').val();
+            var course = $('#r_courses_g').val();
+            var user = $('#r_users_g').val();
             var date1 = $('#date1').val();
             var date2 = $('#date2').val();
 
@@ -1258,8 +1258,25 @@ $(document).ready(function () {
             }
         }
 
+        if (event.target.id == 'r_users_g') {
+            $('#r_courses_g').val('All Courses');
+            $('#date1').val('');
+            $('#date2').val('');
+        }
+
+
 
     }); // end of  $('body').change(function (event) {
 
+    $("#r_users").focus(function () {
+        $('#r_cohort').val('');
+        $('#r_practice').val('');
+        $('#r_courses').val('');
+        $('#date1').val('');
+        $('#date2').val('');
+    });
+
+    $('#r_courses_g').val('All Courses');
+    $('#r_users_g').val('All users');
 
 }); // end of document ready
