@@ -40,12 +40,11 @@ $(document).ready(function () {
 
     var course_stat_url = "/lms/custom/common/get_courses_progress.php";
     $.post(course_stat_url, {id: 1}).done(function (data) {
+        console.log('Server response: ' + data);
+        console.log('------------------------------');
         jQuery.each(JSON.parse(data), function (index, value) {
             var divid = '#pr_' + value.courseid;
-            var progress = value.stat;
-            console.log('Course id: ' + divid);
-            console.log('Course progress: ' + progress);
-            console.log('------------------------------');
+            var progress = Math.round(value.stat);
             if (progress === null) {
                 progress = 0;
             }
@@ -1099,8 +1098,49 @@ $(document).ready(function () {
         }
 
         if ($(event.target).attr('class') == 'courses_list') {
+
+        }
+
+
+
+        if (event.target.id == 'progress_stat') {
             var userid = $('#progress_stat').data('userid');
             var courses = $('#progress_stat').data('courses');
+            console.log('User ID: ' + userid);
+            console.log('Courses: ' + courses);
+
+            var course = {userid: userid, courses: courses};
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_course_stat_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                                $('#courses_list').DataTable();
+                            }); // end of post
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
+
+        }
+
+        if (event.target.id == 'completed_stat') {
+            var userid = $('#completed_stat').data('userid');
+            var courses = $('#completed_stat').data('courses');
+            console.log('User ID: ' + userid);
+            console.log('Courses: ' + courses);
+
             var course = {userid: userid, courses: courses};
             if (dialog_loaded !== true) {
                 console.log('Script is not yet loaded starting loading ...');
@@ -1126,14 +1166,33 @@ $(document).ready(function () {
             }
         }
 
-        if (event.target.id == 'completed_stat') {
-            var userid = $('#completed_stat').data('userid');
-            console.log('User ID: ' + userid);
-        }
-
         if (event.target.id == 'overdue_stat') {
             var userid = $('#overdue_stat').data('userid');
-            console.log('User ID: ' + userid);
+            var courses = $('#overdue_stat').data('courses');
+
+            var course = {userid: userid, courses: courses};
+            if (dialog_loaded !== true) {
+                console.log('Script is not yet loaded starting loading ...');
+                dialog_loaded = true;
+                var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+                $.getScript(js_url)
+                        .done(function () {
+                            console.log('Script bootstrap.min.js is loaded ...');
+                            var url = "http://" + domain + "/lms/custom/common/get_course_stat_dialog.php";
+                            $.post(url, {course: JSON.stringify(course)}).done(function (data) {
+                                $("body").append(data);
+                                $("#myModal").modal('show');
+                                $('#courses_list').DataTable();
+                            }); // end of post
+                        })
+                        .fail(function () {
+                            console.log('Failed to load bootstrap.min.js');
+                        });
+            } // dialog_loaded!=true
+            else {
+                console.log('Script already loaded');
+                $("#myModal").modal('show');
+            }
         }
 
         if (event.target.id == 'training_report') {
@@ -1141,7 +1200,17 @@ $(document).ready(function () {
         }
 
         if (event.target.id == 'user_certificates') {
-            $('#user_certificates_form').submit();
+            $('#user_certificates_form0').submit();
+        }
+
+        if (event.target.id.indexOf("data_user_report_certificates_") >= 0) {
+            var data = event.target.id.replace("data_user_report_certificates_", "");
+            var data_arr = data.split('/');
+            var courseid = data_arr[0];
+            var userid = data_arr[1];
+            var formid = '#data_user_certificates_report_form_' + courseid + "_" + userid;
+            console.log('Form ID: ' + formid);
+            $(formid).submit();
         }
 
         if (event.target.id == 'training_certificates') {

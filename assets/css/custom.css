@@ -119,5 +119,46 @@ div.dataTables_info {
 }
 
 div.panel-heading {
-    
+
+}
+
+div.cert {
+    padding-top: 75px;
+    background-image: url("../img/certificate.jpg");
+    background-repeat: no-repeat;
+    width:875px;
+    height: 500px;
+    border: solid 1px;
+    margin: auto;
+
+}
+
+div.cert_user {
+    position: absolute;
+    top: 185px;
+    right: 285px;
+    font-family: monospace;
+    font-size: 27px;
+    font-weight: normal;
+    color: #544C4C;
+}
+
+div.cert_course {
+    position: absolute;
+    top: 300px;
+    right: 285px;
+    font-family: monospace;
+    font-size: 27px;
+    font-weight: normal;
+    color: #544C4C;
+}
+
+div.cert_date  {
+    position: absolute;
+    top: 475px;
+    right: 605px;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: normal;
+    color: #544C4C;
 }

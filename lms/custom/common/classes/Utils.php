@@ -348,7 +348,9 @@ class Utils {
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $this->get_instance_id($row['contextid']);
+                if (!in_array($this->get_instance_id($row['contextid']), $courses)) {
+                    $courses[] = $this->get_instance_id($row['contextid']);
+                } // end if
             } // end while
         } // end if $num > 0
 

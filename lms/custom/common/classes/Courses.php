@@ -121,10 +121,9 @@ class Courses extends Utils {
         $comp = new Completion();
         $scoid = $comp->get_scorm_scoid($courseid);
         if ($scoid > 0) {
-            $passgrade = $comp->get_scorm_passing_grade($scoid);
-            $stat = $comp->get_student_course_score($scoid, $userid, $courseid, TRUE);
+            $stat = round($comp->get_student_course_score($scoid, $userid, $courseid, TRUE));
             if ($stat !== NULL) {
-                $progress = ($stat >= $passgrade) ? 100 : $stat;
+                $progress = $stat;
             } // end if $stat!=NULL
             else {
                 $progress = 0;
@@ -133,7 +132,7 @@ class Courses extends Utils {
         else {
             $progress = 0;
         }
-        return $progress;
+        return round($progress);
     }
 
     function get_course_context($courseid) {
@@ -148,16 +147,15 @@ class Courses extends Utils {
     }
 
     function get_user_enrollment_date($courseid, $userid) {
-        $contextid = $this->get_course_context($courseid);
-        $query = "select * from uk_role_assignments "
-                . "where roleid=5 and "
-                . "contextid=$contextid and "
-                . "userid=$userid ";
+        $enrollid = $this->get_course_enroll_id($courseid);
+        $query = "select * from uk_user_enrolments "
+                . "where enrolid=$enrollid "
+                . "and userid=$userid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $date = $row['timemodified'];
+            $start = $row['timestart'];
         }
-        return $date;
+        return $start;
     }
 
     function get_course_duration($courseid, $userid) {
@@ -235,17 +233,26 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_user_certificate_link($courseid, $userid) {
+        $query = "select * from uk_course_certificates "
+                . "where courseid=$courseid "
+                . "and userid=$userid";
+        $num = $this->db->numrows($query);
+        $path = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+        if ($num > 0 && file_exists($path)) {
+            $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+            $list.="<form action='$action' method='get' target='_blank' id='user_certificates_form0'>";
+            $list.="<a href='#' onClick='return false;' id='user_certificates'>Download</a>";
+            $list.="</form>";
+        } // end if $num > 0
+        else {
+            $list.="N/A";
+        } // end else
+        return $list;
+    }
+
     function get_my_course_details($c) {
 
-        /*
-         * 
-          echo "<pre>";
-          print_r($c);
-          echo "</pre>";
-          die();
-         * 
-         */
-        $comp = new Completion();
         $enr_date = $this->get_user_enrollment_date($c->courseid, $c->userid);
         $duration = $this->get_course_duration($c->courseid, $c->userid); // months
         $due_date = $enr_date + (86400 * 30 * $duration);
@@ -255,8 +262,7 @@ class Courses extends Utils {
         $course = $this->get_course_detailes($c->courseid);
         $status = $this->get_course_progress($c->courseid, $c->userid);
         $policy = $this->get_course_policy($c->courseid);
-        $certificate = $comp->get_course_detailes_certificate_link($c->courseid);
-
+        $certificate = $this->get_user_certificate_link($c->courseid, $c->userid);
 
         $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:29%;min-height:375px'>
         <div class='modal-dialog' style='background-color:none;margin-left:0px;'>

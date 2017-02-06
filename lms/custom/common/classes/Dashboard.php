@@ -139,11 +139,13 @@ class Dashboard extends Utils {
         $list.="<div class='container-fluid'>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$training_report_link</span>";
         $list.="</div>";
-
+        
+        /*
         $list.="<div class='container-fluid'>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$certificates_link</span>";
         $list.="</div>";
-
+        */
+        
         $list.="<br><div class='container-fluid'>";
         $list.="<span class='span12' id='container2' style='min-width: 310px; max-width: 800px; height: 220px; margin: 0 auto'></span>";
         $list.="</div>";

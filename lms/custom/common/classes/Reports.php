@@ -314,11 +314,20 @@ class Reports extends Utils {
         return $totalscore;
     }
 
+    function get_passed_course_link($courseid, $coursename, $userid) {
+        $list = "";
+        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+        $list.="<form action='$action' method='get' target='_blank' id='data_user_certificates_report_form_$courseid" . "_" . "$userid'>";
+        $list.="<a href='#' onClick='return false;' title='Click to get user certificate' id='data_user_report_certificates_$courseid/$userid'>$coursename</a>";
+        $list.="</form>";
+        return $list;
+    }
+
     function get_user_courses_block($userid) {
         $list = "";
         $comp = new Completion();
         $c = new Courses();
-        $courses = $this->get_user_courses($userid);
+        $courses = array_unique($this->get_user_courses($userid));
 
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
@@ -326,18 +335,25 @@ class Reports extends Utils {
                 $coursename = $this->get_course_name($courseid);
                 $date = $c->get_course_enrollment_date($courseid, $userid);
                 if ($scoid > 0) {
+                    $passgrade = $comp->get_scorm_passing_grade($scoid);
                     $score = $comp->get_student_course_score($scoid, $userid, $courseid, true);
                     if ($score === null) {
                         $score = 0;
+                    }
+                    if ($score >= $passgrade) {
+                        $link = $this->get_passed_course_link($courseid, $coursename, $userid);
+                    } // end if $score>=$passgrade
+                    else {
+                        $link = 'N/A';
                     }
                 } // end if $scoid>0        
                 else {
                     $score = 'N/A';
                 } // end else
                 $list.="<div class='row-fluid'>";
-                $list.="<span class='span6'> $coursename</span>";
+                $list.="<span class='span6'> $link</span>";
                 $list.="<span class='span4'>" . date('m-d-y', $date) . "</span>";
-                $list.="<span class='span2'>$score %</span>";
+                $list.="<span class='span2'>" . round($score) . "%</span>";
                 $list.="</div>";
             } // end foreach
         } // end if count($courses)>0
