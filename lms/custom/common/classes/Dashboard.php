@@ -30,14 +30,16 @@ class Dashboard extends Utils {
         $list.="<span class='span6' style='font-size:24px;color:green;'>($rolename)</span>";
         $list.="</div>";
 
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span12'>As administrator you can create and "
-                . "edit users, groups, assign courses, access learning reports "
-                . "and certificates for all your staff including yourself.</span>";
-        $list.="</div>";
+        if ($userid == 2) {
+            $list.="<div class='container-fluid'>";
+            $list.="<span class='span12'>As administrator you can create and "
+                    . "edit users, groups, assign courses, access learning reports "
+                    . "and certificates for all your staff including yourself.</span>";
+            $list.="</div>";
+        }
 
         $list.="<br><div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:18px;font-weight:bold;'>Your practice training summary</span>";
+        //$list.="<span class='span12' style='font-size:18px;font-weight:bold;'>Your training summary</span>";
         $list.="</div>";
 
         $list.="<br><div class='container-fluid'>";
@@ -48,61 +50,62 @@ class Dashboard extends Utils {
         $c_left_total = $c_left->total;
         $c_overdue_total = $c_overdue->total;
 
-        $list.="<script type='text/javascript'>";
+        /*
+          $list.="<script type='text/javascript'>";
 
-        $list.="Highcharts.setOptions({
-                colors: ['#058DC7', '#50B432', '#ED561B']});";
+          $list.="Highcharts.setOptions({
+          colors: ['#058DC7', '#50B432', '#ED561B']});";
 
-        $list.="$(function () {
-                Highcharts.chart('container', {
-                    chart: {
-                        type: 'bar'
-                    },
-                    title: {
-                        text: ''
-                    },
-                    xAxis: {
-                        categories: ['']
-                    },
-                    yAxis: {
-                        min: 0,
-                        title: {
-                            text: 'Courses Summary'
-                        }
-                    },
-                    legend: {
-                        reversed: true
-                    },
-                    plotOptions: {
-                        series: {
-                            stacking: 'normal'
-                        }
-                    },
-                    series: [{
-                            name: 'Courses completed',
-                            data: [$c_completed_total]
-                        }, {
-                            name: 'Courses left',
-                            data: [$c_left_total]
-                        }, {
-                            name: 'Courses overdue',
-                            data: [$c_overdue_total]
-                        }]
-                        });
-                    });";
-        $list.="</script>";
-
+          $list.="$(function () {
+          Highcharts.chart('container', {
+          chart: {
+          type: 'bar'
+          },
+          title: {
+          text: ''
+          },
+          xAxis: {
+          categories: ['']
+          },
+          yAxis: {
+          min: 0,
+          title: {
+          text: 'Courses Summary'
+          }
+          },
+          legend: {
+          reversed: true
+          },
+          plotOptions: {
+          series: {
+          stacking: 'normal'
+          }
+          },
+          series: [{
+          name: 'Courses completed',
+          data: [$c_completed_total]
+          }, {
+          name: 'Courses left',
+          data: [$c_left_total]
+          }, {
+          name: 'Courses overdue',
+          data: [$c_overdue_total]
+          }]
+          });
+          });";
+          $list.="</script>";
+         */
 
         return $list;
     }
 
     function get_right_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue) {
         $list = "";
-        
-        $comp=new Completion();
-        $training_report_link=$comp->get_user_training_report_link();
-        $certificates_link=$comp->get_user_certificates_link();
-        
+
+        $comp = new Completion();
+        $training_report_link = $comp->get_user_training_report_link();
+        $certificates_link = $comp->get_user_certificates_link();
+
         $c_completed_total = $c_completed->total;
         $c_completed_courses = $c_completed->courses;
 
@@ -139,13 +142,13 @@ class Dashboard extends Utils {
         $list.="<div class='container-fluid'>";
         $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$training_report_link</span>";
         $list.="</div>";
-        
+
         /*
-        $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$certificates_link</span>";
-        $list.="</div>";
-        */
-        
+          $list.="<div class='container-fluid'>";
+          $list.="<span class='span12' style='font-size:14px;font-weight:bold;'>$certificates_link</span>";
+          $list.="</div>";
+         */
+
         $list.="<br><div class='container-fluid'>";
         $list.="<span class='span12' id='container2' style='min-width: 310px; max-width: 800px; height: 220px; margin: 0 auto'></span>";
         $list.="</div>";
@@ -207,7 +210,7 @@ class Dashboard extends Utils {
         $c_completed = $comp->get_student_passed_courses($courses, $userid);
         $c_left = $comp->get_student_progress_courses($courses, $userid);
         $c_overdue = $comp->get_student_overdue_courses($userid);
-        
+
         if ($c_completed->total > 0) {
             $comp->create_user_certificates($c_completed);
         }
