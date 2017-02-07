@@ -677,10 +677,14 @@ class Groups extends Utils {
         // 1. Remove users from the group
         // 2  Remove group
         // 3  Remove course links
-        //echo "User ID: " . $userid . "<br>";
-        //echo "Group ID:" . $groupid . "<br>";
+        // 4  Remove course from duration table
 
-        $list = "";
+        $query = "select * from uk_groups where id=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courseid = $row['courseid'];
+        }
+
         $query = "delete from uk_groups_members where groupid=$groupid";
         $this->db->query($query);
 
@@ -690,19 +694,23 @@ class Groups extends Utils {
         $query = "delete from uk_courses2cohorts where groupid=$groupid";
         $this->db->query($query);
 
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['practiceid'];
+        }
+
+        $query = "delete from uk_practice_course_duration "
+                . "where practiceid=$practiceid "
+                . "and courseid=$courseid";
+        $this->db->query($query);
+
         $query = "select * from uk_groups_members where userid=$userid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $groups[] = $row['groupid'];
         }
 
-        /*
-          echo "<br>--------------------<br>";
-          print_r($groups);
-          echo "<br>--------------------<br>";
-         */
-
-        //$list.=$this->get_practice_courses_block($groups);
         return $this->get_practice_courses_block($groups);
     }
 
