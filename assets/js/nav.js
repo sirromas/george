@@ -1228,6 +1228,10 @@ $(document).ready(function () {
             var date1 = $('#date1').val();
             var date2 = $('#date2').val();
 
+            if (cohort == '' && practice == '' && course == '' && user == '' && (date1 != '' || date2 != '')) {
+                return;
+            }
+
             var search = {
                 cohort: cohort,
                 practice: practice,
@@ -1250,6 +1254,10 @@ $(document).ready(function () {
             var user = $('#r_users_g').val();
             var date1 = $('#date1').val();
             var date2 = $('#date2').val();
+
+            if (course == '' && user == '' && (date1 != '' || date2 != '')) {
+                return;
+            }
 
             var search = {
                 course: course,

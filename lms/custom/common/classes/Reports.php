@@ -65,7 +65,7 @@ class Reports extends Utils {
               echo "Users: <pre>";
               print_r($users);
               echo "</pre><br>------------------------<br>";
-             */
+            */ 
 
             $stat = $this->get_courses_stat($users);
             $left = $stat->progress;

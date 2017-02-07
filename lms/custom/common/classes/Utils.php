@@ -184,27 +184,12 @@ class Utils {
     function get_practice_users($admin_userid) {
         $users = array();
         $practiceid = $this->get_student_practice($admin_userid);
-
-        $query = "select * from uk_groups_members "
-                . "where userid=$admin_userid";
-        //echo "Query: ".$query."<br>";
+        $query = "select * from uk_practice_members "
+                . "where practiceid=$practiceid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $groups[] = $row['groupid'];
+            $users[] = $row['userid'];
         }
-
-        foreach ($groups as $groupid) {
-            $query = "select * from uk_groups_members where groupid=$groupid";
-            //echo "Query: " . $query . "<br>";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $member = $this->is_practice_member($practiceid, $row['userid']);
-                if (!in_array($row['userid'], $users) && $member > 0) {
-                    $users[] = $row['userid'];
-                } // end if !in_array($row['userid'], $users) && $member>0
-            }
-        }
-        array_unique($users);
         return $users;
     }
 
