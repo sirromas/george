@@ -1,27 +1,40 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/mailer/vendor/PHPMailerAutoload.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 
 /**
  * Description of Mailer
  *
  * @author moyo
  */
-class Mailer {
+class Mailer extends Utils {
 
     public $mail_smtp_host = 'mail.mycodebusters.com';
     public $mail_smtp_port = 25;
     public $mail_smtp_user = 'lms@mycodebusters.com';
     public $mail_smtp_pwd = 'aK6SKymc';
+    public $admin_email;
 
     function __construct() {
-        
+        parent::__construct();
+        $this->get_admin_email();
     }
 
-    function send_gpadmin_account_confirmation($user) {
+    function get_admin_email() {
+        $query = "select * from uk_user where id=2";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $email = $row['email'];
+        }
+        $this->admin_email = $email;
+    }
+
+    function send_account_confirmation_message($user) {
         $mail = new PHPMailer();
 
         $addressA = $user->email;
+        $addressB = $this->admin_email;
         $addressC = 'sirromas@gmail.com';
 
         $message = "";
@@ -29,7 +42,7 @@ class Mailer {
         $message.="<html>";
         $message.="<body>";
         $message.="<p align='center'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='center'>Your Green Practice Admin Account was created. Your credentials are below:<p>";
+        $message.="<p align='center'>Your Green Practice Account was created. Your credentials are below:<p>";
         $message.="<table align='center'>";
         $message.="<tr>";
         $message.="<td>Username:</td><td>$user->email</td>";
@@ -54,6 +67,7 @@ class Mailer {
         $mail->setFrom($this->mail_smtp_user, 'Practice Index');
 
         $mail->AddAddress($addressA);
+        $mail->AddAddress($addressB);
         $mail->AddAddress($addressC);
 
         $mail->addReplyTo($this->mail_smtp_user, 'Practice Index');

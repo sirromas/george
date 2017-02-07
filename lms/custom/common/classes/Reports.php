@@ -344,7 +344,7 @@ class Reports extends Utils {
                         $link = $this->get_passed_course_link($courseid, $coursename, $userid);
                     } // end if $score>=$passgrade
                     else {
-                        $link = 'N/A';
+                        $link = $coursename;
                     }
                 } // end if $scoid>0        
                 else {

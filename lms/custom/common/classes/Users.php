@@ -2,6 +2,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Groups.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/mailer/Mailer.php';
 
 /**
  * Description of Users
@@ -752,13 +753,14 @@ class Users extends Utils {
     }
 
     function add_new_user($user) {
-
         $status = $this->create_user($user);
         if ($status) {
             $dbuser = $this->get_user_data_by_email($user->email); // object
             $userid = $dbuser->id;
             $this->add_user_to_practice($user->practiceid, $userid);
             $this->add_user_to_cohort($user->practiceid, $userid);
+            $m = new Mailer();
+            $m->send_account_confirmation_message($user);
         }
     }
 

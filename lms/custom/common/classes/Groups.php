@@ -351,7 +351,7 @@ class Groups extends Utils {
             $userid = $dbuser->id;
             $this->assign_gp_admin_role($userid);
             $m = new Mailer();
-            $m->send_gpadmin_account_confirmation($user);
+            $m->send_account_confirmation_message($user);
             if (trim($p->new_ccg) == '') {
                 // Cohort already exists
                 $this->add_user_to_cohort($p->cohortid, $userid);
