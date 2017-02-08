@@ -140,7 +140,7 @@ class Reports extends Utils {
         if ($toolbar) {
             if ($data->userid == 2) {
                 $list.="<br/><div class='row-fluid'>";
-                $list.="<span class='span2'><input type='text' id='r_cohort' style='width:125px' placeholder='All Cohorts'></span>";
+                $list.="<span class='span2'><input type='text' id='r_cohort' style='width:125px' placeholder='All Clinical Groups'></span>";
                 $list.="<span class='span2'><input type='text' id='r_practice' style='width:125px' placeholder='All Practices'></span>";
                 $list.="<span class='span2'><input type='text' id='r_courses' style='width:125px' placeholder='All Courses'></span>";
                 $list.="<span class='span2'><input type='text' id='r_users' style='width:125px;padding-right:5px;' placeholder='All Users'></span>";
