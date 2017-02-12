@@ -2,6 +2,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Groups.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/mailer/Mailer.php';
 
 /**
@@ -27,6 +28,12 @@ class Users extends Utils {
         return $list;
     }
 
+    function get_users_tab() {
+        $userid = $this->user->id;
+        $list = $this->get_users_page($userid);
+        return $list;
+    }
+
     function get_admin_users_page($current_userid) {
         $list = "";
         $current_user = $this->user->id;
@@ -39,7 +46,8 @@ class Users extends Utils {
 
         $list.="<div class='row-fluid'>";
         $list.="<input type='hidden' id='current_user' value='$current_userid'>";
-        $list.="<span class='span3'><button id='users_add_user'>Add User</button></span>";
+        $list.="<span class='span2'><button id='users_add_user'>Add User</button></span>";
+        $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_users'></i></span>";
         $list.="</div>";
 
         if (count($users) > 0) {
@@ -117,7 +125,8 @@ class Users extends Utils {
 
         $list.="<div class='row-fluid'>";
         $list.="<input type='hidden' id='current_user' value='$adminuserid'>";
-        $list.="<span class='span3'><button id='users_add_user'>Add User</button></span>";
+        $list.="<span class='span2'><button id='users_add_user'>Add User</button></span>";
+        $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_users'></i></span>";
         $list.="</div>";
 
         if (count($users) > 0) {
@@ -585,6 +594,7 @@ class Users extends Utils {
     }
 
     function update_user_courses($user) {
+        $comp = new Completion();
         $query = "select * from uk_cohort_members "
                 . "where userid=$user->userid";
         $num = $this->db->numrows($query);
@@ -635,7 +645,8 @@ class Users extends Utils {
         $courses = $user->courses;
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
-                if ($courseid > 0) {
+                $scorm = $comp->has_scorm_section($courseid);
+                if ($courseid > 0 && $scorm > 0) {
                     $this->enroll_user($courseid, $user->userid);
                     if ($user->userid != 2) {
                         $groupid = $this->get_course_groupid($courseid);

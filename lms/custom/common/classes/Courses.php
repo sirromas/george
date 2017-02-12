@@ -54,6 +54,12 @@ class Courses extends Utils {
         return $list;
     }
 
+    function get_courses_tab() {
+        $userid = $this->user->id;
+        $list = $this->get_courses_page($userid);
+        return $list;
+    }
+
     function get_course_page_by_role($userid, $roleid) {
         $list = "";
         switch ($roleid) {
@@ -433,13 +439,15 @@ class Courses extends Utils {
             if ($userid != 2) {
                 $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
                 $list.="<span class='span2'>My Courses</span>";
-                $list.="<span class='span2'>$year_box</span>";
+                $list.="<span class='span1'>$year_box</span>";
+                $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
                 $list.="</div>";
             } // end if
             else {
                 $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
                 $list.="<span class='span2'>My Courses</span>";
-                $list.="<span class='span2'>$year_box</span>";
+                $list.="<span class='span1'>$year_box</span>";
+                $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
                 $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
                 $list.="</div>";
             }

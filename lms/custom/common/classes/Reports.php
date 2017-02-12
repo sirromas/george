@@ -24,6 +24,12 @@ class Reports extends Utils {
         return $list;
     }
 
+    function get_reports_tab() {
+        $userid = $this->user->id;
+        $list = $this->get_reports_page($userid);
+        return $list;
+    }
+
     function get_report_initial_data($userid) {
 
         $users = array();
@@ -65,7 +71,7 @@ class Reports extends Utils {
               echo "Users: <pre>";
               print_r($users);
               echo "</pre><br>------------------------<br>";
-            */ 
+             */
 
             $stat = $this->get_courses_stat($users);
             $left = $stat->progress;
@@ -147,6 +153,7 @@ class Reports extends Utils {
                 $list.="<span class='span1'><input type='text' id='date1' style='width:75px;' placeholder='From'></span>";
                 $list.="<span class='span1'><input type='text' id='date2' style='width:75px;' placeholder='To'></span>";
                 $list.="<span class='span1' style='padding-left:15px;'><button id='report_search_ad'>Search</button></span>";
+                //$list.="<span class='span1'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_report'></i></span>";
                 $list.="</div>";
             } // end if $data->userid==2
             else {

@@ -54,6 +54,24 @@ class Pages extends Utils {
         return $list;
     }
 
+    function get_gp_help_page() {
+        $query = "select * from uk_site_pages where id=13";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $content = $row['content'];
+        }
+        return $content;
+    }
+
+    function get_student_help_page() {
+        $query = "select * from uk_site_pages where id=14";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $content = $row['content'];
+        }
+        return $content;
+    }
+
     function get_common_editor_page($id) {
         $list = "";
         $query = "select * from uk_site_pages where id=$id";
@@ -62,7 +80,7 @@ class Pages extends Utils {
             $content = $row['content'];
         }
 
-        $list.="<input type='hidden' id='id' value='$id'>";
+        $list.="<input type='hidden' id='pageid' value='$id'>";
         $list.="<div class='container-fluid' style='text-align:center;'>";
         $list.="<span class='span12'>";
         $list.="<textarea name='editor1' id='editor1' rows='10' cols='80'>";
@@ -84,6 +102,7 @@ class Pages extends Utils {
 
     function update_common_page($id, $data) {
         $query = "update uk_site_pages set content='$data' where id=$id";
+        echo "Query: " . $query . "<br>";
         $this->db->query($query);
     }
 
@@ -129,6 +148,12 @@ class Pages extends Utils {
                 break;
             case 12:
                 $list.=$r->get_contact_requests_page($id);
+                break;
+            case 13:
+                $list.=$this->get_common_editor_page($id);
+                break;
+            case 14:
+                $list.=$this->get_common_editor_page($id);
                 break;
         } // end of switch
 

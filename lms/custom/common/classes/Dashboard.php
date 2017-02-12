@@ -21,6 +21,12 @@ class Dashboard extends Utils {
         return $list;
     }
 
+    function get_dashboard_tab() {
+        $userid = $this->user->id;
+        $list = $this->get_user_dashboard($userid);
+        return $list;
+    }
+
     function get_left_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue) {
         $list = "";
         $rolename = $this->get_role_name($userid, $roleid);
@@ -117,7 +123,8 @@ class Dashboard extends Utils {
 
 
         $list.="<div class='container-fluid'>";
-        $list.="<span class='span12' style='font-size:18px;font-weight:bold;'>Your training summary</span>";
+        $list.="<span class='span6' style='font-size:18px;font-weight:bold;'>Your training summary</span>";
+        $list.="<span class='span1'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_dash'></i></span>";
         $list.="</div><br>";
 
         $list.="<div class='container-fluid'>";

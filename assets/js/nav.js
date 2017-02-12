@@ -8,6 +8,33 @@
 $(document).ready(function () {
     console.log("ready!");
 
+    // Monitor only few events ...
+    $('body').on("click change click  blur select change submit reset", function (e) {
+        var e_id = e.target.id;
+        //console.log('Event id: ' + e_id);
+
+        if (e_id == 'dash_icon' || e_id == 'dash_span') {
+            console.log('Dash tab clicked ...');
+        }
+
+        if (e_id == 'courses_icon' || e_id == 'courses_span') {
+            console.log('Courses tab clicked ...');
+        }
+
+        if (e_id == 'users_icon' || e_id == 'users_span') {
+            console.log('Users tab clicked ...');
+
+        }
+
+        if (e_id == 'reports_icon' || e_id == 'reports_span') {
+            console.log('Reports tab clicked ...');
+
+        }
+
+    }); // end of $('body').on("click change click  blur select change
+
+
+
     $('#my_courses').DataTable();
     $('#all_courses').DataTable();
     $('#my_external_courses').DataTable();
@@ -70,7 +97,7 @@ $(document).ready(function () {
 
     function get_news_page() {
         var url = "/lms/custom/admin/get_news_page.php";
-        $.post(url, {id: id}).done(function (data) {
+        $.post(url, {id: 1}).done(function (data) {
             $('#pages').html(data);
         });
     }
@@ -135,6 +162,63 @@ $(document).ready(function () {
         console.log('Element ID: ' + event.target.id);
         console.log('Element class: ' + $(event.target).attr('class'));
 
+        if (event.target.id == 'refresh_dash') {
+            var url = "/lms/custom/common/get_dashboard_tab.php";
+            $.post(url, {id: 1}).done(function (data) {
+                $('#dash').html(data);
+            });
+        }
+
+        if (event.target.id == 'refresh_courses') {
+            var url = "/lms/custom/common/get_courses_tab.php";
+            $.post(url, {id: 1}).done(function (data) {
+                $('#courses').html(data);
+                $('#my_courses').DataTable();
+                $('#all_courses').DataTable();
+
+                var course_stat_url = "/lms/custom/common/get_courses_progress.php";
+                $.post(course_stat_url, {id: 1}).done(function (data) {
+                    console.log('Server response: ' + data);
+                    console.log('------------------------------');
+                    jQuery.each(JSON.parse(data), function (index, value) {
+                        var divid = '#pr_' + value.courseid;
+                        var progress = Math.round(value.stat);
+                        if (progress === null) {
+                            progress = 0;
+                        }
+
+                        $(divid).progressbar({
+                            value: parseInt(progress)
+                        });
+
+                        $(divid).tooltip({
+                            position: {my: "left+5 center", at: "right center"}
+                        });
+
+                    }); // end jQuery.each
+                }); // end of post
+
+            });
+        }
+
+        if (event.target.id == 'refresh_users') {
+            var url = "/lms/custom/common/get_users_tab.php";
+            $.post(url, {id: 1}).done(function (data) {
+                $('#users').html(data);
+                $('#data-users').DataTable();
+            });
+        }
+
+        if (event.target.id == 'refresh_report') {
+            var url = "/lms/custom/common/get_reports_tab.php";
+            $.post(url, {id: 1}).done(function (data) {
+                $('#reports').html(data);
+                $('#user_detailes_container').DataTable();
+            });
+        }
+
+
+
         if ($(event.target).attr('class') == 'pages-list') {
             var id = event.target.id;
             var url = "/lms/custom/admin/get_site_page.php";
@@ -156,7 +240,7 @@ $(document).ready(function () {
         }
 
         if ($(event.target).attr('class') == 'update-user-page') {
-            var id = $('#id').val();
+            var id = $('#pageid').val();
             var data = CKEDITOR.instances.editor1.getData();
             var url = "/lms/custom/admin/update_site_page.php";
             var url2 = "/lms/custom/admin/get_site_pages.php";
@@ -508,15 +592,21 @@ $(document).ready(function () {
             var retake_duration = $('#ext_course_retake_duration').val();
             var notes = $('#ext_notes').val();
             var status = $('#ext_course_status').val();
+
+            var course = {userid: userid,
+                name: name,
+                provider: provider,
+                date: date,
+                status: status,
+                retake_duration: retake_duration,
+                notes: notes};
+
+            console.log('External Course Object: ' + course);
+
+
             if (name != '' && provider != '' && date != '' && retake_duration > 0 && status > 0) {
                 $('#ext_err').html('');
-                var course = {userid: userid,
-                    name: name,
-                    provider: provider,
-                    date: date,
-                    status: status,
-                    retake_duration: retake_duration,
-                    notes: notes};
+
                 var url = '/lms/custom/common/add_external_training.php';
                 $.post(url, {course: JSON.stringify(course)}).done(function (data) {
                     console.log(data);

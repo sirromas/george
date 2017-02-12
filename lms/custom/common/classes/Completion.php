@@ -300,6 +300,41 @@ class Completion extends Utils {
         return $status;
     }
 
+    function create_user_certificate2($courseid, $userid) {
+        $cert = new Certificate();
+        $user = $this->get_user_data_by_id($userid);
+        $coursename = $this->get_course_name($courseid);
+        $date = date('m-d-Y', time());
+        $list = "";
+
+        $list.="<html>";
+        $list.="<head>";
+        $list.="<link rel='stylesheet' href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/cert.css'>";
+        $list.="</head>";
+        $list.="<body>";
+
+        $list.="<div class='cert' ><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/certificate.jpg'>";
+        $list.="<div class='cert_user'>$user->firstname $user->lastname</div>";
+        $list.="<div class='cert_course'>$coursename</div>";
+        $list.="<div class='cert_date '>$date</div>";
+        $list.="</div>";
+
+        $list.="</body>";
+        $list.="</html>";
+
+        $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid";
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        $path = $dir . "/certificate.html";
+        echo "Path: ".$path."<br>";
+        //file_put_contents($path, $list);
+        $cert->create_user_certificate($courseid, $list);
+
+        return $list;
+    }
+
     function get_user_last_attempt($scoid, $userid) {
         $query = "SELECT * FROM `uk_scorm_scoes_track` "
                 . "WHERE userid=$userid and scoid=$scoid "

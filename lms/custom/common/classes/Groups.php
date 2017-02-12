@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/mailer/Mailer.php';
 
 /**
@@ -798,7 +799,7 @@ class Groups extends Utils {
         $practiceid = $practice->practiceid;
         $courses = $practice->courses;
         $userid = $practice->userid;
-
+        $comp = new Completion();
         $query = "select * from uk_practice where id=$practiceid";
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -809,12 +810,15 @@ class Groups extends Utils {
 
         if (count($courses) > 0) {
             foreach ($courses as $courseid) {
-                $coursename = $this->get_course_name($courseid);
-                // practice name already includes CCG name
-                $groupname = $practicename . " - " . $coursename;
-                $groupid = $this->create_group($courseid, $groupname);
-                $this->add_user_to_group($groupid, $userid);
-                $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
+                $scorm = $comp->has_scorm_section($courseid);
+                if ($scorm > 0) {
+                    $coursename = $this->get_course_name($courseid);
+                    // practice name already includes CCG name
+                    $groupname = $practicename . " - " . $coursename;
+                    $groupid = $this->create_group($courseid, $groupname);
+                    $this->add_user_to_group($groupid, $userid);
+                    $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
+                } // end if $scorm > 0
             } // end foreach
         } // end if count($courses)>0
     }
