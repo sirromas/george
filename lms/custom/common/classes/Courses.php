@@ -244,9 +244,9 @@ class Courses extends Utils {
                 . "where courseid=$courseid "
                 . "and userid=$userid";
         $num = $this->db->numrows($query);
-        $path = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+        $path = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.pdf";
         if ($num > 0 && file_exists($path)) {
-            $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+            $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.pdf";
             $list.="<form action='$action' method='get' target='_blank' id='user_certificates_form0'>";
             $list.="<a href='#' onClick='return false;' id='user_certificates'>Download</a>";
             $list.="</form>";

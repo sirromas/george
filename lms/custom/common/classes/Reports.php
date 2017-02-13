@@ -323,7 +323,7 @@ class Reports extends Utils {
 
     function get_passed_course_link($courseid, $coursename, $userid) {
         $list = "";
-        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.html";
+        $action = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/$courseid/certificate.pdf";
         $list.="<form action='$action' method='get' target='_blank' id='data_user_certificates_report_form_$courseid" . "_" . "$userid'>";
         $list.="<a href='#' onClick='return false;' title='Click to get user certificate' id='data_user_report_certificates_$courseid/$userid'>$coursename</a>";
         $list.="</form>";

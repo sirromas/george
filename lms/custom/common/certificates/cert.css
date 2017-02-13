@@ -49,3 +49,33 @@ div.cert_date  {
     color: #544C4C;
 }
 
+
+div.cert_user2 {
+    position: absolute;
+    padding-top: 100px;
+    padding-left: 585px;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: normal;
+    color: #544C4C;
+}
+
+div.cert_course2 {
+    position: absolute;
+    padding-top: 90px;
+    padding-left:450px;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: normal;
+    color: #544C4C;
+}
+
+div.cert_date2  {
+    position: absolute;
+    padding-top: 145px;
+    padding-left: 350px;
+    font-family: monospace;
+    font-size: 20px;
+    font-weight: normal;
+    color: #544C4C;
+}

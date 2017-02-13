@@ -269,34 +269,38 @@ class Completion extends Utils {
 
     function create_user_certificate($courseid, $userid) {
 
-        $user = $this->get_user_data_by_id($userid);
-        $coursename = $this->get_course_name($courseid);
-        $date = date('m-d-Y', time());
-        $list = "";
+        /*
+          $user = $this->get_user_data_by_id($userid);
+          $coursename = $this->get_course_name($courseid);
+          $date = date('m-d-Y', time());
+          $list = "";
 
-        $list.="<html>";
-        $list.="<head>";
-        $list.="<link rel='stylesheet' href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/cert.css'>";
-        $list.="</head>";
-        $list.="<body>";
+          $list.="<html>";
+          $list.="<head>";
+          $list.="<link rel='stylesheet' href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/cert.css'>";
+          $list.="</head>";
+          $list.="<body>";
 
-        $list.="<br><div class='cert' >";
-        $list.="<div class='cert_user'>$user->firstname $user->lastname</div>";
-        $list.="<div class='cert_course'>$coursename</div>";
-        $list.="<div class='cert_date '>$date</div>";
-        $list.="</div>";
+          $list.="<br><div class='cert' >";
+          $list.="<div class='cert_user'>$user->firstname $user->lastname</div>";
+          $list.="<div class='cert_course'>$coursename</div>";
+          $list.="<div class='cert_date '>$date</div>";
+          $list.="</div>";
 
-        $list.="</body>";
-        $list.="</html>";
+          $list.="</body>";
+          $list.="</html>";
 
-        $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid";
-        if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
-        }
+          $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/$userid/$courseid";
+          if (!file_exists($dir)) {
+          mkdir($dir, 0777, true);
+          }
 
-        $path = $dir . "/certificate.html";
-        $status = file_put_contents($path, $list);
+          $path = $dir . "/certificate.html";
+          $status = file_put_contents($path, $list);
+         * 
+         */
 
+        $status = $this->create_user_certificate2($courseid, $userid);
         return $status;
     }
 
@@ -313,10 +317,24 @@ class Completion extends Utils {
         $list.="</head>";
         $list.="<body>";
 
-        $list.="<div class='cert' ><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/certificate.jpg'>";
-        $list.="<div class='cert_user'>$user->firstname $user->lastname</div>";
-        $list.="<div class='cert_course'>$coursename</div>";
-        $list.="<div class='cert_date '>$date</div>";
+        $bgpath = "http://" . $_SERVER['SERVER_NAME'] . "/assets/img/certificate.jpg";
+
+        $list.="<div class='cert' style='background-image:url($bgpath)'>";
+        $list.="<div class='cert_user2' style=''>$user->firstname $user->lastname</div>";
+
+        if (strlen($coursename) <= 15) {
+            $list.="<div class='cert_course2' style='padding-left:587px;'>$coursename</div>";
+        } // end if strlen($coursename)>15
+
+        if (strlen($coursename) > 15 && strlen($coursename) < 20) {
+            $list.="<div class='cert_course2' style='padding-left:545px;'>$coursename</div>";
+        }
+
+        if (strlen($coursename) > 20) {
+            $list.="<div class='cert_course2' style='padding-left:400px;'>$coursename</div>";
+        } // end else
+
+        $list.="<div class='cert_date2' style=''>$date</div>";
         $list.="</div>";
 
         $list.="</body>";
@@ -327,12 +345,9 @@ class Completion extends Utils {
             mkdir($dir, 0777, true);
         }
 
-        $path = $dir . "/certificate.html";
-        echo "Path: ".$path."<br>";
-        //file_put_contents($path, $list);
-        $cert->create_user_certificate($courseid, $list);
+        $status = $cert->create_user_certificate($courseid, $list, $userid);
 
-        return $list;
+        return $status;
     }
 
     function get_user_last_attempt($scoid, $userid) {

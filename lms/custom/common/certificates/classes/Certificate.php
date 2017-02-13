@@ -16,7 +16,7 @@ class Certificate extends Utils {
 
     function __construct() {
         parent::__construct();
-        $this->cert_css = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates/cert.css";
+        $this->cert_css = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/cert.css";
         $this->bootstrap_css = $_SERVER['DOCUMENT_ROOT'] . "/assets/css/bootstrap.min.css";
         $this->path = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/certificates";
     }
@@ -35,37 +35,18 @@ class Certificate extends Utils {
         $pdf->Output($path, 'F');
     }
 
-    function create_user_certificate($courseid, $data) {
-        $userid = $this->user->id;
-
+    function create_user_certificate($courseid, $data, $userid) {
         $dir = $this->path . "/$userid/$courseid";
-        echo "Certificate dir ..." . $dir . "<br>";
-        //die();
-
-
         $pdf = new mPDF('utf-8', 'A4-L');
         $stylesheet = file_get_contents($this->cert_css);
         $pdf->WriteHTML($stylesheet, 1);
         $pdf->WriteHTML($data, 2);
-
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }
         $path = $dir . "/certificate.pdf";
         $pdf->Output($path, 'F');
-
-
-        try {
-            $html2pdf = new HTML2PDF('L', 'A4', 'en', true, 'UTF-8', 0);
-            $html2pdf->pdf->SetDisplayMode('fullpage');
-
-            $html2pdf->writeHTML($data);
-            $html2pdf->Output($path);
-        } // end try
-        catch (Html2PdfException $e) {
-            $formatter = new ExceptionFormatter($e);
-            echo $formatter->getHtmlMessage();
-        }
+        return true;
     }
 
 }
