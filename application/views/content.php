@@ -1,4 +1,5 @@
 <?php
+//require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/config.php';
 echo "<div id='page' class='container-fluid'>";
 echo "<div id='page-content' class='row-fluid'>";
 echo $page;

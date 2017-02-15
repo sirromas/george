@@ -529,7 +529,7 @@ $(document).ready(function () {
             var profile = {id: id, firstname: firstname, lastname: lastname, email: email, pwd: pwd};
             console.log('Profile: ' + JSON.stringify(profile));
 
-            if (firstname != '' && lastname != '' && email != '') {
+            if (firstname != '' && lastname != '' && email != '' && pwd) {
                 $('#profile_err').html('');
                 if (pwd != '') {
                     if (pwd.length < 8) {
@@ -540,12 +540,12 @@ $(document).ready(function () {
                     } // end else
                 } // end if pwd != ''
                 if ($('#profile_err').html() == '') {
-                    if (confirm('Update profile?')) {
+                    //if (confirm('Update profile?')) {
                         var url = '/lms/custom/common/update_profile.php';
                         $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
                             $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
                         });
-                    }
+                    //} // end if confirm
                 } // end if $('#profile_err').html()==''
             } // end if firstname != '' && lastname != '' && email != ''
             else {

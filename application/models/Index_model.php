@@ -26,18 +26,22 @@ class Index_model extends CI_Model {
                                                         <img src='http://$this->host/assets/img/lambda_responsive.jpg' alt='lambda responsive' class='img-responsive' id='yui_3_17_2_1_1481703191444_140'></div>
                                                     <div class='span6' id='yui_3_17_2_1_1481703191444_131'>
 
-                                                        <form class='navbar-form' method='post' action='http://$this->host/lms/login/index.php?authldap_skipntlmsso=1'>
+                                                        <form class='navbar-form' id='login-form' method='post' action='http://$this->host/lms/login/index.php?authldap_skipntlmsso=1'>
 
                                                             <div class='row-fluid' style=''>	
-                                                                <span class='span12' style='padding-bottom:15px;padding-left:35px;'><input id='inputName' class='span2' type='text' name='username' placeholder='Username or Email' required style='width:435px;height:35px; '></span>
+                                                                <span class='span12' style='margin-top:0px;padding-bottom:15px;padding-left:35px;'><input id='inputName' class='span2' type='text' name='username' placeholder='Username or Email' required style='width:435px;height:35px; '></span>
                                                             </div>   
 
                                                             <div class='row-fluid'>
-                                                                <span class='span12' style='padding-bottom:15px;padding-left:35px'><input id='inputPassword' class='span2' type='password' name='password' id='password' placeholder='Password' required style='width:435px;height:35px;'></span>
+                                                                <span class='span12' style='padding-left:35px;padding-bottom:15px;'><input id='inputPassword' class='span2' type='password' name='password' id='password' placeholder='Password' required style='width:435px;height:35px;'></span>
                                                             </div>
-
+                                                            
                                                             <div class='row-fluid'>
-                                                                <span class='span12' style='padding-left:31px;'><button class='btn btn-primary' style='width:435px;height:35px; '>Login Now</button></span>
+                                                                <span class='span12' style='padding-left:31px;'><button id='login_button' class='btn btn-primary' style='width:435px;height:35px; '>Login Now</button></span>
+                                                            </div>
+                                                            
+                                                            <div class='row-fluid'>
+                                                                <span class='span12' style='padding-left:35px;color:red;' id='login_err'></span>
                                                             </div>
 
                                                             <div class='forgotpass' style='padding-left:35px;'>

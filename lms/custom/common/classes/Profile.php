@@ -43,7 +43,7 @@ class Profile extends Utils {
         $list.="</tr>";
 
         $list.="<tr>";
-        $list.="<td style='padding:15px;'>Password</td>";
+        $list.="<td style='padding:15px;'>Password*</td>";
         $list.="<td style='padding:15px;'><input type='password' id='pwd' value=''></td>";
         $list.="</tr>";
 

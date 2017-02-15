@@ -26,8 +26,6 @@
 require('../config.php');
 require_once('lib.php');
 
-header('Location: http://mycodebusters.com/');
-
 // Try to prevent searching for sites that allow sign-up.
 if (!isset($CFG->additionalhtmlhead)) {
     $CFG->additionalhtmlhead = '';
@@ -241,6 +239,9 @@ if ($frm and isset($frm->username)) {                             // Login WITH 
             }
         }
     }
+
+    header("Location: http://mycodebusters.com/index.php?errorcode=$errorcode");
+    die();
 }
 
 /// Detect problems with timedout sessions
