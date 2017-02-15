@@ -345,6 +345,7 @@ class Groups extends Utils {
         $user->lastname = $p->lastname;
         $user->email = $p->email;
         $user->pwd = $p->pwd;
+        $user->pname = $p->gpname;
 
         $status = $this->create_user($user);
         if ($status) {

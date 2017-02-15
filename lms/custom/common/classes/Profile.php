@@ -1,6 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Utils.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/mailer/Mailer.php';
 
 class Profile extends Utils {
 
@@ -54,30 +55,30 @@ class Profile extends Utils {
 
         $list.="</table>";
 
-        
-
         return $list;
     }
 
     function update_profile($pr) {
-        //$2y$10$y0aoGlvfH8Mr5DfUx39zAei8CjaKbJHzIWN/vIx/7fTiohxsjcbpm 
-        //hash_internal_user_password
         $hashed_pwd = hash_internal_user_password($pr->pwd);
         if ($pr->pwd == '') {
             $query = "update uk_user set "
                     . "firstname='$pr->firstname', "
-                    . "lastname='$pr->lastname', email='$pr->email' "
+                    . "lastname='$pr->lastname', email='$pr->email', username='$pr->email' "
                     . "where id=$pr->id";
         } // end if
         else {
             $query = "update uk_user set "
                     . "firstname='$pr->firstname', "
-                    . "lastname='$pr->lastname', email='$pr->email', "
+                    . "lastname='$pr->lastname', email='$pr->email', username='$pr->email', "
                     . "password='$hashed_pwd' "
                     . "where id=$pr->id";
         }
         //echo "Query: " . $query . "<br>";
         $this->db->query($query);
+        $pname = $this->get_practice_name_by_userid($pr->id);
+        $pr->pname = $pname;
+        $m = new Mailer();
+        $m->send_update_credentials_letter($pr);
         $list = "Profile has been updated";
         return $list;
     }

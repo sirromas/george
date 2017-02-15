@@ -165,10 +165,13 @@ $(document).ready(function () {
         console.log('Element class: ' + $(event.target).attr('class'));
 
         if (event.target.id == 'refresh_dash') {
-            var url = "/lms/custom/common/get_dashboard_tab.php";
-            $.post(url, {id: 1}).done(function (data) {
-                $('#dash').html(data);
-            });
+            document.location.reload();
+            /*
+             var url = "/lms/custom/common/get_dashboard_tab.php";
+             $.post(url, {id: 1}).done(function (data) {
+             $('#dash').html(data);
+             });
+             */
         }
 
         if (event.target.id == 'refresh_courses') {
@@ -535,7 +538,7 @@ $(document).ready(function () {
                 $('#profile_err').html('');
                 if (pwd != '') {
                     if (pwd.length < 8) {
-                        $('#profile_err').html('Password length should be at least 8 characters');
+                        $('#profile_err').html("Password length should be at least 8 characters");
                     } // end if pwd.length < 8
                     else {
                         $('#profile_err').html('');
@@ -545,7 +548,7 @@ $(document).ready(function () {
                     //if (confirm('Update profile?')) {
                     var url = '/lms/custom/common/update_profile.php';
                     $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
-                        $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
+                        $('#profile_err').html("<span style='color:black;background-color:#8ec63f'>" + data + "</span>");
                     });
                     //} // end if confirm
                 } // end if $('#profile_err').html()==''
