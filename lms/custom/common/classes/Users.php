@@ -113,7 +113,9 @@ class Users extends Utils {
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             $practiceid = $row['id'];
-            $practicename = $row['name'];
+            $cgname = $row['name'];
+            $names_arr = explode('-', $cgname);
+            $practicename = $names_arr[1];
         }
         //echo "Practice id: " . $practiceid . "<br>";
         //echo "Practice name: " . $practicename . "<br>";

@@ -562,7 +562,8 @@ class Courses extends Utils {
     function get_admin_page($userid) {
         $list = "";
 
-        $courses = $this->get_user_courses($userid);
+        $courses = $this->get_user_courses($userid); // should be sorted by last access
+        //print_r($courses);
         $mycourses = $this->get_my_courses_block($courses, $userid);
         $allcourses = $this->get_all_system_courses_block();
         $list.=$mycourses;

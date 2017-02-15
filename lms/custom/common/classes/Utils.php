@@ -2,6 +2,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/class.pdo.database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lms/custom/common/classes/Completion.php';
 
 /**
  * Description of Utils
@@ -317,28 +318,48 @@ class Utils {
         return $practiceid;
     }
 
+    function get_user_course_last_access($scoid, $userid) {
+        if ($scoid > 0) {
+            $query = "SELECT * FROM `uk_scorm_scoes_track` "
+                    . "WHERE element='x.start.time' "
+                    . "and userid=$userid "
+                    . "and scoid=$scoid "
+                    . "order by value desc "
+                    . "limit 0,1";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $lastacccess = $row['value'];
+            }
+        } // end if $scoid>0
+        else {
+            $lastacccess = 0;
+        } // end else
+        return $lastacccess;
+    }
+
     function get_user_courses($userid, $year = NULL) {
         $courses = array();
+        $comp = new Completion();
 
         if ($year == null) {
             $year = date('Y', time());
         }
-
         $query = "select * from uk_role_assignments "
                 . "where userid=$userid and roleid=5 "
                 . "and FROM_UNIXTIME(timemodified, '%Y')='$year'";
-        //echo "Query: ".$query."<br>";
-        //die();
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                if (!in_array($this->get_instance_id($row['contextid']), $courses)) {
-                    $courses[] = $this->get_instance_id($row['contextid']);
+                $courseid = $this->get_instance_id($row['contextid']);
+                if (!in_array($courseid, $courses)) {
+                    $scoid = $comp->get_scorm_scoid($courseid);
+                    $laccess = $this->get_user_course_last_access($scoid, $userid);
+                    $courses[$laccess] = $courseid;
                 } // end if
             } // end while
         } // end if $num > 0
-
+        krsort($courses);
         return $courses;
     }
 
@@ -358,27 +379,34 @@ class Utils {
     }
 
     function get_practice_name_by_userid($userid) {
-        $query = "select * from uk_practice_members where userid=$userid";
-        $result = $this->db->query($query);
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $practiceid = $row['practiceid'];
-            } // end hwile
-        } // end if $num > 0
-        else {
-            $practiceid = 0;
-        }
-        if ($practiceid > 0) {
-            $query = "select * from uk_practice where id=$practiceid";
+        if ($userid != 2) {
+            $query = "select * from uk_practice_members where userid=$userid";
             $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $name = $row['name'];
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $practiceid = $row['practiceid'];
+                } // end hwile
+            } // end if $num > 0
+            else {
+                $practiceid = 0;
             }
-        } // end if $practiceid>0
+            if ($practiceid > 0) {
+                $query = "select * from uk_practice where id=$practiceid";
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $ccgname = $row['name'];
+                    $names_arr = explode('-', $ccgname);
+                    $name = $names_arr[1];
+                }
+            } // end if $practiceid>0
+            else {
+                $name = 'N/A';
+            }
+        } // end if $userid!=2
         else {
-            $name = 'N/A';
-        }
+            $name = 'Admin Practice';
+        } // end else 
 
         return $name;
     }

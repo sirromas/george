@@ -35,7 +35,9 @@ $(document).ready(function () {
 
 
 
-    $('#my_courses').DataTable();
+    $('#my_courses').DataTable({
+        "order": []
+    });
     $('#all_courses').DataTable();
     $('#my_external_courses').DataTable();
     $('#all_external_courses').DataTable();
@@ -541,10 +543,10 @@ $(document).ready(function () {
                 } // end if pwd != ''
                 if ($('#profile_err').html() == '') {
                     //if (confirm('Update profile?')) {
-                        var url = '/lms/custom/common/update_profile.php';
-                        $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
-                            $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
-                        });
+                    var url = '/lms/custom/common/update_profile.php';
+                    $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
+                        $('#profile_err').html("<span style='color:black;'>" + data + "</span>");
+                    });
                     //} // end if confirm
                 } // end if $('#profile_err').html()==''
             } // end if firstname != '' && lastname != '' && email != ''
