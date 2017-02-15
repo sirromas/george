@@ -542,6 +542,11 @@ class Groups extends Utils {
                 </div>
                 
                 <div class='container-fluid'>
+                <span class='span3'><input type='checkbox' id='gp_all' disabled>Select all</span>
+                </div>
+                
+
+                <div class='container-fluid'>
                 <span class='span2'>Practice courses*</span>
                 <span class='span6' id='courses_container'>$courses</span>
                 </div>

@@ -1372,6 +1372,17 @@ $(document).ready(function () {
             $(formid).submit();
         }
 
+        if (event.target.id == 'gp_all') {
+            if ($('#gp_all').prop('checked')) {
+                console.log('Checked ....');
+                $("#gpcourses > option").prop("selected", true);
+            } // end if 
+            else {
+                console.log('Un-checked ....');
+                $("#gpcourses > option").prop("selected", false);
+            } // end else
+        }
+
     }); // end of $('body').click(function (event) {
 
 
@@ -1397,6 +1408,7 @@ $(document).ready(function () {
                 var url = "http://" + domain + "/lms/custom/common/get_course_by_category.php";
                 $.post(url, {catid: catid}).done(function (data) {
                     $('#courses_container').html(data);
+                    $('#gp_all').prop('disabled', false);
                 });
             }
         }
