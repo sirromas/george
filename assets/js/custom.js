@@ -36,7 +36,7 @@ $(document).ready(function () {
 
     var code = getUrlParameter('errorcode');
     if (code == 3) {
-        $('#login_err').html('Invalid login or password');
+        $('#login_err').html('Invalid email address or password');
     }
 
     $("#contact_submit").click(function () {

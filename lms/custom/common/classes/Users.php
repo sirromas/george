@@ -772,6 +772,8 @@ class Users extends Utils {
             $userid = $dbuser->id;
             $this->add_user_to_practice($user->practiceid, $userid);
             $this->add_user_to_cohort($user->practiceid, $userid);
+            $pname = $this->get_practice_name_by_userid($userid);
+            $user->pname = $pname;
             $m = new Mailer();
             $m->send_account_confirmation_message($user);
         }

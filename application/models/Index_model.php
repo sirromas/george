@@ -29,7 +29,7 @@ class Index_model extends CI_Model {
                                                         <form class='navbar-form' id='login-form' method='post' action='http://$this->host/lms/login/index.php?authldap_skipntlmsso=1'>
 
                                                             <div class='row-fluid' style=''>	
-                                                                <span class='span12' style='margin-top:0px;padding-bottom:15px;padding-left:35px;'><input id='inputName' class='span2' type='text' name='username' placeholder='Username or Email' required style='width:435px;height:35px; '></span>
+                                                                <span class='span12' style='margin-top:0px;padding-bottom:15px;padding-left:35px;'><input id='inputName' class='span2' type='text' name='username' placeholder='Email address' required style='width:435px;height:35px; '></span>
                                                             </div>   
 
                                                             <div class='row-fluid'>

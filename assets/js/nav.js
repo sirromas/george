@@ -755,8 +755,8 @@ $(document).ready(function () {
                 pwd: pwd,
                 gpcourses: gpcourses};
             console.log('Courses length ' + courses_length);
-            //console.log('Practice:' + JSON.stringify(practice));
-            if ((cohortid > 0 || new_ccg != '') && gpname != '' && firstname != '' && lastname != '' && email != '' && pwd != '' && gpcourses.length > 0 && gpcourses[0] != 0) {
+            console.log('Practice:' + JSON.stringify(practice));
+            if ((cohortid > 0 || new_ccg != '') && gpname != '' && firstname != '' && lastname != '' && email != '' && pwd != '' && gpcourses.length > 0) {
                 $('#gp_err').html('');
                 var check_url = "http://" + domain + "/lms/custom/common/is_email_exists.php";
                 $.post(check_url, {email: email}).done(function (data) {

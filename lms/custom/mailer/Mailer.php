@@ -35,14 +35,15 @@ class Mailer extends Utils {
         $list.="<div><form method='post' target='_blank' action='http://" . $_SERVER['SERVER_NAME'] . "/lms/login/index.php?authldap_skipntlmsso=1'>";
         $list.="<input type='hidden' name='username' value='$user->email'>";
         $list.="<input type='hidden' name='password' value='$user->pwd'>";
-        $list.="Please click <input type='submit' value='here' style='background: none;border: none;color: #0066ff;decoration: underline;cursor:pointer;'> to login. Once logged in you can go to the 'My Profile' section and change your password if you wish. <br>";
+        $list.="Please click<input type='submit' value='here' style='background: none;border: none;color: #15c;decoration: underline;cursor:pointer;font-size:14px;'>to login. Once logged in you can go to the 'My Profile' section and change your password if you wish. <br>";
         $list.="</form></div>";
         return $list;
     }
 
     function send_account_confirmation_message($user) {
         $mail = new PHPMailer();
-        $link = $this->get_user_login_link($user);
+        //$link = $this->get_user_login_link($user);
+        $link = "Please click <a href='http://" . $_SERVER['SERVER_NAME'] . "' target='_blank'>here</a> to login. Once logged in you can go to the 'My Profile' section and change your password if you wish.<br>";
         $addressA = $user->email;
         $addressB = $this->admin_email;
         $addressC = 'sirromas@gmail.com';
@@ -51,22 +52,22 @@ class Mailer extends Utils {
 
         $message.="<html>";
         $message.="<body>";
-        $message.="<p align='left'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left'>Your Green Practice Account was setup. Your credentials are below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
+        $message.="<p align='left' style='font-size:14px;'>Your Green Practice Account was setup. Please find details below:<p>";
 
-        $message.="<table align='left' style='font-weight:bold;'>";
+        $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
-        $message.="<td>Account name:</td><td style='padding-left:15px;'>$user->pname</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Account name:</td><td style='font-weight:normal;'>$user->pname</td>";
         $message.="</tr>";
         $message.="<tr>";
-        $message.="<td>Login email address:</td><td style='padding-left:15px;'>$user->email</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Login email address:</td><td style='font-weight:normal'>$user->email</td>";
         $message.="</tr>";
         $message.="<tr>";
-        $message.="<td>Password:</td><td style='padding-left:15px;'>$user->pwd</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Password:</td><td style='font-weight:normal'>$user->pwd</td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
-        $message.="<td colspan='2'>$link<br></td>";
+        $message.="<td colspan='2'><br>$link<br></td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
@@ -136,7 +137,8 @@ class Mailer extends Utils {
 
     function send_update_credentials_letter($user) {
         $mail = new PHPMailer();
-        $link = $this->get_user_login_link($user);
+        //$link = $this->get_user_login_link($user);
+        $link = "Please click <a href='http://" . $_SERVER['SERVER_NAME'] . "' target='_blank'>here</a> to login. Once logged in you can go to the 'My Profile' section and change your password if you wish.<br>";
         $addressA = $user->email;
         $addressB = $this->admin_email;
         $addressC = 'sirromas@gmail.com';
@@ -145,22 +147,22 @@ class Mailer extends Utils {
 
         $message.="<html>";
         $message.="<body>";
-        $message.="<p align='left'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left'>Your Green Practice Account was updated. Your credentials are below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
+        $message.="<p align='left' style='font-size:14px;'>Your Green Practice Account was updated. Please find details below:<p>";
 
-        $message.="<table align='left' style='font-weight:bold;'>";
+        $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
-        $message.="<td>Account name:</td><td style='padding-left:15px;'>$user->pname</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Account name:</td><td style='font-weight:normal;'>$user->pname</td>";
         $message.="</tr>";
         $message.="<tr>";
-        $message.="<td>Login email address:</td><td style='padding-left:15px;'>$user->email</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Login email address:</td><td style='font-weight:normal'>$user->email</td>";
         $message.="</tr>";
         $message.="<tr>";
-        $message.="<td>Password:</td><td style='padding-left:15px;'>$user->pwd</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Password:</td><td style='font-weight:normal'>$user->pwd</td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
-        $message.="<td colspan='2'>$link<br></td>";
+        $message.="<td colspan='2'><br>$link<br></td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
