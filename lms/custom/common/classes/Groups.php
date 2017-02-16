@@ -90,6 +90,7 @@ class Groups extends Utils {
             $list.="<th>Clinical Group</th>";
             $list.="<th>Practice Name</th>";
             $list.="<th>Practice Admin User</th>";
+            $list.="<th>Admin User Email</th>";
             $list.="<th>Actions</th>";
             $list.="</tr>";
             $list.="</thead>";
@@ -97,10 +98,16 @@ class Groups extends Utils {
             foreach ($groups as $g) {
                 $cohortname = $this->get_cohort_name($g->cohortid);
                 $adminuser = $this->get_user_data_by_id($g->userid); // object
+                $pr_names = explode('-', $g->name);
+                $prname = $pr_names[1];
+                if ($prname == '') {
+                    $prname = 'Admin Practice';
+                }
                 $list.="<tr>";
                 $list.="<td>$cohortname</td>";
-                $list.="<td>$g->name</td>";
-                $list.="<td><span class='span4'>$adminuser->firstname $adminuser->lastname</span> <span class='span2'><a href='mailto:$adminuser->email'>$adminuser->email</a></span></td>";
+                $list.="<td>$prname</td>";
+                $list.="<td>$adminuser->firstname $adminuser->lastname</td>";
+                $list.="<td><a href='mailto:$adminuser->email'>$adminuser->email</a></td>";
                 $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
                         . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
                         . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";

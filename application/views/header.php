@@ -68,19 +68,21 @@ if (!$validated) {
 
                         <div class="span6">
                             <div class="title-text">
-                                <h1 id="title"><img src="http://practiceindex.co.uk/skin/frontend/default/practiceindex/images/logo.png"></h1>
+                                <h1 id="title"><a href='http://<?php echo $_SERVER['SERVER_NAME']; ?>'><img src="http://practiceindex.co.uk/skin/frontend/default/practiceindex/images/logo.png"></a></h1>
                             </div>
                         </div>
 
 
                         <div class="span6 login-header">
                             <div class="profileblock">
-
+                                <!--
                                 <div class="row-fluid" style="">
                                     <span class="span12" style="text-align:right;"><a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/about">About us</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/faq">FAQs</a> | <a style='cursor: pointer;color:grey;' href="http://<?php echo $host; ?>/index.php/index/contact">Contact us</a></span>
                                 </div>
+                                -->
+                                
                                 <div class="row-fluid" style="">
-                                    <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>0207 0995510</span>
+                                    <span class='span12' style='color: #EBA600;font-size:18px;text-align: right;'>020 70995510</span>
                                 </div>
 
                                 <div class="row-fluid" style="">

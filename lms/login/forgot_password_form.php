@@ -43,13 +43,13 @@ class login_forgot_password_form extends moodleform {
         $mform    = $this->_form;
         $mform->setDisableShortforms(true);
 
-        $mform->addElement('header', 'searchbyusername', get_string('searchbyusername'), '');
+        //$mform->addElement('header', 'searchbyusername', get_string('searchbyusername'), '');
 
-        $mform->addElement('text', 'username', get_string('username'));
-        $mform->setType('username', PARAM_RAW);
+        //$mform->addElement('text', 'username', get_string('username'));
+        //$mform->setType('username', PARAM_RAW);
 
-        $submitlabel = get_string('search');
-        $mform->addElement('submit', 'submitbuttonusername', $submitlabel);
+        //$submitlabel = get_string('search');
+        //$mform->addElement('submit', 'submitbuttonusername', $submitlabel);
 
         $mform->addElement('header', 'searchbyemail', get_string('searchbyemail'), '');
 

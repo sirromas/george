@@ -37,7 +37,7 @@ class Index_model extends CI_Model {
                                                             </div>
                                                             
                                                             <div class='row-fluid'>
-                                                                <span class='span12' style='padding-left:31px;'><button id='login_button' class='btn btn-primary' style='width:435px;height:35px; '>Login Now</button></span>
+                                                                <span class='span12' style='padding-left:31px;'><button id='login_button' class='btn btn-primary' style='width:435px;height:35px;background-color:#22b14c; '>Login</button></span>
                                                             </div>
                                                             
                                                             <div class='row-fluid'>

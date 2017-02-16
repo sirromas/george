@@ -53,7 +53,7 @@ class Mailer extends Utils {
         $message.="<html>";
         $message.="<body>";
         $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left' style='font-size:14px;'>Your Green Practice Account was setup. Please find details below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Your Account has been successfully setup. Please find details below:<p>";
 
         $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
@@ -148,7 +148,7 @@ class Mailer extends Utils {
         $message.="<html>";
         $message.="<body>";
         $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left' style='font-size:14px;'>Your Green Practice Account was updated. Please find details below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Your Account was updated. Please find details below:<p>";
 
         $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
