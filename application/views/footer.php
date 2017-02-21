@@ -6,13 +6,22 @@
 <footer id="page-footer" class="container-fluid">
     <?php $host = $_SERVER['SERVER_NAME']; ?>
     <div class="row-fluid">
+        <!--
         <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/terms-and-conditions/">Terms & Conditions</a></span>
-        <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/privacy-policy/">Privacy Policy</a></span>
+        <span class="span6" style="text-align: left;padding-left: 35px;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/privacy-policy/">Privacy Policy</a></span>
+        -->
+        
+        <p style="text-align:center;color: #bdc3c7;">
+        <a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/terms-and-conditions/">Terms & Conditions</a>
+        &nbsp;&nbsp;<a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/privacy-policy/">Privacy Policy</a>
+        </p>
+        
+        
     </div>
 
     <div class="footerlinks">
         <div class="row-fluid" >
-            <p style="text-align:center;color: #bdc3c7;">&copy; Copyright 2017 - Practice Index Ltd All rights reserved.</p>
+            <p style="text-align:center;color: #bdc3c7;">&copy; Copyright 2017 - Practice Index Ltd. All rights reserved.</p>
         </div>
 
 

@@ -692,7 +692,7 @@ class Courses extends Utils {
         } // end if $num > 0
         else {
             $list.= "<div class='container-fluid'>";
-            $list.="<span class='span9'>There are no external courses you enrolled</span>";
+            $list.="<span class='span9'>There are no external courses listed</span>";
             $list.="<input type='hidden' id='external_userid' value='$userid'>";
             $list.="</div>";
             $list.= "<div class='container-fluid'>";

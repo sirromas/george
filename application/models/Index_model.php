@@ -52,7 +52,7 @@ class Index_model extends CI_Model {
 
                                                     </div>
                                                 </div></div></div></div></div></div></div></li>";
-        $list.="</div>";
+        $list.="";
 
         return $list;
     }
@@ -62,7 +62,7 @@ class Index_model extends CI_Model {
         $query = "select * from uk_elearning_suites order by title";
         $result = $this->db->query($query);
         $num = $result->num_rows();
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         if ($num > 0) {
             foreach ($result->result() as $row) {
 
@@ -81,7 +81,7 @@ class Index_model extends CI_Model {
                 $list.="<span class='span12'><hr/></span>";
                 $list.="</div>";
             }
-            $list.="</div>";
+            //$list.="</div>";
             return $list;
         }
     }
@@ -90,7 +90,7 @@ class Index_model extends CI_Model {
         $list = "";
         $query = "select * from uk_elearning_suites where id=$id";
         $result = $this->db->query($query);
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         foreach ($result->result() as $row) {
 
             $list.="<div class='container-fluid'>";
@@ -106,7 +106,7 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'><br><br></span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
 
         return $list;
     }
@@ -136,7 +136,7 @@ class Index_model extends CI_Model {
     function get_news_page() {
         $list = "";
         $news_block = $this->get_news_block();
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
 
         $list.="<div class='container-fluid'>";
         $list.="<span class='span12' style='background:heading;color:#fff;padding:2px;margin-bottom:10px;'>News</span>";
@@ -146,14 +146,14 @@ class Index_model extends CI_Model {
         $list.="<span class='span5'><img src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/news.jpg' alt='program' style='vertical-align:text-bottom; margin: 0 .5em;' height='220' width='325'></span>";
         $list.="<span class='span6'>$news_block</span>";
         $list.="</div>";
-        $list.="</div>";
+        //$list.="</div>";
 
         return $list;
     }
 
     function get_fullnews_page($id) {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_news where id=$id";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -164,13 +164,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
     function get_faq_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=2";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -178,13 +178,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        // $list.="</div>";
         return $list;
     }
 
     function get_testimonials_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=3";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -192,13 +192,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
     function get_policy_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=4";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -206,13 +206,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
     function get_about_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=6";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -220,13 +220,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
     function get_terms_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=9";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -234,13 +234,13 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
     function get_privacy_policy_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $query = "select * from uk_site_pages where id=10";
         $result = $this->db->query($query);
         foreach ($result->result() as $row) {
@@ -248,7 +248,7 @@ class Index_model extends CI_Model {
             $list.="<span class='span12'>$row->content</span>";
             $list.="</div>";
         }
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 
@@ -297,7 +297,7 @@ class Index_model extends CI_Model {
 
     function get_subscribe_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $form = $this->get_subscribe_form();
 
         $list.="<br><div class='container-fluid'>";
@@ -305,7 +305,7 @@ class Index_model extends CI_Model {
         $list.="<span class='span6'><img class='img-responsive' src='http://" . $_SERVER['SERVER_NAME'] . "/assets/img/bulletin.jpg'></span>";
         $list.="</div>";
 
-        $list.="</div>";
+        //$list.="</div>";
 
 
         return $list;
@@ -374,7 +374,7 @@ class Index_model extends CI_Model {
 
     function get_contact_page() {
         $list = "";
-        $list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
+        //$list.="<div style='width: 86%;margin: 0 auto; ' class='panel panel-default'>";
         $contact = $this->get_contact_block();
         $contact_form = $this->get_contact_form_block();
         $list.="<br><div class='container-fluid'>";
@@ -387,7 +387,7 @@ class Index_model extends CI_Model {
         $list.="<span class='span6' id='map' style='height:339px;width:433px;'></span>";
         $list.="</div>";
 
-        $list.="</div>";
+        //$list.="</div>";
         return $list;
     }
 

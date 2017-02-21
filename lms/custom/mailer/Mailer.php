@@ -52,12 +52,12 @@ class Mailer extends Utils {
 
         $message.="<html>";
         $message.="<body>";
-        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left' style='font-size:14px;'>Your Account has been successfully setup. Please find details below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname</p>";
+        $message.="<p align='left' style='font-size:14px;'>Your account has been successfully set up. Please find details below:<p>";
 
         $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
-        $message.="<td style='font-weight:bold;' width='5%'>Account name:</td><td style='font-weight:normal;'>$user->pname</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Practice name:</td><td style='font-weight:normal;'>$user->pname</td>";
         $message.="</tr>";
         $message.="<tr>";
         $message.="<td style='font-weight:bold;' width='5%'>Login email address:</td><td style='font-weight:normal'>$user->email</td>";
@@ -71,7 +71,7 @@ class Mailer extends Utils {
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
-        $message.="<td colspan='2'>Kind regards,<br></td>";
+        $message.="<td colspan='2'>Kind regards<br></td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
@@ -98,7 +98,7 @@ class Mailer extends Utils {
                 . "for the recipient only. If you have received it in error, please notify us immediately "
                 . "by reply email and then delete it from your system. The views contained in this email "
                 . "are those of the author and not necessarily those of Practice Index Ltd "
-                . "(UK Company Registration Number 09018867)</p>";
+                . "(UK Company Registration Number 09018867).</p>";
 
         $message.="</td>";
 
@@ -125,7 +125,7 @@ class Mailer extends Utils {
 
         $mail->addReplyTo($this->mail_smtp_user, 'Practice Index');
         $mail->isHTML(true);
-        $mail->Subject = 'Practice Index eLearning - Account Setup';
+        $mail->Subject = 'Practice Index eLearning - Account set up';
         $mail->Body = $message;
         if (!$mail->send()) {
             return false;
@@ -147,12 +147,12 @@ class Mailer extends Utils {
 
         $message.="<html>";
         $message.="<body>";
-        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname!</p>";
-        $message.="<p align='left' style='font-size:14px;'>Your Account was updated. Please find details below:<p>";
+        $message.="<p align='left' style='font-size:14px;'>Dear $user->firstname $user->lastname</p>";
+        $message.="<p align='left' style='font-size:14px;'>Your account was updated. Please find details below:<p>";
 
         $message.="<table align='left' style='font-weight:bold;font-size:14px;'>";
         $message.="<tr>";
-        $message.="<td style='font-weight:bold;' width='5%'>Account name:</td><td style='font-weight:normal;'>$user->pname</td>";
+        $message.="<td style='font-weight:bold;' width='5%'>Practice name:</td><td style='font-weight:normal;'>$user->pname</td>";
         $message.="</tr>";
         $message.="<tr>";
         $message.="<td style='font-weight:bold;' width='5%'>Login email address:</td><td style='font-weight:normal'>$user->email</td>";
@@ -166,7 +166,7 @@ class Mailer extends Utils {
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
-        $message.="<td colspan='2'>Kind regards,<br></td>";
+        $message.="<td colspan='2'>Kind regards<br></td>";
         $message.="</tr>";
 
         $message.="<tr style='font-weight:normal;'>";
@@ -193,7 +193,7 @@ class Mailer extends Utils {
                 . "for the recipient only. If you have received it in error, please notify us immediately "
                 . "by reply email and then delete it from your system. The views contained in this email "
                 . "are those of the author and not necessarily those of Practice Index Ltd "
-                . "(UK Company Registration Number 09018867)</p>";
+                . "(UK Company Registration Number 09018867).</p>";
 
         $message.="</td>";
 

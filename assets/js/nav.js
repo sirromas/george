@@ -546,8 +546,10 @@ $(document).ready(function () {
                 } // end if pwd != ''
                 if ($('#profile_err').html() == '') {
                     //if (confirm('Update profile?')) {
+                    $('#profile_ajax').show();
                     var url = '/lms/custom/common/update_profile.php';
                     $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
+                        $('#profile_ajax').hide();
                         $('#profile_err').html("<span style='color:black;background-color:#8ec63f'>" + data + "</span>");
                     });
                     //} // end if confirm
@@ -802,6 +804,18 @@ $(document).ready(function () {
                 });
             }
         }
+
+        if (event.target.id.indexOf("group_setup_userid_") >= 0) {
+            var userid = event.target.id.replace("group_setup_userid_", "");
+            if (confirm('Send setup email to selected manager?')) {
+                var url = "http://" + domain + "/lms/custom/common/send_setup_email.php";
+                $.post(url, {userid: userid}).done(function (data) {
+                    console.log(data);
+                    //get_groups_page();
+                });
+            }
+        }
+
 
 
         if (event.target.id.indexOf("group_info_userid_") >= 0) {

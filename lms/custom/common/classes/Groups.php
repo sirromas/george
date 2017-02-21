@@ -108,9 +108,18 @@ class Groups extends Utils {
                 $list.="<td>$prname</td>";
                 $list.="<td>$adminuser->firstname $adminuser->lastname</td>";
                 $list.="<td><a href='mailto:$adminuser->email'>$adminuser->email</a></td>";
-                $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                        . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
-                        . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
+                if ($g->userid != 2) {
+                    $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
+                            . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i>"
+                            . "<i  id='group_setup_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-share' title='Send Setup Email' aria-hidden='true'></i></td>";
+                } // end if
+                else {
+                    $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
+                            . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i>"
+                            . "</td>";
+                }
                 $list.="</tr>";
             } // end foreach
             $list.="</tbody>";
@@ -355,45 +364,62 @@ class Groups extends Utils {
         $user->pname = $p->gpname;
 
         $status = $this->create_user($user);
-        if ($status) {
-            $dbuser = $this->get_user_data_by_email($p->email); // object
-            $userid = $dbuser->id;
-            $this->assign_gp_admin_role($userid);
-            $m = new Mailer();
-            $m->send_account_confirmation_message($user);
-            if (trim($p->new_ccg) == '') {
-                // Cohort already exists
-                $this->add_user_to_cohort($p->cohortid, $userid);
-                $cohort_name = $this->get_cohort_name($p->cohortid);
-                $practicename = $cohort_name . " - " . $p->gpname;
-                $practiceid = $this->create_practice($p->cohortid, $userid, $practicename);
-                $this->add_user_to_practice($practiceid, $userid);
-                foreach ($p->gpcourses as $courseid) {
-                    $coursename = $this->get_course_name($courseid);
-                    $group_name = $cohort_name . " - " . $p->gpname . " - " . $coursename;
-                    $groupid = $this->create_group($courseid, $group_name);
-                    $this->add_user_to_group($groupid, $userid);
-                    $this->attach_course_to_group($courseid, $groupid);
-                    $this->attach_course_to_cohort($p->cohortid, $courseid, $groupid);
-                } // end foreach
-            } // end if $p->gpname==''
-            else {
-                // Cohort need to be created
-                $cohortid = $this->create_cohort($p->new_ccg);
-                $this->add_user_to_cohort($cohortid, $userid);
-                $practicename = $p->new_ccg . " - " . $p->gpname;
-                $practiceid = $this->create_practice($cohortid, $userid, $practicename);
-                $this->add_user_to_practice($practiceid, $userid);
-                foreach ($p->gpcourses as $courseid) {
-                    $coursename = $this->get_course_name($courseid);
-                    $group_name = $p->new_ccg . " - " . $p->gpname . " - " . $coursename;
-                    $groupid = $this->create_group($courseid, $group_name);
-                    $this->add_user_to_group($groupid, $userid);
-                    $this->attach_course_to_group($courseid, $groupid);
-                    $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
-                } // end foreach
-            } // end else
-        }
+        //if ($status) {
+        $dbuser = $this->get_user_data_by_email($p->email); // object
+        $userid = $dbuser->id;
+        $this->assign_gp_admin_role($userid);
+        $m = new Mailer();
+        $m->send_account_confirmation_message($user);
+        if (trim($p->new_ccg) == '') {
+            // Cohort already exists
+            $this->add_user_to_cohort($p->cohortid, $userid);
+            $cohort_name = $this->get_cohort_name($p->cohortid);
+            $practicename = $cohort_name . " - " . $p->gpname;
+            $practiceid = $this->create_practice($p->cohortid, $userid, $practicename);
+            $this->add_user_to_practice($practiceid, $userid);
+            foreach ($p->gpcourses as $courseid) {
+                $coursename = $this->get_course_name($courseid);
+                $group_name = $cohort_name . " - " . $p->gpname . " - " . $coursename;
+                $groupid = $this->create_group($courseid, $group_name);
+                $this->add_user_to_group($groupid, $userid);
+                $this->attach_course_to_group($courseid, $groupid);
+                $this->attach_course_to_cohort($p->cohortid, $courseid, $groupid);
+            } // end foreach
+        } // end if $p->gpname==''
+        else {
+            // Cohort need to be created
+            $cohortid = $this->create_cohort($p->new_ccg);
+            $this->add_user_to_cohort($cohortid, $userid);
+            $practicename = $p->new_ccg . " - " . $p->gpname;
+            $practiceid = $this->create_practice($cohortid, $userid, $practicename);
+            $this->add_user_to_practice($practiceid, $userid);
+            foreach ($p->gpcourses as $courseid) {
+                $coursename = $this->get_course_name($courseid);
+                $group_name = $p->new_ccg . " - " . $p->gpname . " - " . $coursename;
+                $groupid = $this->create_group($courseid, $group_name);
+                $this->add_user_to_group($groupid, $userid);
+                $this->attach_course_to_group($courseid, $groupid);
+                $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
+            } // end foreach
+        } // end else
+        //}
+    }
+
+    function create_user_password($length = 25) {
+        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
+    }
+
+    function send_setup_email($userid) {
+        $practicename = $this->get_practice_name_by_userid($userid);
+        $pwd = $this->create_user_password(8);
+        $hashed_pwd = hash_internal_user_password($pwd);
+        $query = "update uk_user set password='$hashed_pwd' where id=$userid";
+        $this->db->query($query);
+        $user = $this->get_user_data_by_id($userid);
+        $user->pname = $practicename;
+        $user->pwd = $pwd;
+        $m = new Mailer();
+        $m->send_account_confirmation_message($user);
     }
 
     function remove_practice_cohort_data($cohortid, $users) {

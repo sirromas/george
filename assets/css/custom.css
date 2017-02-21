@@ -8,6 +8,11 @@ and open the template in the editor.
     Author     : moyo
 */
 
+
+
+
+
+
 .pagination {
     display: inline-block;
     padding-left: 0;
@@ -83,17 +88,9 @@ label {
     font-weight: 700;
 }
 
-label {
-    display: inline-block;
-    max-width: 100%;
-    margin-bottom: 5px;
-    font-weight: 700;
-}
-
 .all_courses_wrapper {
     padding-left: 25px;
 }
-
 
 div.dataTables_wrapper div.dataTables_length label {
     font-weight: normal;
@@ -118,9 +115,39 @@ div.dataTables_info {
     padding-left: 22px;
 }
 
-div.panel-heading {
-
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+  cursor: pointer;
+  *cursor: hand;
 }
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting {
+  background-image: url("../img/sort_both.png");
+}
+table.dataTable thead .sorting_asc {
+  background-image: url("../img/sort_asc.png");
+}
+table.dataTable thead .sorting_desc {
+  background-image: url("../img/sort_desc.png");
+}
+table.dataTable thead .sorting_asc_disabled {
+  background-image: url("../img/sort_asc_disabled.png");
+}
+table.dataTable thead .sorting_desc_disabled {
+  background-image: url("../imag/sort_desc_disabled.png");
+}
+
+table.dataTable thead .sorting:after{opacity:1;}
+table.dataTable thead .sorting_asc:after{content: ""}
+table.dataTable thead .sorting_desc:after{content: ""}
 
 div.cert {
     padding-top: 75px;
@@ -162,3 +189,7 @@ div.cert_date  {
     font-weight: normal;
     color: #544C4C;
 }
+
+/************************ This is data table CSS *****************************/
+
+

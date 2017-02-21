@@ -767,7 +767,7 @@ class Users extends Utils {
 
     function add_new_user($user) {
         $status = $this->create_user($user);
-        if ($status) {
+        //if ($status) {
             $dbuser = $this->get_user_data_by_email($user->email); // object
             $userid = $dbuser->id;
             $this->add_user_to_practice($user->practiceid, $userid);
@@ -776,7 +776,7 @@ class Users extends Utils {
             $user->pname = $pname;
             $m = new Mailer();
             $m->send_account_confirmation_message($user);
-        }
+        //}
     }
 
     function delete_user($userid) {

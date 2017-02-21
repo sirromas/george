@@ -32,13 +32,21 @@ $hasfootermiddle = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->r
 $hasfooterright = (empty($PAGE->layout_options['noblocks']) && $PAGE->blocks->region_has_content('footer-right', $OUTPUT));
 ?>
 <div class="row-fluid">
+    <!--
     <span class="span6" style="text-align: right;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/terms-and-conditions/">Terms & Conditions</a></span>
     <span class="span6" style="text-align: left;"><a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/privacy-policy/">Privacy Policy</a></span>
+    -->
+
+    <p style="text-align:center;color: #bdc3c7;">
+        <a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/terms-and-conditions/">Terms & Conditions</a>
+        &nbsp;&nbsp;<a style="color:#bdc3c7;font-weight: bold;cursor: pointer;" href="http://practiceindex.co.uk/gp/privacy-policy/">Privacy Policy</a>
+    </p>
+
 </div>
 
 <div class="footerlinks">
     <div class="row-fluid">
-        <p style="text-align:center;color: #bdc3c7;">&copy; Copyright 2017 - Practice Index Ltd All rights reserved</p>
+        <p style="text-align:center;color: #bdc3c7;">&copy; Copyright 2017 - Practice Index Ltd. All rights reserved.</p>
     </div>
 
     <?php if ($PAGE->theme->settings->socials_position == 0) { ?>
