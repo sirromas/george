@@ -142,7 +142,8 @@ class Reports extends Utils {
         $overdue = $data->overdue;
 
         $left_side = $this->get_left_summary_block($data);
-
+        
+        /*
         if ($toolbar) {
             if ($data->userid == 2) {
                 $list.="<br/><div class='row-fluid'>";
@@ -180,7 +181,8 @@ class Reports extends Utils {
             $list.="<span class='span11'><hr/></span>";
             $list.="</div><br>";
         } // end if toolbar
-
+        */
+        
         $list.="<div id='report_data'>";
 
         $list.="<div class='row-fluid'>";

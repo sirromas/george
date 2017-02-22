@@ -1655,7 +1655,7 @@ class Courses extends Utils {
             if ($courseid > 0) {
                 $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
                 $coursename = $this->get_course_name($courseid);
-                $policy_box = $this->get_policy_box($courseid, false);
+                $policy_box = $this->get_policy_box($courseid, true);
                 $list.="<tr>";
                 $list.="<td>$catname</td>";
                 $list.="<td>" . $coursename . "</td>";

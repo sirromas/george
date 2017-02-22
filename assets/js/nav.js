@@ -550,7 +550,7 @@ $(document).ready(function () {
                     var url = '/lms/custom/common/update_profile.php';
                     $.post(url, {profile: JSON.stringify(profile)}).done(function (data) {
                         $('#profile_ajax').hide();
-                        $('#profile_err').html("<span style='color:black;background-color:#8ec63f'>" + data + "</span>");
+                        $('#profile_err').html("<span style='color:#8ec63f;font-weight:bold;'>" + data + "</span>");
                     });
                     //} // end if confirm
                 } // end if $('#profile_err').html()==''
