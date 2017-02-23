@@ -8,6 +8,9 @@
 $(document).ready(function () {
     console.log("ready!");
 
+    var dialog_loaded;
+    var domain = 'mycodebusters.com';
+
     // Monitor only few events ...
     $('body').on("click change click  blur select change submit reset", function (e) {
         var e_id = e.target.id;
@@ -33,6 +36,69 @@ $(document).ready(function () {
 
     }); // end of $('body').on("click change click  blur select change
 
+    function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+
+        var params = {},
+                tokens,
+                re = /[?&]?([^=]+)=([^&]*)/g;
+
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+
+        return params;
+    }
+
+    var QueryString = function () {
+        // This function is anonymous, is executed immediately and 
+        // the return value is assigned to QueryString!
+        var query_string = {};
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            // If first entry with this name
+            if (typeof query_string[pair[0]] === "undefined") {
+                query_string[pair[0]] = decodeURIComponent(pair[1]);
+                // If second entry with this name
+            } else if (typeof query_string[pair[0]] === "string") {
+                var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+                query_string[pair[0]] = arr;
+                // If third or later entry with this name
+            } else {
+                query_string[pair[0]].push(decodeURIComponent(pair[1]));
+            }
+        }
+        return query_string;
+    }();
+
+    /* Code related to courses tab */
+    var scormParam = QueryString.scorm;
+    if (scormParam == 1) {
+        console.log('Inside scorm back ...');
+        var js_url = "http://" + domain + "/assets/js/bootstrap.min.js";
+        $.getScript(js_url)
+                .done(function () {
+                    console.log('Script bootstrap.min.js is loaded ...');
+                    var url = 'http://mycodebusters.com/lms/my/index.php?scorm=1#courses';
+                    if (url.match('#')) {
+                        $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+                    }
+
+                    // With HTML5 history API, we can easily prevent scrolling!
+                    $('.nav-tabs a').on('shown.bs.tab', function (e) {
+                        if (history.pushState) {
+                            history.pushState(null, null, e.target.hash);
+                        } else {
+                            window.location.hash = e.target.hash; //Polyfill for old browsers
+                        }
+                    });
+                });
+
+
+
+    } // end if
 
 
     $('#my_courses').DataTable({
@@ -88,10 +154,8 @@ $(document).ready(function () {
 
         }); // end jQuery.each
     }); // end of post
-
-    var dialog_loaded;
-    var domain = 'mycodebusters.com';
-    /*****************************************************************
+    
+     /*****************************************************************
      * 
      *                  Site pages manipulation
      * 
