@@ -27,6 +27,15 @@ class Utils {
         $this->signup_url = 'http://' . $_SERVER['SERVER_NAME'] . '/lms/login/mysignup.php';
     }
 
+    function get_user_practiceid($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['practiceid'];
+        }
+        return $practiceid;
+    }
+
     function get_current_user_id() {
         return $this->user->id;
     }
@@ -172,6 +181,20 @@ class Utils {
             $categoryid = $row['category'];
         }
         return $categoryid;
+    }
+
+    function get_course_category_name($id) {
+        if ($id > 0) {
+            $query = "select * from uk_course_categories where id=$id";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $name = $row['name'];
+            }
+        } // end if $id > 0
+        else {
+            $name = 'N/A';
+        }
+        return $name;
     }
 
     function is_practice_member($practiceid, $userid) {
@@ -337,6 +360,15 @@ class Utils {
         return $lastacccess;
     }
 
+    function get_courseid_by_enrolid($enrolid) {
+        $query = "select * from uk_enrol where id=$enrolid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courseid = $row['courseid'];
+        }
+        return $courseid;
+    }
+
     function get_user_courses($userid, $year = NULL) {
         $courses = array();
         $comp = new Completion();
@@ -344,21 +376,47 @@ class Utils {
         if ($year == null) {
             $year = date('Y', time());
         }
-        $query = "select * from uk_role_assignments "
-                . "where userid=$userid and roleid=5 "
-                . "and FROM_UNIXTIME(timemodified, '%Y')='$year'";
+
+        $query = "select * from uk_user_enrolments where userid=$userid "
+                . "and FROM_UNIXTIME(timestart, '%Y')='$year'";
+        //echo "Query: ".$query."<br>";
         $num = $this->db->numrows($query);
+        //echo "Num: ".$num."<br>";
         if ($num > 0) {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courseid = $this->get_instance_id($row['contextid']);
+                $courseid = $this->get_courseid_by_enrolid($row['enrolid']);
+                //echo "Course id: ".$courseid."<br>";
+                $scoid = $comp->get_scorm_scoid($courseid);
+                $lastccess = $this->get_user_course_last_access($scoid, $userid);
+                if ($lastccess > 0) {
+                    $courses[$lastccess] = $courseid;
+                }
                 if (!in_array($courseid, $courses)) {
-                    $scoid = $comp->get_scorm_scoid($courseid);
-                    $laccess = $this->get_user_course_last_access($scoid, $userid);
-                    $courses[$laccess] = $courseid;
-                } // end if
+                    $courses[] = $courseid;
+                }
             } // end while
         } // end if $num > 0
+
+        /*
+          $query = "select * from uk_role_assignments "
+          . "where userid=$userid and roleid=5 "
+          . "and FROM_UNIXTIME(timemodified, '%Y')='$year'";
+          $num = $this->db->numrows($query);
+          if ($num > 0) {
+          $result = $this->db->query($query);
+          while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+          $courseid = $this->get_instance_id($row['contextid']);
+          if (!in_array($courseid, $courses)) {
+          $scoid = $comp->get_scorm_scoid($courseid);
+          $laccess = $this->get_user_course_last_access($scoid, $userid);
+          $courses[$laccess] = $courseid;
+          } // end if
+          } // end while
+          } // end if $num > 0
+          krsort($courses);
+         */
+
         krsort($courses);
         return $courses;
     }
@@ -432,7 +490,7 @@ class Utils {
     function get_all_courses() {
         $courses = array();
         $query = "select * from uk_course "
-                . "where category>0 and visible=1";
+                . "where category=20 and visible=1";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);

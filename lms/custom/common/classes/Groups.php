@@ -46,6 +46,160 @@ class Groups extends Utils {
         return $list;
     }
 
+    function is_practice_group_exists($practiceid, $name) {
+        $query = "select * from uk_practice_groups "
+                . "where practiceid=$practiceid "
+                . "and name='$name'";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
+    function create_practice_initial_groups($practiceid) {
+        $name = 'All Training';
+        $status = $this->is_practice_group_exists($practiceid, $name);
+        if ($status == 0) {
+            $query = "insert into uk_practice_groups (practiceid,name) "
+                    . "values ($practiceid,$name)";
+            $this->db->query($query);
+        } // end if $status==0
+    }
+
+    function get_group_course_number($name) {
+        
+    }
+
+    function get_practice_group_name($groupid) {
+        $query = "select * from uk_practice_groups where id=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['name'];
+        }
+        return $name;
+    }
+
+    function get_practice_group_courses($practiceid, $groupid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid "
+                . "and groupid=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courses[] = $row['courseid'];
+        }
+        return $courses;
+    }
+
+    function get_practice_group_course_link_status($practiceid, $groupid, $courseid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid and groupid=$groupid "
+                . "and courseid=$courseid";
+        //echo "Query: ".$query."<br>";
+        $num = $this->db->numrows($query);
+        //echo "Num: ".$num."<br>";
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $status = $row['linked'];
+            }
+        } // end if $num>0
+        else {
+            $status = 0;
+        }
+        return $status;
+    }
+
+    function get_group2course_record_id($practiceid, $groupid, $courseid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid and groupid=$groupid "
+                . "and courseid=$courseid";
+        //echo "Query: ".$query."<br>";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+        return $id;
+    }
+
+    function update_practice_group_course_status($id) {
+        $query = "select * from uk_practice_groups2courses where id=$id";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $link = $row['linked'];
+        }
+        $status = ($link == 1) ? 0 : 1;
+        $query = "update uk_practice_groups2courses set linked='$status' where id=$id";
+        $this->db->query($query);
+    }
+
+    function get_practice_group_courses_block($practiceid, $groupid) {
+        $list = "";
+        //$courses = $this->get_practice_group_courses($practiceid, $groupid);
+        $courses = $this->get_all_courses();
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $coursename = $this->get_course_name($courseid);
+                $status = $this->get_practice_group_course_link_status($practiceid, $groupid, $courseid);
+                $id = $this->get_practice_group_course_table_id($groupid, $courseid);
+                $checkbox = ($status == 1) ? "<input type='checkbox' id='gp_courses_$id' checked>" : "<input type='checkbox' id='gp_courses_$id'>";
+                $list.="<div class='row-fluid'>";
+                $list.="<span class='span4'>$coursename</span>";
+                $list.="<span class='span3' style='text-align:center;'>$checkbox</span>";
+                $list.="</div>";
+            } // end foreach
+        } // end if count($courses)>0
+        return $list;
+    }
+
+    function get_gp_groups_page($userid) {
+        $list = "";
+        $practiceid = $this->get_user_practiceid($userid);
+        $query = "select * from uk_practice_groups where practiceid=$practiceid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $groups[] = $row['id'];
+            } // end while
+        } // end if $num > 0
+
+        $list.="<div class='row-fluid'>";
+        $list.="<span class='span3'><button id='add_group'>Add Group</button></span>";
+        $list.="</div>";
+
+        $list.="<table id='all_groups' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Group Name</th>";
+        $list.="<th>Course Name</th>";
+        $list.="<th style='text-align:center;'>Assigned to group?</th>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+        if (count($groups) > 0) {
+            $system_courses = $this->get_all_courses();
+            foreach ($groups as $groupid) {
+                foreach ($system_courses as $courseid) {
+                    $groupname = $this->get_practice_group_name($groupid);
+                    $coursename = $this->get_course_name($courseid);
+                    $id = $this->get_group2course_record_id($practiceid, $groupid, $courseid);
+                    $status = $this->get_practice_group_course_link_status($practiceid, $groupid, $courseid);
+                    $checkbox = ($status == 1) ? "<input type='checkbox' id='gp_courses_$id' checked>" : "<input type='checkbox' id='gp_courses_$id'>";
+                    $list.="<tr>";
+                    $list.="<td>$groupname</td>";
+                    $list.="<td>$coursename</td>";
+                    $list.="<td style='text-align:center;'>$checkbox</td>";
+                    $list.="</tr>";
+                } // end foreach
+            } // end foreach
+        } // end if count($groupd)>0
+
+        $list.="</tbody>";
+        $list.="</table>";
+
+        return $list;
+    }
+
     function get_gp_admin($groupid) {
         $query = "select * from uk_groups_members where groupid=$groupid";
         $result = $this->db->query($query);
@@ -80,7 +234,7 @@ class Groups extends Utils {
         $list = "";
 
         $list.="<div class='row-fluid'>";
-        $list.="<span class='span9'><button id='add_gp'>Add Practice</button></span>";
+        $list.="<span class='span9'><button id='add_gp'>Add Account</button></span>";
         $list.="</div>";
         if (count($groups) > 0) {
 
@@ -110,14 +264,14 @@ class Groups extends Utils {
                 $list.="<td><a href='mailto:$adminuser->email'>$adminuser->email</a></td>";
                 if ($g->userid != 2) {
                     $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                            . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            //. "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
                             . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i>"
                             . "<i  id='group_setup_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-share' title='Send Setup Email' aria-hidden='true'></i></td>";
                 } // end if
                 else {
                     $list.="<td><i id='group_info_userid_$g->userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                            . "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
-                            . "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i>"
+                            //. "<i  id='group_practiceid_$g->id' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>"
+                            //. "<i  id='group_delete_userid_$g->userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i>"
                             . "</td>";
                 }
                 $list.="</tr>";
@@ -322,6 +476,104 @@ class Groups extends Utils {
         $this->db->query($query);
     }
 
+    function create_practice_group($practiceid, $name, $all = 0) {
+        if ($all == 1) {
+            $query = "insert into uk_practice_groups "
+                    . "(practiceid,p_all,name) "
+                    . "values ($practiceid,1,'$name')";
+        } // end uf $all==1
+        else {
+            $query = "insert into uk_practice_groups "
+                    . "(practiceid,p_all,name) "
+                    . "values ($practiceid,0,'$name')";
+        }
+        $this->db->query($query);
+    }
+
+    function get_category_courses($groupname) {
+        $query = "select * from uk_preset_groups  where name='$groupname' ";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groupid = $row['id'];
+        }
+
+        $query = "select * from uk_preset_group_courses where groupid=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courses[] = $row['courseid'];
+        }
+        return $courses;
+    }
+
+    function attach_group_courses($practiceid, $groupname, $all = 0, $new = FALSE) {
+        $system_courses = $this->get_all_courses();
+        $query = "select * from uk_practice_groups "
+                . "where practiceid=$practiceid "
+                . "and name='$groupname'";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groupid = $row['id'];
+        }
+
+        if ($new == false) {
+            if ($all == 0) {
+                // Get group preset courses from template
+                $group_courses = $this->get_category_courses($groupname);
+                foreach ($system_courses as $courseid) {
+                    if (in_array($courseid, $group_courses)) {
+                        $status = 1;
+                    } // end if
+                    else {
+                        $status = 0;
+                    } // end else
+                    $this->add_course_to_practice_group($practiceid, $groupid, $courseid, $status);
+                } // end foreach
+            } // end if $all == 0
+            else {
+                // Attach all system courses
+                foreach ($system_courses as $courseid) {
+                    $status = 1;
+                    $this->add_course_to_practice_group($practiceid, $groupid, $courseid, $status);
+                } // end foreach
+            } // end else
+        } // end if $new==false
+        else {
+            foreach ($system_courses as $courseid) {
+                $status = 0;
+                $this->add_course_to_practice_group($practiceid, $groupid, $courseid, $status);
+            } // end foreach
+        } // end else
+    }
+
+    function add_course_to_practice_group($practiceid, $groupid, $courseid, $status) {
+        $query = "insert into uk_practice_groups2courses "
+                . "(practiceid,"
+                . "groupid, linked, "
+                . "courseid) "
+                . "values ($practiceid,"
+                . "$groupid, $status, "
+                . "$courseid)";
+        $this->db->query($query);
+    }
+
+    function get_course_categories() {
+        $query = "select * from uk_preset_groups ";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $categories[] = $row['id'];
+        }
+        return $categories;
+    }
+
+    function get_category_name($categoryid) {
+        $query = "select * from uk_preset_groups where id=$categoryid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['name'];
+        }
+        return $name;
+    }
+
     function add_new_practice($p) {
 
         /*
@@ -350,6 +602,7 @@ class Groups extends Utils {
          */
 
 
+
         // 1. Create GP Admin account
         // 2. Create system cohort
         // 3. Add user to this cohort
@@ -363,8 +616,14 @@ class Groups extends Utils {
         $user->pwd = $p->pwd;
         $user->pname = $p->gpname;
 
-        $status = $this->create_user($user);
-        //if ($status) {
+        /*
+          echo "<pre>";
+          print_r($user);
+          echo "</pre>";
+          die();
+         */
+
+        $this->create_user($user);
         $dbuser = $this->get_user_data_by_email($p->email); // object
         $userid = $dbuser->id;
         $this->assign_gp_admin_role($userid);
@@ -377,14 +636,6 @@ class Groups extends Utils {
             $practicename = $cohort_name . " - " . $p->gpname;
             $practiceid = $this->create_practice($p->cohortid, $userid, $practicename);
             $this->add_user_to_practice($practiceid, $userid);
-            foreach ($p->gpcourses as $courseid) {
-                $coursename = $this->get_course_name($courseid);
-                $group_name = $cohort_name . " - " . $p->gpname . " - " . $coursename;
-                $groupid = $this->create_group($courseid, $group_name);
-                $this->add_user_to_group($groupid, $userid);
-                $this->attach_course_to_group($courseid, $groupid);
-                $this->attach_course_to_cohort($p->cohortid, $courseid, $groupid);
-            } // end foreach
         } // end if $p->gpname==''
         else {
             // Cohort need to be created
@@ -393,16 +644,26 @@ class Groups extends Utils {
             $practicename = $p->new_ccg . " - " . $p->gpname;
             $practiceid = $this->create_practice($cohortid, $userid, $practicename);
             $this->add_user_to_practice($practiceid, $userid);
-            foreach ($p->gpcourses as $courseid) {
-                $coursename = $this->get_course_name($courseid);
-                $group_name = $p->new_ccg . " - " . $p->gpname . " - " . $coursename;
-                $groupid = $this->create_group($courseid, $group_name);
-                $this->add_user_to_group($groupid, $userid);
-                $this->attach_course_to_group($courseid, $groupid);
-                $this->attach_course_to_cohort($cohortid, $courseid, $groupid);
-            } // end foreach
         } // end else
-        //}
+        // Create all training practice group
+        $groupname = 'All Training';
+        $this->create_practice_group($practiceid, $groupname, 1);
+        $this->attach_group_courses($practiceid, $groupname, 1);
+
+        // Create other practice groups
+        $categories = $this->get_course_categories();
+        if (count($categories) > 0) {
+            foreach ($categories as $categoryid) {
+                $categoryname = $this->get_category_name($categoryid);
+                $this->create_practice_group($practiceid, $categoryname, 0);
+                $this->attach_group_courses($practiceid, $categoryname, 0);
+            } // end foreach
+        } // end if count($categories)>0
+    }
+
+    function add_new_practice_group($g) {
+        $this->create_practice_group($g->practiceid, $g->name, 0);
+        $this->attach_group_courses($g->practiceid, $g->name, 0, TRUE);
     }
 
     function create_user_password($length = 25) {
@@ -525,8 +786,8 @@ class Groups extends Utils {
 
         $list = "";
         $cohorts = $this->get_cohorts_list();
-        $categories = $this->get_practice_types();
-        $courses = $this->get_practice_courses();
+        //$categories = $this->get_practice_types();
+        //$courses = $this->get_practice_courses();
         $list.="<div id='myModal' class='modal fade' style='overflow: visible;width:1000px;margin-left:0px;left:15%;'>
         <div class='modal-dialog' >
             <div class='modal-content' style='width:1000px;'>
@@ -555,6 +816,20 @@ class Groups extends Utils {
                 <span class='span2'>Practice name*</span>
                 <span class='span6'><input type='text' id='gpname'></span>
                 </div>
+                  
+                </span>
+                
+                <span class='span3' style='border: 0px solid'>
+                
+                <div class='container-fluid' style='padding-top:3px;'>
+                <span class='span2'>Manager email*</span>
+                <span class='span6'><input type='text' id='gpemail'></span>
+                </div>
+                
+                <div class='container-fluid'>
+                <span class='span2'>Manager password*</span>
+                <span class='span6'><input type='password' id='gppwd'></span>
+                </div>
                 
                 <div class='container-fluid'>
                 <span class='span2'>Manager firstname*</span>
@@ -566,35 +841,6 @@ class Groups extends Utils {
                 <span class='span6'><input type='text' id='gplastname'></span>
                 </div>
                 
-                </span>
-                
-                <span class='span3' style='border: 0px solid'>
-                
-                <div class='container-fluid'>
-                <span class='span2'>Practice type*</span>
-                <span class='span6'>$categories</span>
-                </div>
-                
-                <div class='container-fluid'>
-                <span class='span3'><input type='checkbox' id='gp_all' disabled>Select all</span>
-                </div>
-                
-
-                <div class='container-fluid'>
-                <span class='span2'>Practice courses*</span>
-                <span class='span6' id='courses_container'>$courses</span>
-                </div>
-                
-                <div class='container-fluid' style='padding-top:3px;'>
-                <span class='span2'>Manager email*</span>
-                <span class='span6'><input type='text' id='gpemail'></span>
-                </div>
-                
-                <div class='container-fluid'>
-                <span class='span2'>Manager password*</span>
-                <span class='span6'><input type='password' id='gppwd'></span>
-                </div>
-
                 </span>
                 
                 </div>
@@ -670,6 +916,53 @@ class Groups extends Utils {
                     <span class='span1'>&nbsp;</span>
                     <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
                     <span align='center'><button type='button'  id='gpadmin_update_button'>OK</button></span>
+                </div>
+                
+            </div>
+        </div>
+    </div>";
+
+        return $list;
+    }
+
+    function get_practice_id($userid) {
+        $query = "select * from uk_practice_members where userid=$userid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $practiceid = $row['practiceid'];
+        }
+        return $practiceid;
+    }
+
+    function get_add_pgroup_dialog() {
+
+        $userid = $this->user->id;
+        $practiceid = $this->get_practice_id($userid);
+        $list.="<div id='myModal' class='modal fade' style='width:675px;margin-left:0px;left:25%;'>
+        <div class='modal-dialog' >
+            <div class='modal-content' style='width'>
+                <div class='modal-header'>
+                    <h4 class='modal-title'>Add Group</h4>
+                </div>
+                <div class='modal-body' style='max-height:875px;width:675px;'>
+                
+                <input type='hidden' id='gpadmin_userid' value='$userid'>
+                <input type='hidden' id='gpadmin_practiceid' value='$practiceid'>
+                
+                <div class='container-fluid' style=''>
+                <span class='span1'>Name *</span>
+                <span class='span2'><input type='text' id='gname'></span>
+                </div>
+            
+                <div class='container-fluid' style=''>
+                <span class='span1'>&nbsp;</span>
+                <span class='span2' style='color:red;' id='gpadmin_err'></span>
+                </div>
+             
+                <div class='container-fluid' style='text-align:left;padding-left:50px;padding-top:10px;'>
+                    <span class='span1'>&nbsp;</span>
+                    <span align='center'><button type='button'  data-dismiss='modal' id='cancel'>Cancel</button></span>
+                    <span align='center'><button type='button'  id='gpadmin_add_group_button'>OK</button></span>
                 </div>
                 
             </div>
@@ -879,6 +1172,111 @@ class Groups extends Utils {
                     . "where id=$user->userid";
         } // end else
         $this->db->query($query);
+    }
+
+    function update_user_course_duration($c) {
+        $query = "select * from uk_practice_user_course_duration "
+                . "where practiceid=$c->practiceid "
+                . "and userid=$c->userid and courseid=$c->courseid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $query = "insert into uk_practice_user_course_duration "
+                    . "(practiceid,"
+                    . "courseid,"
+                    . "userid,"
+                    . "duration) "
+                    . "values ($c->practiceid,"
+                    . "$c->courseid,"
+                    . "$c->userid,"
+                    . "$c->duration)";
+        } // end if 
+        else {
+            $query = "update uk_practice_user_course_duration "
+                    . "set duration=$c->duration "
+                    . "where practiceid=$c->practiceid "
+                    . "and userid=$c->userid "
+                    . "and courseid=$c->courseid";
+        } // end else
+        $this->db->query($query);
+    }
+
+    function get_practice_user_duration_box($practiceid, $userid, $courseid) {
+        $list = "";
+
+        $list.= "<select id='select_u_c_d_$courseid'>";
+
+        $query = "select * from uk_practice_user_course_duration "
+                . "where practiceid=$practiceid "
+                . "and userid=$userid and courseid=$courseid";
+        $num = $this->db->numrows($query);
+        if ($num == 0) {
+            $list.="<option value='0' selected>Change to</option>";
+            for ($i = 1; $i <= 12; $i++) {
+                $list.="<option value='$i'>$i</option>";
+            } // end for
+        } // end if $num == 0
+        else {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $duration = $row['duration'];
+            }
+            for ($i = 1; $i <= 12; $i++) {
+                if ($i == $duration) {
+                    $list.="<option value='$i' selected>$i</option>";
+                } // end if $i==$duration
+                else {
+                    $list.="<option value='$i'>$i</option>";
+                } // end else
+            } // end for
+        } // end else
+
+        $list.= "</select>";
+
+        return $list;
+    }
+
+    function get_user_course_detailes($userid) {
+        $list = "";
+
+        //uk_practice_user_course_duration
+        $system_courses = $this->get_all_courses();
+        $user_courses = $this->get_user_courses($userid);
+        $practiceid = $this->get_user_practiceid($userid);
+        $list.="<div class='row-fluid'>";
+        $list.="<span class='span3'><button id='get_user_page'>Back</button></span>";
+        $list.="<input type='hidden' id='gp_courses_userid' value='$userid'>";
+        $list.="<input type='hidden' id='gp_practiceid' value='$practiceid'>";
+        $list.="</div>";
+
+        $list.="<table id='user_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
+        $list.="<thead>";
+        $list.="<tr>";
+        $list.="<th>Course Name</th>";
+        $list.="<th style='text-align:center;'>Assigned to user?</th>";
+        $list.="<th style='text-align:center;'>Repeat Duration (Group Override)</th>";
+        $list.="</tr>";
+        $list.="</tr>";
+        $list.="</thead>";
+
+        $list.="<tbody>";
+
+        foreach ($system_courses as $courseid) {
+            $coursename = $this->get_course_name($courseid);
+            $status = in_array($courseid, $user_courses);
+            $checkbox = ($status == true) ? "<input type='checkbox' id='u_p_$courseid' checked>" : "<input type='checkbox' id='u_p_$courseid'>";
+            $duration_box = $this->get_practice_user_duration_box($practiceid, $userid, $courseid);
+            $list.="<tr>";
+            $list.="<td>$coursename</td>";
+            $list.="<td style='text-align:center;'>$checkbox</td>";
+            $list.="<td style='text-align:center;'>$duration_box</td>";
+            $list.="</tr>";
+        } // end foreach
+
+        $list.="</tbody>";
+
+        $list.="</table>";
+
+        return $list;
     }
 
 }

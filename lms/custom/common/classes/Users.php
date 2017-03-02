@@ -44,11 +44,11 @@ class Users extends Utils {
             $users[] = $row['id'];
         }
 
-        $list.="<div class='row-fluid'>";
+        //$list.="<div class='row-fluid'>";
         $list.="<input type='hidden' id='current_user' value='$current_userid'>";
-        $list.="<span class='span2'><button id='users_add_user'>Add User</button></span>";
-        $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_users'></i></span>";
-        $list.="</div>";
+        //$list.="<span class='span2'><button id='users_add_user'>Add User</button></span>";
+        //$list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_users'></i></span>";
+        //$list.="</div>";
 
         if (count($users) > 0) {
             $list.="<div id='users_container'>";
@@ -83,8 +83,8 @@ class Users extends Utils {
                     $list.="<td>$user->firstname</td>";
                     $list.="<td>$user->lastname</td>";
                     $list.="<td>$user->email</td>";
-                    $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>"
-                            . "<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>";
+                    $list.="<td><i id='users_info_userid_$userid' style='cursor:pointer;' class='fa fa-user-circle-o' aria-hidden='true' title='User data'></i>";
+                    //$list.="<i id='users_courses_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-podcast' aria-hidden='true'></i>";
                     if ($current_user != $userid) {
                         $list.="<i id='users_delete_userid_$userid' style='cursor:pointer;padding-left:15px;' class='fa fa-trash' title='Delete' aria-hidden='true'></i></td>";
                     }
@@ -96,7 +96,7 @@ class Users extends Utils {
         } // end ifcount($users)>0
         else {
             $list.="<div class='row-fluid'>";
-            $list.="<span class='span9'>There are no users in the systen</span>";
+            $list.="<span class='span9'>There are no users in the system</span>";
             $list.="</div>";
         }
 
@@ -665,6 +665,22 @@ class Users extends Utils {
         return $list;
     }
 
+    function get_practice_groups($practiceid) {
+        $list = "";
+        $list.="<select id='practice_groups' style='width:220px;'>";
+        $list.="<option value='0' selected>Please select</option>";
+        $query = "select * from uk_practice_groups where practiceid=$practiceid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $list.="<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
+            } // end while
+        } // end if $num > 0
+        $list.="</select>";
+        return $list;
+    }
+
     function get_practices_list($userid) {
         $list = "";
         if ($userid == 2) {
@@ -682,8 +698,9 @@ class Users extends Utils {
         } // end if $userid==2
         else {
             $practice = $this->get_practice_by_admin_userid($userid);
-            $list.="<input type='hidden' id='practices_list' value='$practice->id'>";
-            $list.=$practice->name;
+            $groups = $this->get_practice_groups($practice->id);
+            $list.="<input type='hidden' id='practiceid' value='$practice->id'>";
+            $list.=$groups;
         }
         return $list;
     }
@@ -765,18 +782,50 @@ class Users extends Utils {
         $this->db->query($query);
     }
 
+    function is_practice_group_course($practiceid, $groupid, $courseid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid and groupid=$groupid "
+                . "and courseid=$courseid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $link = $row['linked'];
+        }
+        return $link;
+    }
+
+    function add_user_to_practice_group($practiceid, $groupid, $userid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid "
+                . "and groupid=$groupid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $courses[] = $row['courseid'];
+            } // end while
+        } // end if $num > 0
+
+        if (count($courses) > 0) {
+            foreach ($courses as $courseid) {
+                $status = $this->is_practice_group_course($practiceid, $groupid, $courseid);
+                if ($status == 1) {
+                    $this->enroll_user($courseid, $userid);
+                } // end if $status==1
+            } // end foreach
+        } // end if count($courses)>0
+    }
+
     function add_new_user($user) {
-        $status = $this->create_user($user);
-        //if ($status) {
-            $dbuser = $this->get_user_data_by_email($user->email); // object
-            $userid = $dbuser->id;
-            $this->add_user_to_practice($user->practiceid, $userid);
-            $this->add_user_to_cohort($user->practiceid, $userid);
-            $pname = $this->get_practice_name_by_userid($userid);
-            $user->pname = $pname;
-            $m = new Mailer();
-            $m->send_account_confirmation_message($user);
-        //}
+        $this->create_user($user);
+        $dbuser = $this->get_user_data_by_email($user->email); // object
+        $userid = $dbuser->id;
+        $this->add_user_to_practice($user->practiceid, $userid);
+        $this->add_user_to_cohort($user->practiceid, $userid);
+        $this->add_user_to_practice_group($user->practiceid, $user->groupid, $userid);
+        $pname = $this->get_practice_name_by_userid($userid);
+        $user->pname = $pname;
+        $m = new Mailer();
+        $m->send_account_confirmation_message($user);
     }
 
     function delete_user($userid) {
@@ -805,6 +854,18 @@ class Users extends Utils {
 
         $query = "update uk_user set deleted=1 where id=$userid";
         $this->db->query($query);
+    }
+
+    function update_practice_user_courses($c) {
+        $courseid = $c->courseid;
+        $userid = $c->userid;
+        $status = $c->status;
+        if ($status == 1) {
+            $this->enroll_user($courseid, $userid);
+        } // end if $status==1
+        else {
+            $this->unenroll_user($courseid, $userid);
+        } // end else
     }
 
 }

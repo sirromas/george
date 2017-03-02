@@ -164,35 +164,81 @@ class Courses extends Utils {
         return $start;
     }
 
+    function get_user_based_course_duration($practiceid, $courseid, $userid) {
+        $query = "select * from uk_practice_user_course_duration "
+                . "where practiceid=$practiceid "
+                . "and courseid=$courseid and userid=$userid";
+        $num = $this->db->numrows($query);
+        if ($num > 0) {
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $duration = $row['duration'];
+            } // end while
+        } // end if $num > 0
+        else {
+            $duration = 0;
+        } // end else
+        return $duration;
+    }
+
     function get_course_duration($courseid, $userid) {
         if ($userid == 2) {
             $query = "select * from uk_course_duration where courseid=$courseid";
+            $result = $this->db->query($query);
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $duration = $row['duration'];
+            }
         } // end if $userid==2
         else {
             $practiceid = $this->get_student_practice($userid);
-            $query = "select * from uk_practice_course_duration "
-                    . "where practiceid=$practiceid "
-                    . "and courseid=$courseid";
-        }
-        $result = $this->db->query($query);
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $duration = $row['duration'];
-        }
+            $user_course_duration = $this->get_user_based_course_duration($practiceid, $courseid, $userid);
+            if ($user_course_duration == 0) {
+                $query = "select * from uk_practice_course_duration "
+                        . "where practiceid=$practiceid "
+                        . "and courseid=$courseid";
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $duration = $row['duration'];
+                }
+            } // end if $user_course_duration==0
+            else {
+                $duration = $user_course_duration;
+            }
+        } // end else
         return $duration;
     }
 
     function get_course_policy($courseid) {
         $list = "";
-        $query = "select * from uk_course_policies where courseid=$courseid";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $list.="<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>Download</a>";
-            } // end while
-        } // end if $num > 0
+        $userid = $this->user->id;
+        if ($userid == 2) {
+            $query = "select * from uk_course_policies where courseid=$courseid";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $list.="<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>Download</a>";
+                } // end while
+            } // end if $num > 0
+            else {
+                $list.="N/A";
+            } // end else
+        } // end if $userid==2
         else {
-            $list.="N/A";
+            $practiceid = $this->get_user_practiceid($userid);
+            $query = "select * from uk_practice_policies "
+                    . "where courseid=$courseid "
+                    . "and practiceid=$practiceid";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $list.="<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/practices/$practiceid/$courseid/" . $row['path'] . "' target='_blank'>Download</a>";
+                } // end while
+            } // end if $num > 0
+            else {
+                $list.="N/A";
+            } // end else
         } // end else
 
         return $list;
@@ -270,20 +316,19 @@ class Courses extends Utils {
         $policy = $this->get_course_policy($c->courseid);
         $certificate = $this->get_user_certificate_link($c->courseid, $c->userid);
 
-        $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:29%;min-height:375px'>
-        <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
-            <div class='modal-content'>
-                <div class='modal-header'>
-                    <h4 class='modal-title'>Course Details</h4>
-                </div>
+        $list.="<div class='row-fluid'>";
+        $list.="<span class='span3'><button id='course_back'>Back</button></span>";
+        $list.="</div>";
+        
+        $list.="<input type='hidden' id='courseid' value='$c->courseid'>";
+         $list.="<input type='hidden' id='userid' value='$c->userid'>";
 
-                <div class='modal-body' style=''>
+
+        $list.="<div class='row-fluid'>";
+        
+        $list.="<table  class='table table-striped table-bordered' cellspacing='0' width='100%'>
                 
-                <input type='hidden' id='courseid' value='$c->courseid'>
-                <input type='hidden' id='userid' value='$c->userid'>
-                    
-                <table style='padding-left:15px;' border='0' align='center'>
-                
+                <tbody>
                 <tr>
                 <td style='padding-left:15px;padding-right:15px;'>Name</td><td style='padding-left:15px;padding-right:15px'>$course->fullname</td>
                 </tr>
@@ -323,16 +368,78 @@ class Courses extends Utils {
                 <tr>
                 <td style='padding-left:15px;padding-right:15px'>Due date</td><td style='padding-left:15px;padding-right:15px'>$due_h_date</td>
                 </tr>
-                
-                <tr>
-                <td style='padding:15px;' colspan='2' align='center'><button type='button'  data-dismiss='modal' id='cancel'>OK</button></td>
-                </tr>
+                </tbody>
 
-                </table>
-                
-            </div>
-        </div>
-    </div>";
+                </table>";
+
+        $list.="</div>";
+
+        /*
+          $list.="<div id='myModal' class='modal fade' style='overflow: visible;margin-left:0px;left:29%;min-height:375px'>
+          <div class='modal-dialog' style='background-color:none;margin-left:0px;'>
+          <div class='modal-content'>
+          <div class='modal-header'>
+          <h4 class='modal-title'>Course Details</h4>
+          </div>
+
+          <div class='modal-body' style=''>
+
+          <input type='hidden' id='courseid' value='$c->courseid'>
+          <input type='hidden' id='userid' value='$c->userid'>
+
+          <table style='padding-left:15px;' border='0' align='center'>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px;'>Name</td><td style='padding-left:15px;padding-right:15px'>$course->fullname</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Length</td><td style='padding-left:15px;padding-right:15px'>60 minutes</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Provider</td><td style='padding-left:15px;padding-right:15px'>Practice Index</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Duration</td><td style='padding-left:15px;padding-right:15px'>$duration (month)</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Progress</td><td style='padding-left:15px;padding-right:15px'>$status %</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Policy</td><td style='padding-left:15px;padding-right:15px'>$policy</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Certificate</td><td style='padding-left:15px;padding-right:15px'>$certificate</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Notes</td><td style='padding-left:15px;padding-right:15px'>$course->summary</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Enroll date</td><td style='padding-left:15px;padding-right:15px'>$enr_h_date</td>
+          </tr>
+
+          <tr>
+          <td style='padding-left:15px;padding-right:15px'>Due date</td><td style='padding-left:15px;padding-right:15px'>$due_h_date</td>
+          </tr>
+
+          <tr>
+          <td style='padding:15px;' colspan='2' align='center'><button type='button'  data-dismiss='modal' id='cancel'>OK</button></td>
+          </tr>
+
+          </table>
+
+          </div>
+          </div>
+          </div>";
+         * 
+         */
 
         return $list;
     }
@@ -440,15 +547,15 @@ class Courses extends Utils {
                 $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
                 $list.="<span class='span2'>My Courses</span>";
                 $list.="<span class='span1'>$year_box</span>";
-                $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
+                //$list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
                 $list.="</div>";
             } // end if
             else {
                 $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
                 $list.="<span class='span2'>My Courses</span>";
                 $list.="<span class='span1'>$year_box</span>";
-                $list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
-                $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
+                //$list.="<span class='span2'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_courses'></i></span>";
+                $list.="<span class='span2'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/management.php?categoryid=20' target='_blank'><button style='width:147px;'>Manage courses</button></a></span>";
                 $list.="</div>";
             }
         }
@@ -536,7 +643,7 @@ class Courses extends Utils {
 
         $list.="<tbody>";
 
-        $query = "select * from uk_course where id<>1";
+        $query = "select * from uk_course where category=20";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
@@ -575,56 +682,55 @@ class Courses extends Utils {
     function get_student_page($userid) {
         $list = "";
         $courses = $this->get_user_courses($userid);
+        //print_r($courses);
         $list.=$this->get_my_courses_block($courses, $userid);
         return $list;
     }
 
+    function get_practice_group_courses($practiceid, $groupid) {
+        $query = "select * from uk_practice_groups2courses "
+                . "where practiceid=$practiceid "
+                . "and groupid=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courses[] = $row['courseid'];
+        }
+        return $courses;
+    }
+
+    function get_practice_group_courses_block($practiceid, $groupid) {
+        $list = "";
+        $courses = $this->get_practice_group_courses($practiceid, $groupid);
+        if (count($courses) > 0) {
+            //$list.="<div class='row-fluid' style='font-weight:bold;'>";
+            //$list.="<span class='span8'>Coursename</span>";
+            //$list.="<span class='span3'><input type='checkbox' id='group_courses_all'>Assigned to group?</span>";
+            //$list.="</div>";
+            foreach ($courses as $courseid) {
+                $categoryid = $this->get_course_categoryid($courseid);
+                $categoryname = $this->get_course_category_name($categoryid);
+                $coursename = $this->get_course_name($courseid);
+                $list.="<div class='row-fluid'>";
+                $list.="<span class='span8'>$categoryname - $coursename</span>";
+                $list.="<span class='span3' style='text-align:center;'><input type='checkbox' id='gp_courses_$courseid'></span>";
+                $list.="</div>";
+            } // end foreach
+        } // end if count($courses)>0
+        return $list;
+    }
+
+    function get_practice_group_name($groupid) {
+        $query = "select * from uk_practice_groups where id=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['name'];
+        }
+        return $name;
+    }
+
     function get_practice_courses_block($userid) {
         $list = "";
-        $courses = array();
-        $groups = $this->get_practice_groups($userid);
-        foreach ($groups as $groupid) {
-            $query = "select * from uk_groups where id=$groupid";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                if (!in_array($row['courseid'], $courses)) {
-                    $courses[] = $row['courseid'];
-                } // end if !in_array($row['courseid'], $courses)
-            }
-        }
-        $list.="<div class='row-fluid' style=''>";
-        $list.="<span class='span12'><hr></span>";
-        $list.="</div>";
 
-        $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
-        $list.="<span class='span2'>Practice courses</span>";
-        $list.="</div>";
-
-        $list.="<table id='all_courses' class='table table-striped table-bordered' cellspacing='0' width='100%'>";
-
-        $list.="<thead>";
-        $list.="<tr>";
-        $list.="<th>Course Category</th>";
-        $list.="<th>Course Name</th>";
-        //$list.="<th>Actions</th>";
-        $list.="</tr>";
-        $list.="</thead>";
-
-        $list.="<tbody>";
-        foreach ($courses as $courseid) {
-            if ($courseid > 0) {
-                $catname = $this->get_course_category_name($this->get_course_categoryid($courseid));
-                $name = $this->get_course_name($courseid);
-                $list.="<tr>";
-                $list.="<td>$catname</td>";
-                $list.="<td>" . $name . "</td>";
-                //$list.="<td><span class='col1'><a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/course/view.php?id=" . $courseid . "' target='_blank' target='_blank'>View</a></span></td>";
-                $list.="</tr>";
-            } // end if 
-        } // end foreach
-        $list.="</tbody>";
-
-        $list.="</table>";
 
         return $list;
     }
@@ -633,9 +739,9 @@ class Courses extends Utils {
         $list = "";
         $courses = $this->get_user_courses($userid);
         $mycourses = $this->get_my_courses_block($courses, $userid);
-        $practicecourses = $this->get_practice_courses_block($userid);
+        //$practicecourses = $this->get_practice_courses_block($userid);
         $list.=$mycourses;
-        $list.=$practicecourses;
+        //$list.=$practicecourses;
         return $list;
     }
 
@@ -656,31 +762,32 @@ class Courses extends Utils {
             $list.="<th>Course Name</th>";
             $list.="<th>Provider</th>";
             $list.="<th>Date</th>";
-            $list.="<th>Duration</th>";
+            //$list.="<th>Duration</th>";
             $list.="<th>Status</th>";
-            $list.="<th>User</th>";
+            //$list.="<th>User</th>";
             $list.="<th>Notes</th>";
             $list.="<th>Actions</th>";
             $list.="</tr>";
             $list.="</thead>";
+            $list.="<tbody>";
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $id = $row['id'];
                 $username = $this->get_username_by_id($row['userid']);
                 $status = $this->get_status_text($row['status']);
-                $list.="<tbody>";
+
                 $list.="<tr>";
                 $list.="<td>" . $row['name'] . "</td>";
                 $list.="<td>" . $row['provider'] . "</td>";
                 $list.="<td>" . date('m/d/Y', $row['cdate']) . "</td>";
-                $list.="<td>" . $row['duration'] . "&nbsp;&nbsp;(month)</td>";
-                $list.="<td>" . $status . "</tdd>";
-                $list.="<td>" . $username . "</td>";
+                //$list.="<td>" . $row['duration'] . "&nbsp;&nbsp;(month)</td>";
+                $list.="<td>" . $status . "</td>";
+                //$list.="<td>" . $username . "</td>";
                 $list.="<td>" . $row['notes'] . "</td>";
                 $list.="<td><a style='cursor:pointer;' onClick='return false;' id='update_external_course_$id'>Update Status</a></td>";
                 $list.="</tr>";
-                $list.="</tbody>";
             } // end while
+            $list.="</tbody>";
             $list.="</table>";
 
             $list.= "<div class='container-fluid'>";
@@ -703,7 +810,7 @@ class Courses extends Utils {
 
         if ($userid == 2) {
             // It is admin - get all external courses
-            $list2 = $this->get_all_external_training_courses();
+            //$list2 = $this->get_all_external_training_courses();
         } // end if $userid==2
         else {
 
@@ -718,7 +825,7 @@ class Courses extends Utils {
                     $list2 = $this->get_ccg_external_training($cohortid);
                     break;
                 case 10:
-                    $list2 = $this->get_gp_external_training($userid);
+                    //$list2 = $this->get_gp_external_training($userid);
                     break;
             } // end of switch
         } // end else
@@ -837,11 +944,12 @@ class Courses extends Utils {
                 <span class='span6'><input type='text' id='ext_course_date' style=''></span>
                 </div>
                 
+                <!--
                 <div class='container-fluid'>
                 <span class='span1'>Duration*</span>
                 <span class='span6'>$duration_box</span>
                 </div>
-                
+                -->
                 <div class='container-fluid'>
                 <span class='span1'>Status*</span>
                 <span class='span6'>$status_box</span>
@@ -1014,14 +1122,12 @@ class Courses extends Utils {
                 . "(name,"
                 . "provider,"
                 . "cdate,"
-                . "duration, "
                 . "status,"
                 . "notes,"
                 . "userid) "
                 . "values('$course->name',"
                 . "'$course->provider',"
                 . "'$cdate',"
-                . "'$course->retake_duration', "
                 . "'$course->status',"
                 . "'$course->notes',"
                 . "'$course->userid')";
@@ -1381,7 +1487,7 @@ class Courses extends Utils {
 
         $list.="<tbody>";
 
-        $query = "select * from uk_course where id<>1";
+        $query = "select * from uk_course where category=20";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
@@ -1404,22 +1510,24 @@ class Courses extends Utils {
         return $list;
     }
 
-    function is_practice_course_duration_exists($practiceid, $courseid) {
+    function is_practice_course_duration_exists($practiceid, $groupid, $courseid) {
         $query = "select * from uk_practice_course_duration "
-                . "where courseid=$courseid and practiceid=$practiceid";
+                . "where courseid=$courseid "
+                . "and practiceid=$practiceid "
+                . "and groupid=$groupid";
         $num = $this->db->numrows($query);
         return $num;
     }
 
-    function create_practice_initial_courses_duration($practiceid, $courses) {
+    function create_practice_initial_courses_duration($practiceid, $groupid, $courses) {
         foreach ($courses as $courseid) {
-            $status = $this->is_practice_course_duration_exists($practiceid, $courseid);
+            $status = $this->is_practice_course_duration_exists($practiceid, $groupid, $courseid);
             if ($status == 0) {
                 $query = "insert into uk_practice_course_duration "
-                        . "(practiceid,"
+                        . "(practiceid, groupid,"
                         . "courseid,"
                         . "duration) "
-                        . "values($practiceid,"
+                        . "values($practiceid, $groupid, "
                         . "$courseid,12)";
                 $this->db->query($query);
             } // end if
@@ -1433,21 +1541,35 @@ class Courses extends Utils {
         return in_array($courseid, $courses);
     }
 
+    function get_practice_course_groups($practiceid) {
+        $query = "select * from uk_practice_groups "
+                . "where practiceid=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = $row['id'];
+        }
+        return $groups;
+    }
+
+    function get_practice_cousre_group_name($groupid) {
+        $query = "select * from uk_practice_groups where id=$groupid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $name = $row['name'];
+        }
+        return $name;
+    }
+
     function get_gpadmin_repeat_training_page($userid) {
         $list = "";
-        $courses = array();
-        $groups = $this->get_practice_groups($userid);
         $practice = $this->get_practice_by_admin_userid($userid);
         $practiceid = $practice->id;
-
+        $groups = $this->get_practice_course_groups($practiceid);
         foreach ($groups as $groupid) {
-            $query = "select * from uk_groups where id=$groupid";
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $courses[] = $row['courseid'];
-            }
-        }
-        $this->create_practice_initial_courses_duration($practiceid, $courses);
+            $courses = $this->get_practice_group_courses($practiceid, $groupid);
+            $this->create_practice_initial_courses_duration($practiceid, $groupid, $courses);
+        } // end foreach
+
 
         $list.="<div class='row-fluid' style='margin-left:15px;font-weight:bold;'>";
         $list.="<span class='span2'>Repeated courses</span>";
@@ -1467,19 +1589,18 @@ class Courses extends Utils {
         $list.="<tbody>";
 
         $query = "select * from uk_practice_course_duration where practiceid=$practiceid";
+
         $result = $this->db->query($query);
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
             if ($row['courseid'] > 0) {
-                if ($this->is_practice_course($row['courseid'])) {
-                    $catname = $this->get_course_category_name($this->get_course_categoryid($row['courseid']));
-                    $coursename = $this->get_course_name($row['courseid']);
-                    $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
-                    $list.="<tr>";
-                    $list.="<td>$catname</td>";
-                    $list.="<td>" . $coursename . "</td>";
-                    $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
-                    $list.="</tr>";
-                } // end if is_practice_course($courseid)
+                $groupname = $this->get_practice_cousre_group_name($row['groupid']);
+                $coursename = $this->get_course_name($row['courseid']);
+                $duration = $this->get_practice_course_repeat_box($practiceid, $row['courseid']);
+                $list.="<tr>";
+                $list.="<td>$groupname</td>";
+                $list.="<td>" . $coursename . "</td>";
+                $list.="<td align='center'><span class='col3' style='text-align:center;padding-left:0px;'>$duration &nbsp;&nbsp;(month)</span></td>";
+                $list.="</tr>";
             } // end if $row['courseid']>0
         }
 
@@ -1512,26 +1633,47 @@ class Courses extends Utils {
     function get_policy_box($courseid, $upload = true) {
         $list = "";
         $list.="<div class='row-fluid'>";
-        $query = "select * from uk_course_policies where courseid=$courseid";
-        $num = $this->db->numrows($query);
-        if ($num > 0) {
-            $result = $this->db->query($query);
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>" . $row['title'] . "</a>";
-                $list.="<span class='span6'>$link</span>";
+        $userid = $this->user->id;
+        if ($userid == 2) {
+            $query = "select * from uk_course_policies where courseid=$courseid";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $link = "<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/$courseid/" . $row['path'] . "' target='_blank'>" . $row['title'] . "</a>";
+                    $list.="<span class='span6'>$link</span>";
+                    if ($upload) {
+                        $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+                    }
+                }
+            } // end if $num > 0
+            else {
+                $list.="<span class='span3'>N/A</span>";
                 if ($upload) {
                     $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
                 }
-            }
-        } // end if $num > 0
+            } // end else 
+            $list.="</div>";
+        } // end if $userid == 2
         else {
-            $list.="<span class='span3'>N/A</span>";
-            if ($upload) {
+            $practiceid = $this->get_user_practiceid($userid);
+            $query = "select * from uk_practice_policies "
+                    . "where courseid=$courseid "
+                    . "and practiceid=$practiceid";
+            $num = $this->db->numrows($query);
+            if ($num > 0) {
+                $result = $this->db->query($query);
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $link.="<a href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/policies/practices/$practiceid/$courseid/" . $row['path'] . "' target='_blank'>Download</a>";
+                } // end while
+                $list.="<span class='span6'>$link</span>";
                 $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
-            }
-        } // end else 
-        $list.="</div>";
-
+            } // end if $num > 0
+            else {
+                $list.="N/A";
+                $list.="<span class='span1'><i id='p_upload_$courseid' style='cursor:pointer;' title='Uplload' class='fa fa-upload' aria-hidden='true'></i></span>";
+            } // end else
+        } // end else
         return $list;
     }
 
@@ -1554,7 +1696,7 @@ class Courses extends Utils {
 
         $list.="<tbody>";
 
-        $query = "select * from uk_course where id<>1";
+        $query = "select * from uk_course where category=20";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
@@ -1582,6 +1724,13 @@ class Courses extends Utils {
         return $num;
     }
 
+    function is_practice_policy_exists($practiceid, $courseid) {
+        $query = "select * from uk_practice_policies where courseid=$courseid "
+                . "and practiceid=$practiceid";
+        $num = $this->db->numrows($query);
+        return $num;
+    }
+
     function add_new_policy($files, $post) {
         $file = $files[0];
         $name = $file['name'];
@@ -1592,35 +1741,71 @@ class Courses extends Utils {
         $title = $post['title'];
         $summary = $post['summary'];
         if ($tmp_name != '' && $error == 0 && $size > 0) {
-            $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid";
-            if (!file_exists($dir)) {
-                mkdir($dir, 0777, true);
-            }
-            $destination = $dir . "/" . $name;
-            $status = move_uploaded_file($tmp_name, $destination);
-            if ($status) {
-                $exists = $this->is_policy_exists($courseid);
-                if ($exists == 0) {
-                    $query = "insert into uk_course_policies "
-                            . "(courseid,"
-                            . "title,"
-                            . "summary,"
-                            . "path) "
-                            . "values($courseid,"
-                            . "'$title', "
-                            . "'$summary',"
-                            . "'$name')";
-                    $this->db->query($query);
-                } // end if $exists == 0
-                else {
-                    $query = "update uk_course_policies "
-                            . "set title='$title', "
-                            . "summary='$summary', "
-                            . "path='$name' "
-                            . "where courseid=$courseid";
-                    $this->db->query($query);
-                } // end else
-            } // end if $status
+            $userid = $this->user->id;
+            if ($userid == 2) {
+                $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/$courseid";
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                $destination = $dir . "/" . $name;
+                $status = move_uploaded_file($tmp_name, $destination);
+                if ($status) {
+                    $exists = $this->is_policy_exists($courseid);
+                    if ($exists == 0) {
+                        $query = "insert into uk_course_policies "
+                                . "(courseid,"
+                                . "title,"
+                                . "summary,"
+                                . "path) "
+                                . "values($courseid,"
+                                . "'$title', "
+                                . "'$summary',"
+                                . "'$name')";
+                        $this->db->query($query);
+                    } // end if $exists == 0
+                    else {
+                        $query = "update uk_course_policies "
+                                . "set title='$title', "
+                                . "summary='$summary', "
+                                . "path='$name' "
+                                . "where courseid=$courseid";
+                        $this->db->query($query);
+                    } // end else
+                } // end if status
+            } // end if $userid == 2
+            else {
+                $practiceid = $this->get_user_practiceid($userid);
+                $now = time();
+                $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/common/policies/practices/$practiceid/$courseid";
+                if (!file_exists($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+                $destination = $dir . "/" . $name;
+                $status = move_uploaded_file($tmp_name, $destination);
+                if ($status) {
+                    $exists = $this->is_practice_policy_exists($practiceid, $courseid);
+                    if ($exists == 0) {
+                        $query = "insert into uk_practice_policies "
+                                . "(courseid,"
+                                . "practiceid,"
+                                . "path,"
+                                . "summary, added) "
+                                . "values($courseid,"
+                                . "'$practiceid', "
+                                . "'$name', '$summary',"
+                                . "'$now')";
+                        $this->db->query($query);
+                    } // end if $exists == 0
+                    else {
+                        $query = "update uk_practice_policies "
+                                . "set path='$name', "
+                                . "summary='$summary' "
+                                . "where courseid=$courseid "
+                                . "and practiceid=$practiceid";
+                        $this->db->query($query);
+                    } // end else
+                } // end if status
+            } // end else
         } // end if $tmp_name!='' && $error==0 && $size>0
     }
 
@@ -1895,6 +2080,31 @@ class Courses extends Utils {
         $cert->create_report_pdf_file($list);
         $link = "http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/common/certificates/$userid/report.pdf";
         return $link;
+    }
+
+    function update_course_category($categoryid, $courseid) {
+        $query = "update uk_course set category=$categoryid where id=$courseid";
+        echo "Query: " . $query . "<br>";
+        $this->db->query($query);
+    }
+
+    function migrate_courses() {
+        $categoryid = 19;
+        $i = 0;
+        $query = "select * FROM `uk_course` "
+                . "WHERE category>1 "
+                . "group bY fullname "
+                . "order by fullname";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $courseid = $row['id'];
+            $this->update_course_category($categoryid, $courseid);
+            $coursename = $this->get_course_name($courseid);
+            echo "Course ID $courseid - Course Name $coursename category is updated ...";
+            echo "<br>--------------------------------------------------------------------<br>";
+            $i++;
+        }
+        echo "Total courses processed: " . $i . "<br>";
     }
 
 }

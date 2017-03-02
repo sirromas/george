@@ -74,10 +74,10 @@ if ($testsession) {
 if (!empty($SESSION->has_timed_out)) {
     $session_has_timed_out = true;
     unset($SESSION->has_timed_out);
-} else {
+} // end if !empty($SESSION->has_timed_out 
+else {
     $session_has_timed_out = false;
-}
-
+} // end else
 /// auth plugins may override these - SSO anyone?
 $frm = false;
 $user = false;
@@ -248,6 +248,8 @@ if ($frm and isset($frm->username)) {                             // Login WITH 
 if ($session_has_timed_out and ! data_submitted()) {
     $errormsg = get_string('sessionerroruser', 'error');
     $errorcode = 4;
+    header("Location: http://mycodebusters.com/index.php?errorcode=$errorcode");
+    die();
 }
 
 /// First, let's remember where the user was trying to get to before they got here

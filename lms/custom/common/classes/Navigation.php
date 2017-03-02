@@ -76,7 +76,7 @@ class Navigation extends Utils {
 
         $r = new Reports();
         $report = $r->get_reports_page($this->user->id);
-    
+
         $list.="<ul class = 'nav nav-tabs' >
           <li class = 'active'><a data-toggle = 'tab' href = '#dash'><i style='padding-left:18px;cursor:pointer;' id='dash_icon' class='fa fa-tachometer fa-2x' aria-hidden='true' ></i><br><span id='dash_span'>Dashboard</span></li></a>
           <li><a data-toggle = 'tab'  href = '#profile'><i style='padding-left:13px;cursor:pointer;' class='fa fa-id-card-o fa-2x'aria-hidden='true' ></i><br>My profile</span></a></li>
@@ -85,12 +85,12 @@ class Navigation extends Utils {
           <li><a data-toggle = 'tab'  href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
           <li><a data-toggle = 'tab'  href = '#policy'><i style='padding-left:10px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
           <li><a data-toggle = 'tab'  href = '#users'><i style='padding-left:10px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true' id='users_icon'></i><br><span style='padding-left:7px;' id='users_span'>Users</span></a></li>
-          <li><a data-toggle = 'tab'  href = '#groups'><i title='Groups' style='padding-left:13px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#groups'><i title='Accounts' style='padding-left:13px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:2px;'>Accounts</span></a></li>
           <li><a data-toggle = 'tab'  href = '#reports'><i title='Reports' style='padding-left:15px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true' id='reports_icon'></i><br><span style='padding-left:7px;' id='reports_span'>Reports</span></a></li>
           <li><a data-toggle = 'tab'  href = '#pages'><i style='padding-left:7px;' style='padding-left:0px;cursor:pointer;' class='fa fa-pencil-square-o fa-2x' aria-hidden='true'></i><br>Pages</a></li>
           <li class='pull-right'><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:1px;'>Logout</span></a></li>
         </ul>";
-       
+
         $list.="<div class = 'tab-content' style='padding-left:10px;padding-right:10px;padding-top:0px;'>
           <div id = 'dash' class = 'tab-pane fade in active'>
             $status
@@ -224,6 +224,9 @@ class Navigation extends Utils {
         $r = new Reports();
         $report = $r->get_reports_page($this->user->id);
 
+        $g = new Groups();
+        $groups = $g->get_gp_groups_page($this->user->id);
+
         $p = new Pages();
         $help = $p->get_gp_help_page();
 
@@ -235,6 +238,7 @@ class Navigation extends Utils {
           <li><a data-toggle = 'tab' href = '#repeat'><i style='padding-left:32px;cursor:pointer;' class='fa fa-history fa-2x' aria-hidden='true'></i><br>Repeat Training</a></li>
           <li><a data-toggle = 'tab' href = '#policy'><i style='padding-left:10px;cursor:pointer;' class='fa fa-file-powerpoint-o fa-2x' aria-hidden='true'></i><br>Policies</a></li>
           <li><a data-toggle = 'tab' href = '#users'><i style='padding-left:10px;cursor:pointer;' class='fa fa-user-circle-o fa-2x' aria-hidden='true' id='users_icon'></i><br><span style='padding-left:7px;' id='users_span'>Users</span></a></li>
+          <li><a data-toggle = 'tab'  href = '#groups'><i title='Groups' style='padding-left:13px;cursor:pointer;' class='fa fa-users fa-2x' aria-hidden='true'></i><br><span style='padding-left:7px;'>Groups</span></a></li>
           <li><a data-toggle = 'tab' href = '#reports'><i title='Reports' style='padding-left:15px;cursor:pointer;' class='fa fa-bar-chart fa-2x' aria-hidden='true' id='reports_icon'></i><br><span style='padding-left:7px;' id='reports_span'>Reports</span></a></li>
           <li><a data-toggle = 'tab' href = '#help'><i title='Help' style='padding-left:5px;cursor:pointer;' class='fa fa-question fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Help</span></a></li>
           <li class='pull-right'><a href = 'http://" . $_SERVER['SERVER_NAME'] . "/lms/login/logout.php?seskey=$sesskey'><i title='Logout' style='padding-left:8px;cursor:pointer;' class='fa fa-location-arrow fa-2x' aria-hidden='true'></i><br><span style='padding-left:4px;'>Logout</span></a></li>
@@ -262,7 +266,9 @@ class Navigation extends Utils {
           <div id = 'users' class = 'tab-pane fade'>
             $users    
           </div>
-          
+          <div id = 'groups' class = 'tab-pane fade'>
+            $groups
+          </div> 
           <div id = 'reports' class = 'tab-pane fade'>
             $report
           </div>

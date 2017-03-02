@@ -51,14 +51,15 @@ class Reports extends Utils {
         } // end if
         else {
             $groups = $this->get_practice_groups($userid);
-
+            
             /*
               echo "Groups: <pre>";
               print_r($groups);
               echo "</pre><br>------------------------<br>";
              */
 
-            $courses = $this->get_practice_courses_by_groups($groups);
+            //$courses = $this->get_practice_courses_by_groups($groups);
+            $courses=$this->get_all_courses();
             /*
               echo "Courses: <pre>";
               print_r($courses);
@@ -114,7 +115,7 @@ class Reports extends Utils {
             $categoryid = $this->get_course_categoryid($courseid);
             $categoryname = $this->get_category_name($categoryid);
             $coursename = $this->get_course_name($courseid);
-            $name = $categoryname . "-" . $coursename;
+            $name = $coursename;
             $list.="<option value='$name'>$name</option>";
         } // end foreach
         $list.="</select>";
@@ -452,13 +453,15 @@ class Reports extends Utils {
         $list.="</div>";
 
         if ($data->userid == 2) {
+            /*
             $list.="<div class='row-fluid' style=''>";
             $list.="<span class='span6'>Total courses</span>";
             $list.="<span class='span6'>" . count($data->courses) . "</span>";
             $list.="</div>";
-
+            */
+            
             $list.="<div class='row-fluid' style=''>";
-            $list.="<span class='span6'>Scorm courses</span>";
+            $list.="<span class='span6'>Total courses</span>";
             $list.="<span class='span6'>" . count($data->scourses) . "</span>";
             $list.="</div>";
         } // end if $data->userid==2
