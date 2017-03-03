@@ -35,7 +35,6 @@ class Reports extends Utils {
         $users = array();
         $courses = array();
         $scourses = array();
-        //echo "User id: " . $userid . "<br>";
 
         if ($userid == 2) {
             $courses = $this->get_all_courses();
@@ -50,30 +49,9 @@ class Reports extends Utils {
             $overdue_pers = round($overdue / count($scourses));
         } // end if
         else {
-            $groups = $this->get_practice_groups($userid);
-            
-            /*
-              echo "Groups: <pre>";
-              print_r($groups);
-              echo "</pre><br>------------------------<br>";
-             */
-
-            //$courses = $this->get_practice_courses_by_groups($groups);
-            $courses=$this->get_all_courses();
-            /*
-              echo "Courses: <pre>";
-              print_r($courses);
-              echo "</pre><br>------------------------<br>";
-             */
-
+            $courses = $this->get_all_courses();
             $scourses = $this->get_scorm_courses($courses);
             $users = $this->get_practice_users($userid);
-            /*
-              echo "Users: <pre>";
-              print_r($users);
-              echo "</pre><br>------------------------<br>";
-             */
-
             $stat = $this->get_courses_stat($users);
             $left = $stat->progress;
             $complete = $stat->compelete;
@@ -135,55 +113,175 @@ class Reports extends Utils {
         return $list;
     }
 
+    function get_practice_name_by_id($practiceid) {
+        $query = "select * from uk_practice where id=$practiceid";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $ccgname = $row['name'];
+            $names_arr = explode('-', $ccgname);
+            $name = $names_arr[1];
+        }
+        return $name;
+    }
+
+    function get_practice_selector() {
+        $list = "";
+
+
+        return $list;
+    }
+
+    function get_report_download_button($practiceid) {
+        $list = "";
+
+        $list.="<form method='get' id='p_report_form' target='_blank' action='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/practices/$practiceid/report.pdf'>";
+        $list.="<a href='#' id='p_report' onClick='return false;'>Download</a>";
+        $list.="</form>";
+        return $list;
+    }
+
+    function get_user_report_data($userid) {
+        $list = "";
+
+        $comp = new Completion();
+        $c = new Courses();
+        $courses = array_unique($this->get_user_courses($userid));
+
+        if (count($courses) > 0) {
+            $list.="<div class='datagrid'>";
+            $list.="<table>";
+            $list.="<tbody>";
+            foreach ($courses as $courseid) {
+                $scoid = $comp->get_scorm_scoid($courseid);
+                $coursename = $this->get_course_name($courseid);
+                $date = $c->get_course_enrollment_date($courseid, $userid);
+                if ($scoid > 0) {
+                    $passgrade = $comp->get_scorm_passing_grade($scoid);
+                    $score = $comp->get_student_course_score($scoid, $userid, $courseid, true);
+                    if ($score === null) {
+                        $score = 0;
+                    }
+                    if ($score >= $passgrade) {
+                        $link = $this->get_passed_course_link($courseid, $coursename, $userid);
+                    } // end if $score>=$passgrade
+                    else {
+                        $link = $coursename;
+                    }
+                } // end if $scoid>0        
+                else {
+                    $score = 'N/A';
+                } // end else
+                $list.="<tr>";
+                $list.="<td style='padding:15px;width:375px;'> $coursename</td>";
+                $list.="<td style='padding:15px;'>" . date('m-d-y', $date) . "</td>";
+                $list.="<td style='padding:15px;'>" . round($score) . "%</td>";
+                $list.="</tr>";
+            } // end foreach
+            $list.="</tbody>";
+            $list.="</table>";
+        } // end if count($courses)>0
+        else {
+            $list.="N/A";
+        }
+
+        return $list;
+    }
+
+    function create_practice_summary_report($practiceid, $users) {
+        $list = "";
+        $cert = new Certificate();
+        $list.="<html>";
+        $list.="<head>";
+        $list.=" <link rel='stylesheet' type='text/css' href='http://" . $_SERVER['SERVER_NAME'] . "/lms/custom/practices/custom.css'>";
+        $list.="</head>";
+        $list.="<body>";
+
+        $dir = $_SERVER['DOCUMENT_ROOT'] . "/lms/custom/practices/$practiceid";
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        if (count($users) > 0) {
+            $practicename = $this->get_practice_name_by_id($practiceid);
+            $date = date('m-d-Y', time());
+            $list.="<div class='datagrid'>";
+            $list.="<table align='center' >";
+            $list.="<thead>";
+            $list.="<tr>";
+            $list.="<th colspan='3' style='padding:15px;text-align:center;'>$practicename - $date</th>";
+            $list.="</tr>";
+            $list.="</thead>";
+            $list.="<tbody>";
+            foreach ($users as $userid) {
+                $userdata = $this->get_user_data_by_id($userid);
+                $courses = $this->get_user_report_data($userid);
+                $list.="<tr>";
+                $list.="<td style='padding:15px;'>$userdata->firstname</td>";
+                $list.="<td style='padding:15px;'>$userdata->lastname</td>";
+                $list.="<td style='padding:15px;'>$courses</td>";
+                $list.="</tr>";
+            }
+            $list.="</tbody>";
+            $list.="</table>";
+            $list.="<body>";
+            $list.="</html>";
+
+            $filename = $dir . "/report.html";
+            file_put_contents($filename, $list);
+            $cert->create_practice_summary_report($practiceid, $list);
+        } // end if count($users)>0
+    }
+
     function get_report_dashboard($data, $toolbar = true) {
         $list = "";
 
         $left = $data->left;
         $complete = $data->complete;
         $overdue = $data->overdue;
-
+        $practiceid = $this->get_user_practiceid($this->user->id);
+        $this->create_practice_summary_report($practiceid, $data->users);
         $left_side = $this->get_left_summary_block($data);
-        
+
         /*
-        if ($toolbar) {
-            if ($data->userid == 2) {
-                $list.="<br/><div class='row-fluid'>";
-                $list.="<span class='span2'><input type='text' id='r_cohort' style='width:125px' placeholder='All Clinical Groups'></span>";
-                $list.="<span class='span2'><input type='text' id='r_practice' style='width:125px' placeholder='All Practices'></span>";
-                $list.="<span class='span2'><input type='text' id='r_courses' style='width:125px' placeholder='All Courses'></span>";
-                $list.="<span class='span2'><input type='text' id='r_users' style='width:125px;padding-right:5px;' placeholder='All Users'></span>";
-                $list.="<span class='span1'><input type='text' id='date1' style='width:75px;' placeholder='From'></span>";
-                $list.="<span class='span1'><input type='text' id='date2' style='width:75px;' placeholder='To'></span>";
-                $list.="<span class='span1' style='padding-left:15px;'><button id='report_search_ad'>Search</button></span>";
-                //$list.="<span class='span1'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_report'></i></span>";
-                $list.="</div>";
-            } // end if $data->userid==2
-            else {
-                $coursesbox = $this->get_gp_courses_box($data->scourses);
-                $usersbox = $this->get_gp_users_box($data->users);
-                $list.="<br/><div class='row-fluid' style='text-align:center;'>";
-                $list.="<span class='span4'>$coursesbox</span>";
-                $list.="<span class='span2'>$usersbox</span>";
-                $list.="<span class='span1'><input type='text' id='date1' style='width:75px;' placeholder='From'></span>";
-                $list.="<span class='span1'><input type='text' id='date2' style='width:75px;' placeholder='To'></span>";
-                $list.="<span class='span1' style='padding-left:15px;'><button id='report_search_gp'>Search</button></span>";
-                $list.="</div>";
-            } // end else 
+          if ($toolbar) {
+          if ($data->userid == 2) {
+          $list.="<br/><div class='row-fluid'>";
+          $list.="<span class='span2'><input type='text' id='r_cohort' style='width:125px' placeholder='All Clinical Groups'></span>";
+          $list.="<span class='span2'><input type='text' id='r_practice' style='width:125px' placeholder='All Practices'></span>";
+          $list.="<span class='span2'><input type='text' id='r_courses' style='width:125px' placeholder='All Courses'></span>";
+          $list.="<span class='span2'><input type='text' id='r_users' style='width:125px;padding-right:5px;' placeholder='All Users'></span>";
+          $list.="<span class='span1'><input type='text' id='date1' style='width:75px;' placeholder='From'></span>";
+          $list.="<span class='span1'><input type='text' id='date2' style='width:75px;' placeholder='To'></span>";
+          $list.="<span class='span1' style='padding-left:15px;'><button id='report_search_ad'>Search</button></span>";
+          //$list.="<span class='span1'><i style='cursor:pointer;' title='Refresh' class='fa fa-refresh' aria-hidden='true' id='refresh_report'></i></span>";
+          $list.="</div>";
+          } // end if $data->userid==2
+          else {
+          $coursesbox = $this->get_gp_courses_box($data->scourses);
+          $usersbox = $this->get_gp_users_box($data->users);
+          $list.="<br/><div class='row-fluid' style='text-align:center;'>";
+          $list.="<span class='span4'>$coursesbox</span>";
+          $list.="<span class='span2'>$usersbox</span>";
+          $list.="<span class='span1'><input type='text' id='date1' style='width:75px;' placeholder='From'></span>";
+          $list.="<span class='span1'><input type='text' id='date2' style='width:75px;' placeholder='To'></span>";
+          $list.="<span class='span1' style='padding-left:15px;'><button id='report_search_gp'>Search</button></span>";
+          $list.="</div>";
+          } // end else
 
-            $list.="<div class='row-fluid'>";
-            $list.="<span class='span12' id='search_err' style='color:red;'></span>";
-            $list.="</div>";
+          $list.="<div class='row-fluid'>";
+          $list.="<span class='span12' id='search_err' style='color:red;'></span>";
+          $list.="</div>";
 
-            $list.="<div class='row-fluid' style='display:none;text-align:center;' id='report_ajax_loader'>";
-            $list.="<span class='span12'><img src='http://mycodebusters.com/assets/img/loader.gif'></span>";
-            $list.="</div><br>";
+          $list.="<div class='row-fluid' style='display:none;text-align:center;' id='report_ajax_loader'>";
+          $list.="<span class='span12'><img src='http://mycodebusters.com/assets/img/loader.gif'></span>";
+          $list.="</div><br>";
 
-            $list.="<div class='row-fluid'>";
-            $list.="<span class='span11'><hr/></span>";
-            $list.="</div><br>";
-        } // end if toolbar
-        */
-        
+          $list.="<div class='row-fluid'>";
+          $list.="<span class='span11'><hr/></span>";
+          $list.="</div><br>";
+          } // end if toolbar
+         */
+
         $list.="<div id='report_data'>";
 
         $list.="<div class='row-fluid'>";
@@ -452,25 +550,10 @@ class Reports extends Utils {
         $list.="<span class='span6'>System stats: </span>";
         $list.="</div>";
 
-        if ($data->userid == 2) {
-            /*
-            $list.="<div class='row-fluid' style=''>";
-            $list.="<span class='span6'>Total courses</span>";
-            $list.="<span class='span6'>" . count($data->courses) . "</span>";
-            $list.="</div>";
-            */
-            
-            $list.="<div class='row-fluid' style=''>";
-            $list.="<span class='span6'>Total courses</span>";
-            $list.="<span class='span6'>" . count($data->scourses) . "</span>";
-            $list.="</div>";
-        } // end if $data->userid==2
-        else {
-            $list.="<div class='row-fluid' style=''>";
-            $list.="<span class='span6'>Total courses</span>";
-            $list.="<span class='span6'>" . count($data->scourses) . "</span>";
-            $list.="</div>";
-        } // end else 
+        $list.="<div class='row-fluid' style=''>";
+        $list.="<span class='span6'>Total courses</span>";
+        $list.="<span class='span6'>" . count($data->scourses) . "</span>";
+        $list.="</div>";
 
         $list.="<br><div class='row-fluid' style=''>";
         $list.="<span class='span12'><hr></span>";
@@ -499,6 +582,14 @@ class Reports extends Utils {
         $list.="<span class='span6'>Total overdue</span>";
         $list.="<span class='span6'>$overdue</span>";
         $list.="</div>";
+
+        if ($this->user->id != 2) {
+            $practiced = $this->get_user_practiceid($this->user->id);
+            $button = $this->get_report_download_button($practiced);
+            $list.="<div class='row-fluid' style=''>";
+            $list.="<span class='span6'>$button</span>";
+            $list.="</div>";
+        }
 
         $list.="</div>";
 

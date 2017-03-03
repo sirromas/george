@@ -489,6 +489,7 @@ class Users extends Utils {
     }
 
     function enroll_user($courseid, $userid) {
+        $c = new Completion();
         $contextid = $this->get_course_context($courseid);
         $roleid = 5; // student
         $enrolid = $this->get_entoll_id($courseid);
@@ -497,7 +498,8 @@ class Users extends Utils {
                 . "where contextid=$contextid "
                 . "and userid=$userid";
         $num = $this->db->numrows($query);
-        if ($num == 0) {
+        $has_scorm = $c->has_scorm_section($courseid);
+        if ($num == 0 && $has_scorm > 0) {
             // 1. Insert into uk_user_enrolments table
             $query = "insert into uk_user_enrolments
              (enrolid,
@@ -866,6 +868,22 @@ class Users extends Utils {
         else {
             $this->unenroll_user($courseid, $userid);
         } // end else
+    }
+
+    function update_all_user_courses($c) {
+        $userid = $c->userid;
+        $all = $c->all;
+        $system_courses = $this->get_all_courses();
+        if ($all == 1) {
+            foreach ($system_courses as $courseid) {
+                $this->enroll_user($courseid, $userid);
+            }
+        } // end if $all==1
+        else {
+            foreach ($system_courses as $courseid) {
+                $this->unenroll_user($courseid, $userid);
+            }
+        } //end else
     }
 
 }

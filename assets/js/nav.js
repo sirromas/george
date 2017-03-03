@@ -1570,6 +1570,41 @@ $(document).ready(function () {
             } // end else
         }
 
+        if (event.target.id == 'user_check_all_courses') {
+            var courses = [];
+            if ($('#user_check_all_courses').prop("checked")) {
+                if (confirm('Enroll user to all courses?')) {
+                    var userid = $('#gp_courses_userid').val();
+                    var course = {userid: userid, all: 1};
+                    var url = "/lms/custom/common/update_all_user_courses.php";
+                    $.post(url, {course: JSON.stringify(course)}).done(function () {
+                        $(':checkbox').prop('checked', true);
+                    });
+                } // end if 
+                else {
+                    $('#user_check_all_courses').prop("checked", false);
+                } // end else
+            } // end if
+            else {
+                if (confirm('Unenroll user from all courses?')) {
+                    var userid = $('#gp_courses_userid').val();
+                    var course = {userid: userid, all: 0};
+                    var url = "/lms/custom/common/update_all_user_courses.php";
+                    $.post(url, {course: JSON.stringify(course)}).done(function () {
+                        $(':checkbox').prop('checked', false);
+                    });
+                } // end if 
+                else {
+                    $('#user_check_all_courses').prop("checked", true);
+                } // end else
+            } // end else
+        }
+
+
+        if (event.target.id == 'p_report') {
+            $('#p_report_form').submit();
+        }
+
 
     }); // end of $('body').click(function (event) {
 

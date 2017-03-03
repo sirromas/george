@@ -1252,7 +1252,7 @@ class Groups extends Utils {
         $list.="<thead>";
         $list.="<tr>";
         $list.="<th>Course Name</th>";
-        $list.="<th style='text-align:center;'>Assigned to user?</th>";
+        $list.="<th style='text-align:center;'><span style='padding-left:35px'><input type='checkbox' id='user_check_all_courses'>All</span></th>";
         $list.="<th style='text-align:center;'>Repeat Duration (Group Override)</th>";
         $list.="</tr>";
         $list.="</tr>";

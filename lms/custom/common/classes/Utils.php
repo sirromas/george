@@ -490,7 +490,7 @@ class Utils {
     function get_all_courses() {
         $courses = array();
         $query = "select * from uk_course "
-                . "where category=20 and visible=1";
+                . "where category=20";
         $num = $this->db->numrows($query);
         if ($num > 0) {
             $result = $this->db->query($query);
