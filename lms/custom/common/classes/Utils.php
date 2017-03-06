@@ -368,7 +368,7 @@ class Utils {
         }
         return $courseid;
     }
-
+    
     function get_user_courses($userid, $year = NULL) {
         $courses = array();
         $comp = new Completion();
@@ -386,14 +386,18 @@ class Utils {
             $result = $this->db->query($query);
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $courseid = $this->get_courseid_by_enrolid($row['enrolid']);
-                //echo "Course id: ".$courseid."<br>";
+                $coursename = $this->get_course_name($courseid);
                 $scoid = $comp->get_scorm_scoid($courseid);
                 $lastccess = $this->get_user_course_last_access($scoid, $userid);
+                
+                /*
                 if ($lastccess > 0) {
                     $courses[$lastccess] = $courseid;
                 }
+                */
+                
                 if (!in_array($courseid, $courses)) {
-                    $courses[] = $courseid;
+                    $courses[$coursename] = $courseid;
                 }
             } // end while
         } // end if $num > 0
@@ -417,7 +421,8 @@ class Utils {
           krsort($courses);
          */
 
-        krsort($courses);
+        //krsort($courses);
+        //print_r($courses);
         return $courses;
     }
 

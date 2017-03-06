@@ -27,10 +27,20 @@ class Dashboard extends Utils {
         return $list;
     }
 
+    function get_left_banner_block() {
+        $query = "select * from uk_site_pages where id=15";
+        $result = $this->db->query($query);
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $content = $row['content'];
+        }
+        return $content;
+    }
+
     function get_left_part_of_dashboard($userid, $roleid, $courses, $c_completed, $c_left, $c_overdue) {
         $list = "";
         $rolename = $this->get_role_name($userid, $roleid);
         $username = $this->get_username_by_id($userid);
+        $banner = $this->get_left_banner_block();
         $list.="<div class='container-fluid'>";
         $list.="<span class='span6' style='font-size:24px;font-weight:bold;'>$username</span>";
         $list.="<span class='span6' style='font-size:24px;color:green;'>($rolename)</span>";
@@ -44,13 +54,16 @@ class Dashboard extends Utils {
             $list.="</div>";
         }
 
-        $list.="<br><div class='container-fluid'>";
-        //$list.="<span class='span12' style='font-size:18px;font-weight:bold;'>Your training summary</span>";
+        $list.="<div class='container-fluid'>";
+        $list.="<span class='span12'>$banner</span>";
         $list.="</div>";
 
         $list.="<br><div class='container-fluid'>";
         $list.="<span class='span12' id='container' style='min-width: 310px; max-width: 800px; height: 220px; margin: 0 auto'></span>";
         $list.="</div>";
+
+
+
 
         $c_completed_total = $c_completed->total;
         $c_left_total = $c_left->total;

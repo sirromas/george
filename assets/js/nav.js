@@ -98,8 +98,10 @@ $(document).ready(function () {
 
 
     $('#my_courses').DataTable({
+        "iDisplayLength": 50,
         "order": []
     });
+
     $('#all_courses').DataTable();
     $('#my_external_courses').DataTable();
     $('#all_external_courses').DataTable();
@@ -249,6 +251,10 @@ $(document).ready(function () {
 
         if (event.target.id == 'course_back') {
             get_my_courses_page();
+            $('#my_courses').DataTable({
+                "iDisplayLength": 50,
+                "order": []
+            });
         }
 
         if (event.target.id == 'refresh_dash') {
@@ -1674,7 +1680,8 @@ $(document).ready(function () {
                 $('#my_courses_container').html(data);
                 $('#my_courses_wrapper').html(data);
                 $('#my_courses').DataTable({
-                    "order": []
+                    "order": [],
+                    "iDisplayLength": 50
                 });
                 // Apply courses progress
                 var course_stat_url = "/lms/custom/common/get_courses_progress.php";

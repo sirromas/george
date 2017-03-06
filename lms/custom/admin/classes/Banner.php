@@ -9,6 +9,12 @@ class Banner extends Utils {
         $this->limit = 3;
     }
     
-    
+    function get_baner_edit_page() {
+        $list="";
+        
+        $query="select * from uk_banner";
+        
+        return $list;
+    }
     
 }

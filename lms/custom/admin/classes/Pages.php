@@ -155,6 +155,9 @@ class Pages extends Utils {
             case 14:
                 $list.=$this->get_common_editor_page($id);
                 break;
+            case 15:
+                $list.=$this->get_common_editor_page($id);
+                break;
         } // end of switch
 
         return $list;

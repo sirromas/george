@@ -215,11 +215,13 @@ class Reports extends Utils {
             foreach ($users as $userid) {
                 $userdata = $this->get_user_data_by_id($userid);
                 $courses = $this->get_user_report_data($userid);
-                $list.="<tr>";
-                $list.="<td style='padding:15px;'>$userdata->firstname</td>";
-                $list.="<td style='padding:15px;'>$userdata->lastname</td>";
-                $list.="<td style='padding:15px;'>$courses</td>";
-                $list.="</tr>";
+                //if ($courses != 'N/A') {
+                    $list.="<tr>";
+                    $list.="<td style='padding:15px;'>$userdata->firstname</td>";
+                    $list.="<td style='padding:15px;'>$userdata->lastname</td>";
+                    $list.="<td style='padding:15px;'>$courses</td>";
+                    $list.="</tr>";
+                //}
             }
             $list.="</tbody>";
             $list.="</table>";
